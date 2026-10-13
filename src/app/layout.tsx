@@ -28,7 +28,10 @@ export default function RootLayout({
                 href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
             />
         </head>
-        <body className="bg-surface font-body-md text-body-md text-on-surface antialiased">{children}</body>
+        {/* 브라우저 확장(ColorZilla 등)이 body 에 속성을 주입해 생기는 hydration 경고 방지 */}
+        <body className="font-body-md text-body-md text-on-surface antialiased" suppressHydrationWarning>
+            {children}
+        </body>
         </html>
     );
 }

@@ -2,62 +2,64 @@
 
 /* Stitch 와이어프레임 디자인 토큰 (팀 스포츠 공동구매 플랫폼) */
 @theme {
-  --color-primary: #000000;
+  /* Primary: 인디고 → 바이올렛 계열 (버튼은 아래 .bg-primary 에서 그라데이션 처리) */
+  --color-primary: #4f46e5;
   --color-on-primary: #ffffff;
-  --color-primary-container: #141b2b;
-  --color-on-primary-container: #7d8497;
-  --color-primary-fixed: #dce2f7;
-  --color-primary-fixed-dim: #c0c6db;
-  --color-on-primary-fixed: #141b2b;
-  --color-on-primary-fixed-variant: #404758;
-  --color-inverse-primary: #c0c6db;
+  --color-primary-container: #312e81;
+  --color-on-primary-container: #e0e7ff;
+  --color-primary-fixed: #e0e7ff;
+  --color-primary-fixed-dim: #c7d2fe;
+  --color-on-primary-fixed: #1e1b4b;
+  --color-on-primary-fixed-variant: #3730a3;
+  --color-inverse-primary: #c7d2fe;
 
-  --color-secondary: #555f6d;
+  --color-secondary: #5b6280;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #d6e0f1;
-  --color-on-secondary-container: #596372;
-  --color-secondary-fixed: #d9e3f4;
-  --color-secondary-fixed-dim: #bdc7d8;
-  --color-on-secondary-fixed: #121c28;
-  --color-on-secondary-fixed-variant: #3e4755;
+  --color-secondary-container: rgb(221 214 254 / 0.6);
+  --color-on-secondary-container: #4c4f6b;
+  --color-secondary-fixed: #ede9fe;
+  --color-secondary-fixed-dim: #ddd6fe;
+  --color-on-secondary-fixed: #2e1065;
+  --color-on-secondary-fixed-variant: #5b21b6;
 
-  --color-tertiary: #000000;
+  --color-tertiary: #db2777;
   --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #261906;
-  --color-on-tertiary-container: #968065;
-  --color-tertiary-fixed: #f9debf;
-  --color-tertiary-fixed-dim: #dcc2a4;
-  --color-on-tertiary-fixed: #261906;
-  --color-on-tertiary-fixed-variant: #55442d;
+  --color-tertiary-container: #500724;
+  --color-on-tertiary-container: #f9a8d4;
+  --color-tertiary-fixed: #fce7f3;
+  --color-tertiary-fixed-dim: #fbcfe8;
+  --color-on-tertiary-fixed: #500724;
+  --color-on-tertiary-fixed-variant: #9d174d;
 
-  --color-error: #ba1a1a;
+  --color-error: #dc2626;
   --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #93000a;
+  --color-error-container: rgb(254 226 226 / 0.75);
+  --color-on-error-container: #991b1b;
 
-  --color-background: #f8f9ff;
-  --color-on-background: #151c25;
-  --color-surface: #f8f9ff;
-  --color-surface-bright: #f8f9ff;
-  --color-surface-dim: #d4dae7;
-  --color-surface-tint: #575e70;
-  --color-surface-variant: #dce3f0;
-  --color-on-surface: #151c25;
-  --color-on-surface-variant: #45464c;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #eef4ff;
-  --color-surface-container: #e7eefb;
-  --color-surface-container-high: #e2e8f5;
-  --color-surface-container-highest: #dce3f0;
-  --color-inverse-surface: #2a313b;
-  --color-inverse-on-surface: #eaf1fe;
-  --color-outline: #76777d;
-  --color-outline-variant: #c6c6cd;
+  /* Surface: 반투명 유리 레이어. 배경 그라데이션이 비쳐 보이도록 알파값을 둔다 */
+  --color-background: rgb(255 255 255 / 0.2);
+  --color-on-background: #1a1d2e;
+  --color-surface: rgb(255 255 255 / 0.2);
+  --color-surface-bright: rgb(255 255 255 / 0.7);
+  --color-surface-dim: rgb(199 210 254 / 0.5);
+  --color-surface-tint: #6366f1;
+  --color-surface-variant: rgb(224 231 255 / 0.6);
+  --color-on-surface: #1a1d2e;
+  --color-on-surface-variant: #4a4f66;
+  --color-surface-container-lowest: rgb(255 255 255 / 0.62);
+  --color-surface-container-low: rgb(255 255 255 / 0.45);
+  --color-surface-container: rgb(238 242 255 / 0.6);
+  --color-surface-container-high: rgb(224 231 255 / 0.6);
+  --color-surface-container-highest: rgb(214 222 255 / 0.7);
+  --color-inverse-surface: #1e1b4b;
+  --color-inverse-on-surface: #eef2ff;
+  --color-outline: #7a80a0;
+  --color-outline-variant: rgb(129 140 196 / 0.28);
 
-  --radius: 0.125rem;
-  --radius-lg: 0.25rem;
-  --radius-xl: 0.5rem;
-  --radius-full: 0.75rem;
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1.25rem;
+  --radius-full: 9999px;
 
   --spacing-space-xs: 0.25rem;
   --spacing-space-sm: 0.5rem;
@@ -126,6 +128,137 @@
   [role='button']:not(:disabled) {
     cursor: pointer;
   }
+}
+
+/* ───────────── Glassmorphism ───────────── */
+
+/* 배경: 파스텔 메시 그라데이션 (유리 패널 뒤로 비쳐 보이는 색) */
+body {
+  background-color: #f4f6ff;
+  background-image:
+    radial-gradient(at 8% 12%, rgb(165 180 252 / 0.55) 0, transparent 45%),
+    radial-gradient(at 92% 6%, rgb(249 168 212 / 0.45) 0, transparent 40%),
+    radial-gradient(at 85% 78%, rgb(103 232 249 / 0.35) 0, transparent 45%),
+    radial-gradient(at 4% 92%, rgb(196 181 253 / 0.5) 0, transparent 45%),
+    radial-gradient(at 50% 50%, rgb(224 231 255 / 0.6) 0, transparent 60%);
+  background-attachment: fixed;
+}
+
+@layer components {
+  /* 유리 패널: 카드·사이드바·헤더 등 가장 바깥 레이어만 블러 처리 (중첩 블러는 비용 대비 효과가 없음).
+     모달(fixed)을 품은 요소는 backdrop-filter 가 fixed 기준을 바꿔버리므로 제외한다. */
+  :is(.bg-surface-container-lowest, .bg-surface-container-low, .bg-surface-bright):not(:has(.fixed)):not(tr, th, td, thead, tbody) {
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    backdrop-filter: blur(18px) saturate(170%);
+  }
+
+  :is(.bg-surface-container-lowest, .bg-surface-container-low)
+    :is(.bg-surface-container-lowest, .bg-surface-container-low, .bg-surface-bright) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* 테두리는 있는데 모서리 지정이 없는 박스(칩·태그·버튼·패널)는 기본 둥근 모서리 */
+  :is(.border, .border-2):not([class*='rounded'], tr, td, th, table, thead, tbody, tfoot, hr, header, aside, footer, main) {
+    border-radius: var(--radius-lg);
+  }
+
+  /* 폼 컨트롤 기본 모서리 */
+  :is(input:not([type='checkbox'], [type='radio']), select, textarea, button) {
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* 유리 카드의 하이라이트 테두리 + 부드러운 그림자 (레이어 밖: 유틸리티 border 색보다 우선) */
+.bg-surface-container-lowest:is([class*='border-outline'], .border):not(tr, th, td, header, aside, footer, input, select, textarea, button) {
+  border-color: rgb(255 255 255 / 0.75);
+  box-shadow:
+    0 8px 32px rgb(49 46 129 / 0.08),
+    inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+
+/* 모서리 클래스가 없는 패널에도 둥근 모서리 부여 (고정 헤더·사이드바·표 요소 제외) */
+.bg-surface-container-lowest:not([class*='rounded'], .fixed, tr, th, td, thead, header, aside, footer, nav, a) {
+  border-radius: var(--radius-xl);
+}
+
+/* 고정 헤더/사이드바: 유리 질감 + 하이라이트 경계선 */
+:is(header, aside).fixed {
+  background-color: rgb(255 255 255 / 0.55);
+  border-color: rgb(255 255 255 / 0.7);
+  box-shadow: 0 4px 30px rgb(49 46 129 / 0.06);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Primary 버튼/배지: 그라데이션 (그림자는 버튼·링크에만 줘서 ring 유틸리티와 충돌하지 않게 함) */
+.bg-primary {
+  background-image: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%);
+}
+
+:is(button, a).bg-primary {
+  box-shadow: 0 6px 20px rgb(99 102 241 / 0.28);
+}
+
+/* 어두운 강조 박스: 단색 대신 짙은 인디고 그라데이션 유리 */
+.bg-inverse-surface {
+  background-image: linear-gradient(135deg, rgb(30 27 75 / 0.92) 0%, rgb(76 29 149 / 0.88) 100%);
+}
+
+/* 브랜드 로고 그라데이션 텍스트 */
+.brand-gradient-text {
+  background-image: linear-gradient(120deg, #4338ca 0%, #7c3aed 50%, #db2777 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 떠 있는 유리 알약 바 (서브 내비 등) */
+.glass-pill {
+  background-color: rgb(255 255 255 / 0.5);
+  border: 1px solid rgb(255 255 255 / 0.8);
+  box-shadow:
+    0 8px 28px rgb(49 46 129 / 0.08),
+    inset 0 1px 0 rgb(255 255 255 / 0.8);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
+}
+
+.bg-primary:hover {
+  filter: brightness(1.08);
+}
+
+.bg-primary-container {
+  background-image: linear-gradient(135deg, #312e81 0%, #4c1d95 100%);
+}
+
+/* 와이어프레임 X자 이미지 placeholder → 은은한 그라데이션 이미지 자리 */
+svg.absolute.inset-0:has(line) {
+  display: none;
+}
+
+:has(> svg.absolute.inset-0 line) {
+  background-image:
+    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.85) 0, transparent 55%),
+    linear-gradient(135deg, rgb(224 231 255 / 0.9) 0%, rgb(237 233 254 / 0.85) 50%, rgb(252 231 243 / 0.8) 100%);
+  border-color: rgb(255 255 255 / 0.8);
+}
+
+/* 진한 강조 테두리는 살짝 부드럽게 */
+.border-2.border-primary {
+  border-color: rgb(99 102 241 / 0.6);
+}
+
+/* 모달 오버레이 뒤 배경 흐림 */
+.fixed.inset-0 {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* 입력 포커스 링 */
+:is(input, select, textarea):focus-visible {
+  outline: 2px solid rgb(129 140 248 / 0.55);
+  outline-offset: 1px;
 }
 
 .material-symbols-outlined {

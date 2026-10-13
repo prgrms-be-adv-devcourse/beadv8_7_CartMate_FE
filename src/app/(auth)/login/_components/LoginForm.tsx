@@ -86,7 +86,7 @@ export default function LoginForm() {
             </div>
             {/* Main Action CTA Button */}
             <button
-                className="w-full h-[44px] mt-2 bg-on-surface text-surface-container-lowest font-label-md text-label-md rounded border border-on-surface flex items-center justify-center gap-2 hover:bg-neutral-800 active:scale-[0.99] transition-all"
+                className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all"
                 type="submit"
             >
                 <span>로그인</span>

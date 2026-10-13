@@ -338,7 +338,7 @@ export default function CreateGroupPurchaseForm({ itemBanner }: { itemBanner: Re
                 </div>
                 <div className="p-space-lg rounded bg-surface-container-lowest shadow-sm flex flex-col gap-space-sm">
                     <button
-                        className="w-full h-11 bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all cursor-pointer shadow-sm active:scale-[0.99]"
+                        className="w-full h-11 bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:opacity-90 transition-all cursor-pointer shadow-sm active:scale-[0.99]"
                         type="button"
                         onClick={handleSubmit}
                     >

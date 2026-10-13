@@ -79,7 +79,7 @@ export default function SellerAccountPage() {
                             <div className="flex flex-col space-y-space-xs">
                                 <label className="text-body-sm font-label-md text-on-surface">은행 선택</label>
                                 <div className="relative">
-                                    <select className="w-full h-[42px] px-space-md bg-surface border border-outline-variant rounded-[4px] text-body-md text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer" defaultValue="">
+                                    <select className="w-full h-[42px] px-space-md bg-surface border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer" defaultValue="">
                                         <option disabled value="">
                                             [ 은행 선택 ]
                                         </option>
@@ -96,21 +96,21 @@ export default function SellerAccountPage() {
                             <div className="flex flex-col space-y-space-xs">
                                 <label className="text-body-sm font-label-md text-on-surface">예금주</label>
                                 <div className="flex gap-space-sm">
-                                    <input className="flex-1 h-[42px] px-space-md bg-surface border border-outline-variant rounded-[4px] text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="홍길동 (본인 명의만 가능)" type="text" />
-                                    <button className="px-space-lg h-[42px] bg-surface-container border border-outline-variant rounded-[4px] text-label-md text-on-surface hover:bg-surface-container-high transition-all whitespace-nowrap" type="button">본인인증</button>
+                                    <input className="flex-1 h-[42px] px-space-md bg-surface border border-outline-variant rounded-lg text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="홍길동 (본인 명의만 가능)" type="text" />
+                                    <button className="px-space-lg h-[42px] bg-surface-container border border-outline-variant rounded-lg text-label-md text-on-surface hover:bg-surface-container-high transition-all whitespace-nowrap" type="button">본인인증</button>
                                 </div>
                             </div>
                             {/* Account Number */}
                             <div className="flex flex-col space-y-space-xs">
                                 <label className="text-body-sm font-label-md text-on-surface">계좌번호</label>
                                 <div className="flex gap-space-sm">
-                                    <input className="flex-1 h-[42px] px-space-md bg-surface border border-outline-variant rounded-[4px] text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="- 없이 숫자만 입력" type="text" />
+                                    <input className="flex-1 h-[42px] px-space-md bg-surface border border-outline-variant rounded-lg text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="- 없이 숫자만 입력" type="text" />
                                 </div>
                             </div>
                             {/* Document Upload Placeholder */}
                             <div className="flex flex-col space-y-space-xs">
                                 <label className="text-body-sm font-label-md text-on-surface">통장 사본 업로드</label>
-                                <div className="border border-dashed border-outline-variant rounded-[4px] p-space-lg text-center bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
+                                <div className="border border-dashed border-outline-variant rounded-lg p-space-lg text-center bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
                                     <Icon name="upload_file" className="text-[32px] text-on-surface-variant mb-space-xs" />
                                     <div className="text-label-md text-on-surface">파일을 드래그하거나 클릭하여 업로드</div>
                                     <div className="text-caption text-on-surface-variant mt-1">PDF, JPG, PNG (최대 10MB)</div>
@@ -118,7 +118,7 @@ export default function SellerAccountPage() {
                             </div>
                             {/* Submit Button */}
                             <div className="pt-space-md">
-                                <button className="w-full h-[44px] bg-primary text-on-primary rounded-[4px] text-label-md hover:bg-on-surface transition-all flex items-center justify-center space-x-space-sm" type="submit">
+                                <button className="w-full h-[44px] bg-primary text-on-primary rounded-lg text-label-md hover:bg-on-surface transition-all flex items-center justify-center space-x-space-sm" type="submit">
                                     <Icon name="verified" className="text-[18px]" />
                                     <span>계좌 인증 및 등록</span>
                                 </button>

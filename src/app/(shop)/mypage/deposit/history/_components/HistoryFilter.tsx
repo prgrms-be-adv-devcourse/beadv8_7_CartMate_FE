@@ -93,7 +93,7 @@ export default function HistoryFilter() {
                         초기화
                     </button>
                     <button
-                        className="h-9 px-space-lg bg-primary text-on-primary font-label-md text-label-md border border-primary flex items-center gap-space-xs hover:bg-neutral-800 transition-colors"
+                        className="h-9 px-space-lg bg-primary text-on-primary font-label-md text-label-md border border-primary flex items-center gap-space-xs hover:opacity-90 transition-colors"
                         type="button"
                     >
                         <Icon name="search" className="text-[16px]" />

@@ -73,7 +73,7 @@ export default function PostFilters() {
                     </button>
                 </div>
                 <button
-                    className="h-[42px] px-space-xl bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-space-xs rounded hover:bg-neutral-800 transition-colors shadow-sm whitespace-nowrap"
+                    className="h-[42px] px-space-xl bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-space-xs rounded hover:opacity-90 transition-colors shadow-sm whitespace-nowrap"
                     type="button"
                 >
                     <Icon name="search" className="text-[18px]" />

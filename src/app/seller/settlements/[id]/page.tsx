@@ -23,10 +23,10 @@ export default function SellerSettlementDetailPage() {
             {/* Top Summary Cards Section */}
             <div className="grid grid-cols-4 gap-gutter mb-space-xl">
                 {SUMMARY_CARDS.map((card) => (
-                    <div key={card.label} className="bg-surface-container-lowest p-space-lg rounded-lg border border-[#D1D5DB] flex flex-col justify-between">
+                    <div key={card.label} className="bg-surface-container-lowest p-space-lg rounded-lg border border-outline-variant flex flex-col justify-between">
                         <div className="flex items-center justify-between mb-space-md">
                             <span className="text-body-sm text-on-surface-variant">{card.label}</span>
-                            <Icon name={card.icon} className="text-[#374151]" />
+                            <Icon name={card.icon} className="text-on-surface-variant" />
                         </div>
                         <div>
                             <div className="text-headline-lg font-headline-lg text-primary tracking-tight">{card.value}</div>
@@ -35,49 +35,49 @@ export default function SellerSettlementDetailPage() {
                     </div>
                 ))}
                 {/* Final Payout Amount */}
-                <div className="bg-surface-container-lowest p-space-lg rounded-lg border border-[#D1D5DB] flex flex-col justify-between bg-[#F9FAFB]">
+                <div className="bg-surface-container-lowest p-space-lg rounded-lg border border-outline-variant flex flex-col justify-between bg-surface-container-low">
                     <div className="flex items-center justify-between mb-space-md">
                         <span className="text-body-sm font-label-md text-primary">최종 지급액</span>
-                        <Icon name="account_balance_wallet" className="text-[#111827]" />
+                        <Icon name="account_balance_wallet" className="text-on-surface" />
                     </div>
                     <div>
                         <div className="text-headline-lg font-headline-lg text-primary tracking-tight">₩ 14,107,500</div>
-                        <div className="text-caption text-[#111827] mt-space-xs font-label-sm">지급 예정일: 2024.11.10</div>
+                        <div className="text-caption text-on-surface mt-space-xs font-label-sm">지급 예정일: 2024.11.10</div>
                     </div>
                 </div>
                 {/* Payout Account Info */}
-                <div className="bg-surface-container-lowest p-space-lg rounded-lg border border-[#D1D5DB] flex flex-col justify-between">
+                <div className="bg-surface-container-lowest p-space-lg rounded-lg border border-outline-variant flex flex-col justify-between">
                     <div className="flex items-center justify-between mb-space-md">
                         <span className="text-body-sm text-on-surface-variant">지급 계좌 정보</span>
-                        <Icon name="credit_card" className="text-[#374151]" />
+                        <Icon name="credit_card" className="text-on-surface-variant" />
                     </div>
                     <div>
                         <div className="text-headline-sm font-headline-sm text-primary">국민은행</div>
                         <div className="text-body-sm text-on-surface-variant mt-space-xs font-mono">123-456-78-901234</div>
-                        <div className="text-caption text-[#6B7280] mt-0.5">예금주: (주)스포츠컴퍼니</div>
+                        <div className="text-caption text-on-surface-variant mt-0.5">예금주: (주)스포츠컴퍼니</div>
                     </div>
                 </div>
             </div>
             {/* Period & Filter Bar */}
-            <div className="bg-surface-container-lowest p-space-md rounded-lg border border-[#D1D5DB] mb-space-lg flex items-center justify-between">
+            <div className="bg-surface-container-lowest p-space-md rounded-lg border border-outline-variant mb-space-lg flex items-center justify-between">
                 <div className="flex items-center gap-space-md">
                     <span className="text-label-md text-primary">정산 주차:</span>
-                    <select className="h-[42px] px-3 border border-[#D1D5DB] rounded-[4px] bg-white text-body-md text-primary focus:outline-none focus:border-[#111827]">
+                    <select className="h-[42px] px-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-body-md text-primary focus:outline-none focus:border-primary">
                         {WEEKS.map((week) => (
                             <option key={week}>{week}</option>
                         ))}
                     </select>
                 </div>
                 <div className="flex items-center gap-space-sm">
-                    <button className="h-[42px] px-4 border border-[#D1D5DB] bg-white text-primary text-label-md rounded-[4px] hover:bg-[#F9FAFB] transition-colors flex items-center gap-2">
+                    <button className="h-[42px] px-4 border border-outline-variant bg-surface-container-lowest text-primary text-label-md rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-2">
                         <Icon name="download" className="text-[18px]" />
                         정산 내역서 다운로드 (Excel)
                     </button>
                 </div>
             </div>
             {/* Settlement Table Section */}
-            <div className="bg-surface-container-lowest rounded-lg border border-[#D1D5DB] overflow-hidden">
-                <div className="px-space-lg py-space-md border-b border-[#E5E7EB] flex items-center justify-between bg-[#F9FAFB]">
+            <div className="bg-surface-container-lowest rounded-lg border border-outline-variant overflow-hidden">
+                <div className="px-space-lg py-space-md border-b border-outline-variant flex items-center justify-between bg-surface-container-low">
                     <div>
                         <h2 className="text-headline-sm font-headline-sm text-primary">포함된 판매 건 목록</h2>
                         <p className="text-body-sm text-on-surface-variant mt-0.5">선택된 정산 기간 동안 완료된 총 4건의 거래 내역입니다.</p>
@@ -89,7 +89,7 @@ export default function SellerSettlementDetailPage() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-[#E5E7EB] bg-[#F3F4F6] text-caption text-[#374151]">
+                            <tr className="border-b border-outline-variant bg-surface-container text-caption text-on-surface-variant">
                                 <th className="py-3 px-6 font-label-md">주문일시</th>
                                 <th className="py-3 px-6 font-label-md">상품명</th>
                                 <th className="py-3 px-6 font-label-md text-center">수량</th>
@@ -97,10 +97,10 @@ export default function SellerSettlementDetailPage() {
                                 <th className="py-3 px-6 font-label-md text-right">정산금액 (수수료 제외)</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#E5E7EB] text-body-md text-primary">
+                        <tbody className="divide-y divide-outline-variant text-body-md text-primary">
                             {SALES.map((sale) => (
-                                <tr key={sale.orderedAt} className="hover:bg-[#F9FAFB] transition-colors">
-                                    <td className="py-4 px-6 text-body-sm text-[#4B5563]">{sale.orderedAt}</td>
+                                <tr key={sale.orderedAt} className="hover:bg-surface-container-low transition-colors">
+                                    <td className="py-4 px-6 text-body-sm text-on-surface-variant">{sale.orderedAt}</td>
                                     <td className="py-4 px-6 font-medium">{sale.product}</td>
                                     <td className="py-4 px-6 text-center">{sale.quantity}</td>
                                     <td className="py-4 px-6 text-right font-mono">{sale.paid}</td>
@@ -109,22 +109,22 @@ export default function SellerSettlementDetailPage() {
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#F9FAFB] border-t border-[#D1D5DB] font-label-md text-primary">
+                            <tr className="bg-surface-container-low border-t border-outline-variant font-label-md text-primary">
                                 <td className="py-4 px-6 text-right" colSpan={2}>합계</td>
                                 <td className="py-4 px-6 text-center">170</td>
                                 <td className="py-4 px-6 text-right font-mono">₩ 14,850,000</td>
-                                <td className="py-4 px-6 text-right font-mono text-[#111827]">₩ 14,107,500</td>
+                                <td className="py-4 px-6 text-right font-mono text-on-surface">₩ 14,107,500</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
                 {/* Pagination Footer */}
-                <div className="px-space-lg py-space-md border-t border-[#E5E7EB] flex items-center justify-between bg-white">
+                <div className="px-space-lg py-space-md border-t border-outline-variant flex items-center justify-between bg-surface-container-lowest">
                     <div className="text-body-sm text-on-surface-variant">Showing 1 to 4 of 4 entries</div>
                     <div className="flex items-center gap-1">
-                        <button className="px-3 h-8 border border-[#D1D5DB] bg-white text-on-surface-variant text-caption rounded-[4px] disabled:opacity-50" disabled>Prev</button>
-                        <button className="px-3 h-8 border border-[#111827] bg-[#111827] text-white text-caption rounded-[4px]">1</button>
-                        <button className="px-3 h-8 border border-[#D1D5DB] bg-white text-on-surface-variant text-caption rounded-[4px] disabled:opacity-50" disabled>Next</button>
+                        <button className="px-3 h-8 border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-caption rounded-lg disabled:opacity-50" disabled>Prev</button>
+                        <button className="px-3 h-8 border border-primary bg-primary text-on-primary text-caption rounded-lg">1</button>
+                        <button className="px-3 h-8 border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-caption rounded-lg disabled:opacity-50" disabled>Next</button>
                     </div>
                 </div>
             </div>

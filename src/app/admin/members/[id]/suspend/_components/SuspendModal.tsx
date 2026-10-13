@@ -36,7 +36,7 @@ export default function SuspendModal({ backHref }: { backHref: string }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-primary/50 z-50 flex items-center justify-center p-space-md">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-space-md">
             {/* Focused Modal Container */}
             <div
                 aria-labelledby="modalTitle"
