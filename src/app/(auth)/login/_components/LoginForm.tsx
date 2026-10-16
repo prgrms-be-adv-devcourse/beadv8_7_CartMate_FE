@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/Icon';
+import { apiFetch, ApiError } from '@/lib/api';
 
 type LoginValues = {
     email: string;
@@ -15,14 +17,30 @@ const INPUT_CLASS =
 
 export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const router = useRouter();
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm<LoginValues>({ defaultValues: { remember: true } });
 
-    const onSubmit = (values: LoginValues) => {
-        console.log('login', values);
+    const onSubmit = async (values: LoginValues) => {
+        setSubmitError(null);
+        try {
+            await apiFetch('/api/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: values.email.trim(),
+                    password: values.password,
+                    remember: values.remember,
+                }),
+            });
+            router.push('/');
+            router.refresh();
+        } catch (e) {
+            setSubmitError(e instanceof ApiError ? e.message : '로그인 중 오류가 발생했습니다.');
+        }
     };
 
     return (
@@ -85,11 +103,13 @@ export default function LoginForm() {
                 <span className="text-caption font-caption text-outline">보안 30일 보관</span>
             </div>
             {/* Main Action CTA Button */}
+            {submitError && <p className="font-caption text-caption text-error">{submitError}</p>}
             <button
-                className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all"
+                disabled={isSubmitting}
+                className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60"
                 type="submit"
             >
-                <span>로그인</span>
+                <span>{isSubmitting ? '로그인 중...' : '로그인'}</span>
                 <Icon name="arrow_forward" className="text-[16px]" />
             </button>
         </form>

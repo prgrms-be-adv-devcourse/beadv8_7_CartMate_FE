@@ -36,7 +36,7 @@ const POSTS: Post[] = [
         name: '프로페셔널 축구 유니폼 세트',
         desc: '[축구 > 유니폼/의류] 커스텀 팀 마킹 가능 / MOQ 15벌',
         seller: '프로스포츠코리아',
-        price: '45,000원',
+        price: '45,000원',  
         status: '판매 중',
         createdAt: '2024-10-24',
         striped: false,
