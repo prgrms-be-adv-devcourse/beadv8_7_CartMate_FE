@@ -1,10 +1,11 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, Suspense, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/Icon';
 import { apiFetch, ApiError } from '@/lib/api';
 import { ROUTES } from '@/lib/routes';
+
 
 export type AdminMember = {
     id: number;
@@ -77,7 +78,16 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
                 </div>
             )}
             {/* 확인 전에도 페이지는 그려 두고, 화면에서만 숨김 */}
-            <div hidden={!member}>{children}</div>
+            <div hidden={!member}>
+                <Suspense
+                    fallback={
+                        <div className="p-8 text-center font-body-sm text-body-sm text-on-surface-variant">
+                            불러오는 중...
+                        </div>
+                    }
+                >
+                    {children}
+                </Suspense></div>
         </AdminMemberContext.Provider>
     );
 }
