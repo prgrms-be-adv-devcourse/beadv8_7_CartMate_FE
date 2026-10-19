@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/Icon';
@@ -11,44 +11,86 @@ export type Member = {
     code: string;
     email: string;
     nickname: string;
-    role: '일반' | '판매자';
-    status: '정상' | '정지';
+    role: '일반' | '판매자' | '관리자';
+    status: '정상' | '정지' | '탈퇴';
     joinedAt: string;
+};
+
+type Props = {
+    members: Member[];
+    totalElements: number;
+    page: number; // 0부터
+    totalPages: number;
+    pageSize: number;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (size: number) => void;
+    onBulkAction: (action: 'SUSPEND' | 'ACTIVATE', memberIds: string[]) => Promise<void>;
 };
 
 const ROLE_CLASS: Record<Member['role'], string> = {
     일반: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-surface border border-outline-variant text-on-surface-variant',
     판매자: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-secondary-container text-on-secondary-container',
+    관리자: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-primary text-on-primary',
 };
 
 const STATUS_CLASS: Record<Member['status'], string> = {
     정상: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface-container-high text-on-surface-variant border border-outline-variant',
     정지: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-primary text-on-primary border border-primary',
+    탈퇴: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface text-outline border border-outline-variant line-through',
 };
 
-const PAGES = [2, 3, 4, 5];
+const PAGE_BUTTON =
+    'w-8 h-8 rounded border border-outline-variant bg-surface-container-lowest text-on-surface font-label-sm text-label-sm hover:bg-surface-container flex items-center justify-center transition-colors disabled:opacity-40';
 
-// 회원 테이블 + 하단 요약/페이지네이션 (전체 선택 및 선택 개수 표시)
-export default function MemberTable({ members }: { members: Member[] }) {
+// 회원 테이블 + 일괄 처리 + 페이지 이동
+export default function MemberTable({
+    members,
+    totalElements,
+    page,
+    totalPages,
+    pageSize,
+    onPageChange,
+    onPageSizeChange,
+    onBulkAction,
+}: Props) {
     const router = useRouter();
     const [selected, setSelected] = useState<string[]>([]);
+    const [processing, setProcessing] = useState(false);
+
+    // 목록이 바뀌면(검색, 페이지 이동) 선택 초기화
+    useEffect(() => {
+        setSelected([]);
+    }, [members]);
 
     const allChecked = selected.length > 0 && selected.length === members.length;
     const indeterminate = selected.length > 0 && selected.length < members.length;
 
-    const toggleAll = (checked: boolean) => {
-        setSelected(checked ? members.map((member) => member.id) : []);
+    const toggleAll = (checked: boolean) => setSelected(checked ? members.map((m) => m.id) : []);
+    const toggleOne = (id: string, checked: boolean) =>
+        setSelected((prev) => (checked ? [...prev, id] : prev.filter((item) => item !== id)));
+
+    const runBulk = async (action: 'SUSPEND' | 'ACTIVATE') => {
+        if (selected.length === 0) {
+            alert('회원을 먼저 선택해주세요.');
+            return;
+        }
+        setProcessing(true);
+        try {
+            await onBulkAction(action, selected);
+        } finally {
+            setProcessing(false);
+        }
     };
 
-    const toggleOne = (id: string, checked: boolean) => {
-        setSelected((prev) => (checked ? [...prev, id] : prev.filter((item) => item !== id)));
-    };
+    // 현재 페이지 주변 번호만 표시
+    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i).filter(
+        (i) => Math.abs(i - page) <= 2 || i === 0 || i === totalPages - 1,
+    );
 
     return (
         <>
-            {/* 3. Member Table Section */}
             <div className="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden flex flex-col">
-                {/* Batch Actions & Summary Bar */}
+                {/* 일괄 처리 바 */}
                 <div className="px-space-md py-space-sm bg-surface-container-low border-b border-outline-variant flex items-center justify-between">
                     <div className="flex items-center gap-space-sm">
                         <label className="flex items-center gap-2 cursor-pointer">
@@ -71,20 +113,25 @@ export default function MemberTable({ members }: { members: Member[] }) {
                     </div>
                     <div className="flex items-center gap-space-xs">
                         <button
-                            className="px-space-sm py-1 rounded border border-outline-variant bg-surface font-caption text-caption text-on-surface-variant hover:bg-surface-container transition-colors"
+                            className="px-space-sm py-1 rounded border border-outline-variant bg-surface font-caption text-caption text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50"
                             type="button"
+                            disabled={processing}
+                            onClick={() => runBulk('ACTIVATE')}
                         >
                             선택 정상 전환
                         </button>
                         <button
-                            className="px-space-sm py-1 rounded border border-outline-variant bg-surface font-caption text-caption text-error hover:bg-error-container transition-colors"
+                            className="px-space-sm py-1 rounded border border-outline-variant bg-surface font-caption text-caption text-error hover:bg-error-container transition-colors disabled:opacity-50"
                             type="button"
+                            disabled={processing}
+                            onClick={() => runBulk('SUSPEND')}
                         >
                             선택 계정 정지
                         </button>
                     </div>
                 </div>
-                {/* Data Table Container */}
+
+                {/* 표 */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -140,50 +187,54 @@ export default function MemberTable({ members }: { members: Member[] }) {
                     </table>
                 </div>
             </div>
-            {/* 4. Bottom Area: Count & Pagination */}
+
+            {/* 하단: 총 인원, 페이지 이동, 페이지당 개수 */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-space-md py-space-xs">
-                {/* Showing Count Summary */}
                 <div className="font-body-sm text-body-sm text-on-surface-variant">
-                    총 <span className="font-label-md text-label-md text-primary">1,482</span>명 (<span>선택 {selected.length}명</span>)
+                    총 <span className="font-label-md text-label-md text-primary">{totalElements.toLocaleString('ko-KR')}</span>명 (
+                    <span>선택 {selected.length}명</span>)
                 </div>
-                {/* Pagination Controls */}
+
                 <nav aria-label="페이지 이동" className="flex items-center gap-1">
-                    <button
-                        className="w-8 h-8 rounded border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container flex items-center justify-center transition-colors disabled:opacity-40"
-                        disabled
-                        type="button"
-                    >
+                    <button className={PAGE_BUTTON} type="button" disabled={page === 0} onClick={() => onPageChange(page - 1)}>
                         <Icon name="chevron_left" className="text-[16px]" />
                     </button>
-                    <button className="w-8 h-8 rounded bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center" type="button">
-                        1
-                    </button>
-                    {PAGES.map((page) => (
-                        <button
-                            key={page}
-                            className="w-8 h-8 rounded border border-outline-variant bg-surface-container-lowest text-on-surface font-label-sm text-label-sm hover:bg-surface-container flex items-center justify-center transition-colors"
-                            type="button"
-                        >
-                            {page}
-                        </button>
+                    {pageNumbers.map((i, idx) => (
+                        <span key={i} className="flex items-center gap-1">
+                            {idx > 0 && i - pageNumbers[idx - 1] > 1 && <span className="px-1 text-outline">…</span>}
+                            <button
+                                className={
+                                    i === page
+                                        ? 'w-8 h-8 rounded bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center'
+                                        : PAGE_BUTTON
+                                }
+                                type="button"
+                                onClick={() => onPageChange(i)}
+                            >
+                                {i + 1}
+                            </button>
+                        </span>
                     ))}
                     <button
-                        className="w-8 h-8 rounded border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container flex items-center justify-center transition-colors"
+                        className={PAGE_BUTTON}
                         type="button"
+                        disabled={totalPages === 0 || page >= totalPages - 1}
+                        onClick={() => onPageChange(page + 1)}
                     >
                         <Icon name="chevron_right" className="text-[16px]" />
                     </button>
                 </nav>
-                {/* Page Size Dropdown */}
+
                 <div className="flex items-center gap-space-xs font-caption text-caption text-on-surface-variant">
                     <span>페이지당 표시:</span>
                     <select
                         className="h-8 px-2 bg-surface-container-lowest border border-outline-variant rounded font-label-sm text-label-sm text-primary focus:border-primary focus:outline-none cursor-pointer"
-                        defaultValue="20개씩"
+                        value={pageSize}
+                        onChange={(e) => onPageSizeChange(Number(e.target.value))}
                     >
-                        <option>10개씩</option>
-                        <option>20개씩</option>
-                        <option>50개씩</option>
+                        <option value={10}>10개씩</option>
+                        <option value={20}>20개씩</option>
+                        <option value={50}>50개씩</option>
                     </select>
                 </div>
             </div>
