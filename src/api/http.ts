@@ -49,6 +49,11 @@ export async function http<T>(url: string, options: RequestInit = {}): Promise<T
     return body as T;
 }
 
+// 화면에 보여 줄 에러 메시지. BE가 보낸 msg가 있으면 그대로 쓴다.
+export function errorMessage(error: unknown, fallback = '요청 처리 중 문제가 발생했습니다.'): string {
+    return error instanceof ApiError ? error.message : fallback;
+}
+
 function parseBody(text: string): unknown {
     if (!text) return undefined;
     try {
