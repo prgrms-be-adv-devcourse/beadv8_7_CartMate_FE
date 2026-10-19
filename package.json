@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "api:gen": "orval",
+    "api:pull": "node scripts/pull-openapi.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",
