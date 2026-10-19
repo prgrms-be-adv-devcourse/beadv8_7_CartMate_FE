@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Icon from '@/components/ui/Icon';
+import HeaderUtilNav from '@/components/layout/HeaderUtilNav';
 import SidebarNav from '@/components/layout/SidebarNav';
 import { ROUTES } from '@/lib/routes';
 
@@ -8,13 +9,6 @@ const NAV_ITEMS = [
     { label: '공동구매', href: ROUTES.groupPurchases },
     { label: '로스터 제작', href: ROUTES.groupPurchaseNew },
     { label: 'MOQ 특가', href: ROUTES.search },
-];
-
-const UTIL_LINKS = [
-    { label: '로그인', href: ROUTES.login },
-    { label: '회원가입', href: ROUTES.signup },
-    { label: '고객센터', href: ROUTES.notices },
-    { label: '판매자 센터', href: ROUTES.seller },
 ];
 
 const ICON_BUTTON =
@@ -37,16 +31,7 @@ export default function SiteHeader() {
                             <span className="text-on-surface-variant">팀 예치금</span>
                             <span className="font-label-sm text-label-sm text-primary">₩ 2,450,000</span>
                         </Link>
-                        <nav className="flex items-center">
-                            {UTIL_LINKS.map((link, index) => (
-                                <span key={link.href} className="flex items-center">
-                                    {index > 0 && <span className="w-1 h-1 rounded-full bg-outline-variant mx-2.5" />}
-                                    <Link href={link.href} className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors">
-                                        {link.label}
-                                    </Link>
-                                </span>
-                            ))}
-                        </nav>
+                        <HeaderUtilNav />
                     </div>
                 </div>
                 <div className="h-20 flex items-center justify-between gap-space-lg">

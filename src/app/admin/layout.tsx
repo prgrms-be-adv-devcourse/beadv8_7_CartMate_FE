@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import LogoutButton from '@/components/auth/LogoutButton';
 import Icon from '@/components/ui/Icon';
 import AdminSidebar from '@/components/layout/AdminSidebar';
-import { ROUTES } from '@/lib/routes';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
     return (
@@ -25,13 +24,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                                 <span className="font-caption text-caption text-on-surface-variant leading-tight">최고 권한 관리자</span>
                             </div>
                         </div>
-                        <Link
-                            href={ROUTES.login}
-                            className="flex items-center gap-space-xs px-space-md py-space-sm border border-outline-variant rounded bg-surface-container-lowest font-label-sm text-label-sm text-primary hover:bg-surface-container hover:text-on-surface transition-colors"
-                        >
+                        <LogoutButton className="flex items-center gap-space-xs px-space-md py-space-sm border border-outline-variant rounded bg-surface-container-lowest font-label-sm text-label-sm text-primary hover:bg-surface-container hover:text-on-surface transition-colors">
                             <Icon name="logout" className="text-[16px]" />
                             <span>로그아웃</span>
-                        </Link>
+                        </LogoutButton>
                     </div>
                 </header>
                 <main className="relative pt-16 bg-surface min-h-screen">
