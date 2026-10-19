@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useLogin } from '@/api/generated/auth-controller/auth-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
-import { SKIP_AUTH_EXPIRED, setCurrentUser } from '@/lib/auth';
+import { SKIP_AUTH_EXPIRED, reloadTo } from '@/lib/auth';
 import { ROUTES } from '@/lib/routes';
 import { loginSchema, type LoginValues } from '../../_lib/authSchemas';
 
@@ -25,8 +23,6 @@ function nextPath(): string {
 }
 
 export default function LoginForm() {
-    const router = useRouter();
-    const queryClient = useQueryClient();
     const [showPassword, setShowPassword] = useState(false);
     const login = useLogin({ mutation: { meta: SKIP_AUTH_EXPIRED } });
     const {
@@ -42,11 +38,7 @@ export default function LoginForm() {
         login.mutate(
             { data: values },
             {
-                onSuccess: async (res) => {
-                    await setCurrentUser(queryClient, res);
-                    router.replace(nextPath());
-                    router.refresh();
-                },
+                onSuccess: () => reloadTo(nextPath()),
             },
         );
     };

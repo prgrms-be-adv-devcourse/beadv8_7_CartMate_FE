@@ -1,10 +1,9 @@
 'use client';
 
 import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import { useLogout as useLogoutMutation } from '@/api/generated/auth-controller/auth-controller';
 import { getMeQueryKey, me } from '@/api/generated/member-controller/member-controller';
-import type { MemberDto, RsDataMemberDto } from '@/api/generated/model';
+import type { MemberDto } from '@/api/generated/model';
 import { ApiError } from '@/api/http';
 import { ROUTES } from '@/lib/routes';
 
@@ -36,11 +35,11 @@ export function useCurrentUser() {
 // 로그인·로그아웃 요청의 401은 "토큰 만료"가 아니므로 전역 만료 처리(QueryProvider)에서 제외한다.
 export const SKIP_AUTH_EXPIRED = { skipAuthExpired: true };
 
-// 로그인 API 응답으로 바로 상태를 채워 /me 를 다시 부르지 않는다.
-// 로그인 전에 시작된 /me(401→null) 응답이 늦게 와서 덮어쓰지 않도록 먼저 취소한다.
-export async function setCurrentUser(queryClient: QueryClient, res: RsDataMemberDto) {
-    await queryClient.cancelQueries({ queryKey: ME_KEY });
-    queryClient.setQueryData<MemberDto | null>(ME_KEY, res.data ?? null);
+// 로그인·로그아웃 직후에는 전체 페이지 이동으로 앱을 새로 띄운다.
+// 클라이언트 라우터 캐시에는 로그인 전 상태로 받아 둔 응답(예: proxy의 /mypage → /login 리다이렉트를
+// prefetch한 결과)이 남아 있어서, router.replace 로 이동하면 그 캐시를 재사용해 엉뚱한 곳으로 간다.
+export function reloadTo(path: string) {
+    window.location.replace(new URL(path, window.location.origin).href);
 }
 
 // 사용자별 캐시(장바구니·주문 등)가 다음 사용자에게 보이지 않도록 비우고 "사용자 없음"으로 둔다.
@@ -56,15 +55,13 @@ export function hasCurrentUser(queryClient: QueryClient): boolean {
 
 export function useLogout() {
     const queryClient = useQueryClient();
-    const router = useRouter();
     const mutation = useLogoutMutation({
         mutation: {
             meta: SKIP_AUTH_EXPIRED,
             // BE 호출이 실패해도 화면에서는 로그아웃 처리한다. (쿠키는 30분 뒤 만료된다)
             onSettled: () => {
                 clearCurrentUser(queryClient);
-                router.replace(ROUTES.home);
-                router.refresh();
+                reloadTo(ROUTES.home);
             },
         },
     });

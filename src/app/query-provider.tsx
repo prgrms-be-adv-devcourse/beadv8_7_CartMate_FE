@@ -3,6 +3,7 @@
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
+import { logout } from '@/api/generated/auth-controller/auth-controller';
 import { ApiError } from '@/api/http';
 import { clearCurrentUser, hasCurrentUser } from '@/lib/auth';
 import { ROUTES } from '@/lib/routes';
@@ -17,7 +18,11 @@ export default function QueryProvider({ children }: { children: ReactNode }) {
             if (!(error instanceof ApiError) || error.status !== 401 || !hasCurrentUser(client)) return;
             clearCurrentUser(client);
             const next = `${window.location.pathname}${window.location.search}`;
-            router.replace(`${ROUTES.login}?expired=1&next=${encodeURIComponent(next)}`);
+            // 만료된 쿠키가 남아 있으면 proxy가 로그인 상태로 오인하므로 BE 로그아웃으로 지운 뒤 이동한다.
+            // BE가 응답하지 않아도 3초 뒤에는 이동하도록 시간 제한을 둔다.
+            void logout({ signal: AbortSignal.timeout(3000) })
+                .catch(() => undefined)
+                .finally(() => router.replace(`${ROUTES.login}?expired=1&next=${encodeURIComponent(next)}`));
         };
 
         const client: QueryClient = new QueryClient({
