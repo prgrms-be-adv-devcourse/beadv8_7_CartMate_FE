@@ -51,7 +51,7 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getCancel1Url = (id: number,) => {
+export const getCancel2Url = (id: number,) => {
 
 
 
@@ -59,9 +59,9 @@ export const getCancel1Url = (id: number,) => {
   return `/api/group-orders/shared/${id}/cancel`
 }
 
-export const cancel1 = async (id: number, options?: Parameters<typeof http>[1]): Promise<RsDataVoid> => {
+export const cancel2 = async (id: number, options?: Parameters<typeof http>[1]): Promise<RsDataVoid> => {
 
-  return http<RsDataVoid>(getCancel1Url(id),
+  return http<RsDataVoid>(getCancel2Url(id),
   {
     ...options,
     method: 'POST'
@@ -74,13 +74,13 @@ export const cancel1 = async (id: number, options?: Parameters<typeof http>[1]):
 
 
 
-export const getCancel1MutationKey = () => ['cancel1'] as const;
+export const getCancel2MutationKey = () => ['cancel2'] as const;
 
-export const getCancel1MutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancel1>>, TError,Cancel1MutationVariables, TContext>, request?: SecondParameter<typeof http>}
-): UseMutationOptions<Awaited<ReturnType<typeof cancel1>>, TError,Cancel1MutationVariables, TContext> => {
+export const getCancel2MutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancel2>>, TError,Cancel2MutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof cancel2>>, TError,Cancel2MutationVariables, TContext> => {
 
-const mutationKey = getCancel1MutationKey();
+const mutationKey = getCancel2MutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -90,10 +90,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancel1>>, Cancel1MutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancel2>>, Cancel2MutationVariables> = (props) => {
           const {id} = props ?? {};
 
-          return  cancel1(id,requestOptions)
+          return  cancel2(id,requestOptions)
         }
 
 
@@ -103,22 +103,22 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type Cancel1MutationResult = NonNullable<Awaited<ReturnType<typeof cancel1>>>
+    export type Cancel2MutationResult = NonNullable<Awaited<ReturnType<typeof cancel2>>>
 
-    export type Cancel1MutationError = unknown
-    export type Cancel1MutationVariables = {id: number}
+    export type Cancel2MutationError = unknown
+    export type Cancel2MutationVariables = {id: number}
 
-    export const useCancel1 = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancel1>>, TError,Cancel1MutationVariables, TContext>, request?: SecondParameter<typeof http>}
+    export const useCancel2 = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancel2>>, TError,Cancel2MutationVariables, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof cancel1>>,
+        Awaited<ReturnType<typeof cancel2>>,
         TError,
-        Cancel1MutationVariables,
+        Cancel2MutationVariables,
         TContext
       > => {
-      return useMutation(getCancel1MutationOptions(options), queryClient);
+      return useMutation(getCancel2MutationOptions(options), queryClient);
     }
-    export const getGetDetail2Url = (id: number,) => {
+    export const getGetDetail3Url = (id: number,) => {
 
 
 
@@ -126,9 +126,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return `/api/group-orders/shared/${id}`
 }
 
-export const getDetail2 = async (id: number, options?: Parameters<typeof http>[1]): Promise<RsDataSharedGroupOrderDetailResponse> => {
+export const getDetail3 = async (id: number, options?: Parameters<typeof http>[1]): Promise<RsDataSharedGroupOrderDetailResponse> => {
 
-  return http<RsDataSharedGroupOrderDetailResponse>(getGetDetail2Url(id),
+  return http<RsDataSharedGroupOrderDetailResponse>(getGetDetail3Url(id),
   {
     ...options,
     method: 'GET'
@@ -141,66 +141,66 @@ export const getDetail2 = async (id: number, options?: Parameters<typeof http>[1
 
 
 
-export const getGetDetail2QueryKey = (id: number,) => {
+export const getGetDetail3QueryKey = (id: number,) => {
     return [
     `/api/group-orders/shared/${id}`
     ] as const;
     }
 
 
-export const getGetDetail2QueryOptions = <TData = Awaited<ReturnType<typeof getDetail2>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail2>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getGetDetail3QueryOptions = <TData = Awaited<ReturnType<typeof getDetail3>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail3>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetDetail2QueryKey(id);
+  const queryKey =  queryOptions?.queryKey ?? getGetDetail3QueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDetail2>>> = ({ signal }) => getDetail2(id, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDetail3>>> = ({ signal }) => getDetail3(id, { signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDetail2>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDetail3>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetDetail2QueryResult = NonNullable<Awaited<ReturnType<typeof getDetail2>>>
-export type GetDetail2QueryError = unknown
+export type GetDetail3QueryResult = NonNullable<Awaited<ReturnType<typeof getDetail3>>>
+export type GetDetail3QueryError = unknown
 
 
-export function useGetDetail2<TData = Awaited<ReturnType<typeof getDetail2>>, TError = unknown>(
- id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail2>>, TError, TData>> & Pick<
+export function useGetDetail3<TData = Awaited<ReturnType<typeof getDetail3>>, TError = unknown>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail3>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getDetail2>>,
+          Awaited<ReturnType<typeof getDetail3>>,
           TError,
-          Awaited<ReturnType<typeof getDetail2>>
+          Awaited<ReturnType<typeof getDetail3>>
         > , 'initialData'
       >, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDetail2<TData = Awaited<ReturnType<typeof getDetail2>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail2>>, TError, TData>> & Pick<
+export function useGetDetail3<TData = Awaited<ReturnType<typeof getDetail3>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail3>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getDetail2>>,
+          Awaited<ReturnType<typeof getDetail3>>,
           TError,
-          Awaited<ReturnType<typeof getDetail2>>
+          Awaited<ReturnType<typeof getDetail3>>
         > , 'initialData'
       >, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDetail2<TData = Awaited<ReturnType<typeof getDetail2>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail2>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export function useGetDetail3<TData = Awaited<ReturnType<typeof getDetail3>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail3>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetDetail2<TData = Awaited<ReturnType<typeof getDetail2>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail2>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export function useGetDetail3<TData = Awaited<ReturnType<typeof getDetail3>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDetail3>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetDetail2QueryOptions(id,options)
+  const queryOptions = getGetDetail3QueryOptions(id,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -212,7 +212,7 @@ export function useGetDetail2<TData = Awaited<ReturnType<typeof getDetail2>>, TE
 
 
 
-export const getGetMyList2Url = () => {
+export const getGetMyList3Url = () => {
 
 
 
@@ -220,9 +220,9 @@ export const getGetMyList2Url = () => {
   return `/api/group-orders/shared/me`
 }
 
-export const getMyList2 = async ( options?: Parameters<typeof http>[1]): Promise<RsDataListSharedGroupOrderSummaryResponse> => {
+export const getMyList3 = async ( options?: Parameters<typeof http>[1]): Promise<RsDataListSharedGroupOrderSummaryResponse> => {
 
-  return http<RsDataListSharedGroupOrderSummaryResponse>(getGetMyList2Url(),
+  return http<RsDataListSharedGroupOrderSummaryResponse>(getGetMyList3Url(),
   {
     ...options,
     method: 'GET'
@@ -235,66 +235,66 @@ export const getMyList2 = async ( options?: Parameters<typeof http>[1]): Promise
 
 
 
-export const getGetMyList2QueryKey = () => {
+export const getGetMyList3QueryKey = () => {
     return [
     `/api/group-orders/shared/me`
     ] as const;
     }
 
 
-export const getGetMyList2QueryOptions = <TData = Awaited<ReturnType<typeof getMyList2>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList2>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getGetMyList3QueryOptions = <TData = Awaited<ReturnType<typeof getMyList3>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList3>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMyList2QueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetMyList3QueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyList2>>> = ({ signal }) => getMyList2({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyList3>>> = ({ signal }) => getMyList3({ signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyList2>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyList3>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetMyList2QueryResult = NonNullable<Awaited<ReturnType<typeof getMyList2>>>
-export type GetMyList2QueryError = unknown
+export type GetMyList3QueryResult = NonNullable<Awaited<ReturnType<typeof getMyList3>>>
+export type GetMyList3QueryError = unknown
 
 
-export function useGetMyList2<TData = Awaited<ReturnType<typeof getMyList2>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList2>>, TError, TData>> & Pick<
+export function useGetMyList3<TData = Awaited<ReturnType<typeof getMyList3>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList3>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getMyList2>>,
+          Awaited<ReturnType<typeof getMyList3>>,
           TError,
-          Awaited<ReturnType<typeof getMyList2>>
+          Awaited<ReturnType<typeof getMyList3>>
         > , 'initialData'
       >, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetMyList2<TData = Awaited<ReturnType<typeof getMyList2>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList2>>, TError, TData>> & Pick<
+export function useGetMyList3<TData = Awaited<ReturnType<typeof getMyList3>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList3>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getMyList2>>,
+          Awaited<ReturnType<typeof getMyList3>>,
           TError,
-          Awaited<ReturnType<typeof getMyList2>>
+          Awaited<ReturnType<typeof getMyList3>>
         > , 'initialData'
       >, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetMyList2<TData = Awaited<ReturnType<typeof getMyList2>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList2>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export function useGetMyList3<TData = Awaited<ReturnType<typeof getMyList3>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList3>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetMyList2<TData = Awaited<ReturnType<typeof getMyList2>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList2>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export function useGetMyList3<TData = Awaited<ReturnType<typeof getMyList3>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyList3>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetMyList2QueryOptions(options)
+  const queryOptions = getGetMyList3QueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

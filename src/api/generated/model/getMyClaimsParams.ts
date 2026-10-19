@@ -4,8 +4,15 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { Pageable } from './pageable';
 
 export type GetMyClaimsParams = {
-pageable: Pageable;
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ */
+size?: number;
+sort?: string[];
 };

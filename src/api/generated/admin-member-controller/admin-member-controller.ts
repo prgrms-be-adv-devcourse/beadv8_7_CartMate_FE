@@ -285,7 +285,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getBulkStatusMutationOptions(options), queryClient);
     }
-    export const getListUrl = (params: ListParams,) => {
+    export const getListUrl = (params?: ListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -300,7 +300,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return stringifiedParams.length > 0 ? `/api/admin/members?${stringifiedParams}` : `/api/admin/members`
 }
 
-export const list = async (params: ListParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageResponseAdminMemberResponse> => {
+export const list = async (params?: ListParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageResponseAdminMemberResponse> => {
 
   return http<RsDataPageResponseAdminMemberResponse>(getListUrl(params),
   {
@@ -322,7 +322,7 @@ export const getListQueryKey = (params?: ListParams,) => {
     }
 
 
-export const getListQueryOptions = <TData = Awaited<ReturnType<typeof list>>, TError = unknown>(params: ListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getListQueryOptions = <TData = Awaited<ReturnType<typeof list>>, TError = unknown>(params?: ListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -345,7 +345,7 @@ export type ListQueryError = unknown
 
 
 export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unknown>(
- params: ListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>> & Pick<
+ params: undefined |  ListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof list>>,
           TError,
@@ -355,7 +355,7 @@ export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unkno
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unknown>(
- params: ListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>> & Pick<
+ params?: ListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof list>>,
           TError,
@@ -365,12 +365,12 @@ export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unkno
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unknown>(
- params: ListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: ListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unknown>(
- params: ListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: ListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

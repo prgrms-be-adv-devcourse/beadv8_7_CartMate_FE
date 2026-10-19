@@ -6,7 +6,7 @@
  */
 
 export interface SelectSalesPostRequest {
-  id?: string;
+  id?: number;
   title?: string;
   content?: string;
   productName?: string;

@@ -270,11 +270,11 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getApproveClaimMutationOptions(options), queryClient);
     }
-    export const getGetSellerClaimsUrl = (params: GetSellerClaimsParams,) => {
+    export const getGetSellerClaimsUrl = (params?: GetSellerClaimsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    const explodeParameters = ["status"];
+    const explodeParameters = ["status","sort"];
 
     if (Array.isArray(value) && explodeParameters.includes(key)) {
       value.forEach((v) => {
@@ -293,7 +293,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return stringifiedParams.length > 0 ? `/api/claims/seller?${stringifiedParams}` : `/api/claims/seller`
 }
 
-export const getSellerClaims = async (params: GetSellerClaimsParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageSellerClaimResponse> => {
+export const getSellerClaims = async (params?: GetSellerClaimsParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageSellerClaimResponse> => {
 
   return http<RsDataPageSellerClaimResponse>(getGetSellerClaimsUrl(params),
   {
@@ -315,7 +315,7 @@ export const getGetSellerClaimsQueryKey = (params?: GetSellerClaimsParams,) => {
     }
 
 
-export const getGetSellerClaimsQueryOptions = <TData = Awaited<ReturnType<typeof getSellerClaims>>, TError = unknown>(params: GetSellerClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getGetSellerClaimsQueryOptions = <TData = Awaited<ReturnType<typeof getSellerClaims>>, TError = unknown>(params?: GetSellerClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -338,7 +338,7 @@ export type GetSellerClaimsQueryError = unknown
 
 
 export function useGetSellerClaims<TData = Awaited<ReturnType<typeof getSellerClaims>>, TError = unknown>(
- params: GetSellerClaimsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>> & Pick<
+ params: undefined |  GetSellerClaimsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSellerClaims>>,
           TError,
@@ -348,7 +348,7 @@ export function useGetSellerClaims<TData = Awaited<ReturnType<typeof getSellerCl
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetSellerClaims<TData = Awaited<ReturnType<typeof getSellerClaims>>, TError = unknown>(
- params: GetSellerClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>> & Pick<
+ params?: GetSellerClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSellerClaims>>,
           TError,
@@ -358,12 +358,12 @@ export function useGetSellerClaims<TData = Awaited<ReturnType<typeof getSellerCl
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetSellerClaims<TData = Awaited<ReturnType<typeof getSellerClaims>>, TError = unknown>(
- params: GetSellerClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetSellerClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetSellerClaims<TData = Awaited<ReturnType<typeof getSellerClaims>>, TError = unknown>(
- params: GetSellerClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetSellerClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -379,10 +379,18 @@ export function useGetSellerClaims<TData = Awaited<ReturnType<typeof getSellerCl
 
 
 
-export const getGetMyClaimsUrl = (params: GetMyClaimsParams,) => {
+export const getGetMyClaimsUrl = (params?: GetMyClaimsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["sort"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
 
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : String(value))
@@ -394,7 +402,7 @@ export const getGetMyClaimsUrl = (params: GetMyClaimsParams,) => {
   return stringifiedParams.length > 0 ? `/api/claims/me?${stringifiedParams}` : `/api/claims/me`
 }
 
-export const getMyClaims = async (params: GetMyClaimsParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageDeliveryClaimResponse> => {
+export const getMyClaims = async (params?: GetMyClaimsParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageDeliveryClaimResponse> => {
 
   return http<RsDataPageDeliveryClaimResponse>(getGetMyClaimsUrl(params),
   {
@@ -416,7 +424,7 @@ export const getGetMyClaimsQueryKey = (params?: GetMyClaimsParams,) => {
     }
 
 
-export const getGetMyClaimsQueryOptions = <TData = Awaited<ReturnType<typeof getMyClaims>>, TError = unknown>(params: GetMyClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getGetMyClaimsQueryOptions = <TData = Awaited<ReturnType<typeof getMyClaims>>, TError = unknown>(params?: GetMyClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -439,7 +447,7 @@ export type GetMyClaimsQueryError = unknown
 
 
 export function useGetMyClaims<TData = Awaited<ReturnType<typeof getMyClaims>>, TError = unknown>(
- params: GetMyClaimsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>> & Pick<
+ params: undefined |  GetMyClaimsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getMyClaims>>,
           TError,
@@ -449,7 +457,7 @@ export function useGetMyClaims<TData = Awaited<ReturnType<typeof getMyClaims>>, 
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetMyClaims<TData = Awaited<ReturnType<typeof getMyClaims>>, TError = unknown>(
- params: GetMyClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>> & Pick<
+ params?: GetMyClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getMyClaims>>,
           TError,
@@ -459,12 +467,12 @@ export function useGetMyClaims<TData = Awaited<ReturnType<typeof getMyClaims>>, 
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetMyClaims<TData = Awaited<ReturnType<typeof getMyClaims>>, TError = unknown>(
- params: GetMyClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetMyClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetMyClaims<TData = Awaited<ReturnType<typeof getMyClaims>>, TError = unknown>(
- params: GetMyClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetMyClaimsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyClaims>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

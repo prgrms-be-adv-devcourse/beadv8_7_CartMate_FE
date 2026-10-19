@@ -30,7 +30,7 @@ export const getRegisterProductUrl = () => {
 
 
 
-  return `/api/products/product`
+  return `/api/products/register`
 }
 
 export const registerProduct = async (registerProductBody?: RegisterProductBody, options?: Parameters<typeof http>[1]): Promise<void> => {
@@ -105,4 +105,140 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getRegisterProductMutationOptions(options), queryClient);
+    }
+    export const getDeleteProductUrl = (sellerId: number,
+    productId: number,) => {
+
+
+
+
+  return `/api/products/sellers/${sellerId}/products/${productId}`
+}
+
+export const deleteProduct = async (sellerId: number,
+    productId: number, options?: Parameters<typeof http>[1]): Promise<void> => {
+
+  return http<void>(getDeleteProductUrl(sellerId,productId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteProductMutationKey = () => ['deleteProduct'] as const;
+
+export const getDeleteProductMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProduct>>, TError,DeleteProductMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteProduct>>, TError,DeleteProductMutationVariables, TContext> => {
+
+const mutationKey = getDeleteProductMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProduct>>, DeleteProductMutationVariables> = (props) => {
+          const {sellerId,productId} = props ?? {};
+
+          return  deleteProduct(sellerId,productId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteProductMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProduct>>>
+
+    export type DeleteProductMutationError = unknown
+    export type DeleteProductMutationVariables = {sellerId: number;productId: number}
+
+    export const useDeleteProduct = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProduct>>, TError,DeleteProductMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteProduct>>,
+        TError,
+        DeleteProductMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteProductMutationOptions(options), queryClient);
+    }
+    export const getDeleteProductByPostUrl = (postId: number,) => {
+
+
+
+
+  return `/api/products/posts/${postId}`
+}
+
+export const deleteProductByPost = async (postId: number, options?: Parameters<typeof http>[1]): Promise<void> => {
+
+  return http<void>(getDeleteProductByPostUrl(postId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteProductByPostMutationKey = () => ['deleteProductByPost'] as const;
+
+export const getDeleteProductByPostMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProductByPost>>, TError,DeleteProductByPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteProductByPost>>, TError,DeleteProductByPostMutationVariables, TContext> => {
+
+const mutationKey = getDeleteProductByPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProductByPost>>, DeleteProductByPostMutationVariables> = (props) => {
+          const {postId} = props ?? {};
+
+          return  deleteProductByPost(postId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteProductByPostMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProductByPost>>>
+
+    export type DeleteProductByPostMutationError = unknown
+    export type DeleteProductByPostMutationVariables = {postId: number}
+
+    export const useDeleteProductByPost = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProductByPost>>, TError,DeleteProductByPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteProductByPost>>,
+        TError,
+        DeleteProductByPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteProductByPostMutationOptions(options), queryClient);
     }

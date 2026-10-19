@@ -169,7 +169,7 @@
         }
       }
     },
-    "/api/products/product": {
+    "/api/products/register": {
       "post": {
         "tags": [
           "product-controller"
@@ -203,6 +203,97 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "post": {
+        "tags": [
+          "order-controller"
+        ],
+        "operationId": "createPersonal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataOrderCreateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{id}/cancel": {
+      "post": {
+        "tags": [
+          "order-controller"
+        ],
+        "operationId": "cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/individual-group": {
+      "post": {
+        "tags": [
+          "order-controller"
+        ],
+        "operationId": "createIndividualGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndividualGroupOrderCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataOrderCreateResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -393,7 +484,7 @@
         "tags": [
           "shared-group-purchase-controller"
         ],
-        "operationId": "cancel",
+        "operationId": "cancel_1",
         "parameters": [
           {
             "name": "id",
@@ -556,7 +647,7 @@
         "tags": [
           "shared-group-order-controller"
         ],
-        "operationId": "cancel_1",
+        "operationId": "cancel_2",
         "parameters": [
           {
             "name": "id",
@@ -1516,6 +1607,57 @@
         }
       }
     },
+    "/api/orders/{id}": {
+      "get": {
+        "tags": [
+          "order-controller"
+        ],
+        "operationId": "getDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataOrderDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/me": {
+      "get": {
+        "tags": [
+          "order-controller"
+        ],
+        "operationId": "getMyList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataListOrderSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/members/me/seller/check-business-number": {
       "get": {
         "tags": [
@@ -1591,7 +1733,7 @@
         "tags": [
           "shared-group-purchase-controller"
         ],
-        "operationId": "getDetail",
+        "operationId": "getDetail_1",
         "parameters": [
           {
             "name": "id",
@@ -1622,7 +1764,7 @@
         "tags": [
           "shared-group-purchase-controller"
         ],
-        "operationId": "getMyList",
+        "operationId": "getMyList_1",
         "responses": {
           "200": {
             "description": "OK",
@@ -1642,7 +1784,7 @@
         "tags": [
           "individual-group-purchase-controller"
         ],
-        "operationId": "getDetail_1",
+        "operationId": "getDetail_2",
         "parameters": [
           {
             "name": "id",
@@ -1704,7 +1846,7 @@
         "tags": [
           "individual-group-purchase-controller"
         ],
-        "operationId": "getMyList_1",
+        "operationId": "getMyList_2",
         "responses": {
           "200": {
             "description": "OK",
@@ -1755,7 +1897,7 @@
         "tags": [
           "shared-group-order-controller"
         ],
-        "operationId": "getDetail_2",
+        "operationId": "getDetail_3",
         "parameters": [
           {
             "name": "id",
@@ -1786,7 +1928,7 @@
         "tags": [
           "shared-group-order-controller"
         ],
-        "operationId": "getMyList_2",
+        "operationId": "getMyList_3",
         "responses": {
           "200": {
             "description": "OK",
@@ -2155,6 +2297,96 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/sales-posts/sellers/{sellerId}/posts/{postId}": {
+      "delete": {
+        "tags": [
+          "sales-post-controller"
+        ],
+        "operationId": "deleteSalesPost",
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "postId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/products/sellers/{sellerId}/products/{productId}": {
+      "delete": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "deleteProduct",
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/products/posts/{postId}": {
+      "delete": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "deleteProductByPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -2635,6 +2867,160 @@
           }
         }
       },
+      "DeliveryAddressRequest": {
+        "type": "object",
+        "properties": {
+          "receiverName": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "receiverPhone": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 0
+          },
+          "zipCode": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 0
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "addressDetail": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "address",
+          "receiverName",
+          "receiverPhone",
+          "zipCode"
+        ]
+      },
+      "OrderCreateRequest": {
+        "type": "object",
+        "properties": {
+          "cartItemIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "maxItems": 100,
+            "minItems": 0
+          },
+          "deliveryAddress": {
+            "$ref": "#/components/schemas/DeliveryAddressRequest"
+          }
+        },
+        "required": [
+          "cartItemIds",
+          "deliveryAddress"
+        ]
+      },
+      "OrderCreateResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderNumber": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "paymentDeadlineAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataOrderCreateResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrderCreateResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RsDataVoid": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {},
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "IndividualGroupOrderCreateRequest": {
+        "type": "object",
+        "properties": {
+          "individualGroupPurchaseId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            },
+            "maxItems": 100,
+            "minItems": 0
+          },
+          "deliveryAddress": {
+            "$ref": "#/components/schemas/DeliveryAddressRequest"
+          }
+        },
+        "required": [
+          "deliveryAddress",
+          "individualGroupPurchaseId",
+          "items"
+        ]
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "inventoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 999,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "inventoryId"
+        ]
+      },
       "SellerRegisterRequest": {
         "type": "object",
         "properties": {
@@ -2825,22 +3211,6 @@
         "required": [
           "inventoryId"
         ]
-      },
-      "RsDataVoid": {
-        "type": "object",
-        "properties": {
-          "resultCode": {
-            "type": "string"
-          },
-          "msg": {
-            "type": "string"
-          },
-          "data": {},
-          "statusCode": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
       },
       "SharedGroupPurchaseJoinRequest": {
         "type": "object",
@@ -3119,19 +3489,6 @@
             "items": {
               "$ref": "#/components/schemas/Item"
             }
-          }
-        }
-      },
-      "Item": {
-        "type": "object",
-        "properties": {
-          "deliveryItemId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "quantity": {
-            "type": "integer",
-            "format": "int64"
           }
         }
       },
@@ -3916,6 +4273,7 @@
               "USE",
               "REFUND",
               "SETTLEMENT",
+              "FEE",
               "WITHDRAW"
             ]
           },
@@ -3941,7 +4299,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "title": {
             "type": "string"
@@ -4027,7 +4386,9 @@
               "PAUSED",
               "SUSPENDED",
               "CLOSED",
-              "DELETED"
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE"
             ]
           },
           "productImageList": {
@@ -4098,7 +4459,8 @@
               "PAUSED",
               "SUSPENDED",
               "CLOSED",
-              "DELETED"
+              "DELETED",
+              "PENDING"
             ]
           },
           "productList": {
@@ -4128,6 +4490,179 @@
           },
           "data": {
             "$ref": "#/components/schemas/SelectSalesPostResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddressResponse": {
+        "type": "object",
+        "properties": {
+          "receiverName": {
+            "type": "string"
+          },
+          "receiverPhone": {
+            "type": "string"
+          },
+          "zipCode": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "addressDetail": {
+            "type": "string"
+          }
+        }
+      },
+      "OrderDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderNumber": {
+            "type": "string"
+          },
+          "orderType": {
+            "type": "string",
+            "enum": [
+              "PERSONAL",
+              "INDIVIDUAL_GROUP"
+            ]
+          },
+          "individualGroupPurchaseId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PAYMENT_PENDING",
+              "PAID",
+              "CANCELED"
+            ]
+          },
+          "cancelReason": {
+            "type": "string",
+            "enum": [
+              "BUYER_CANCELED",
+              "PAYMENT_EXPIRED",
+              "OUT_OF_STOCK"
+            ]
+          },
+          "totalAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "paymentDeadlineAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "canceledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deliveryAddress": {
+            "$ref": "#/components/schemas/AddressResponse"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemResponse"
+            }
+          }
+        }
+      },
+      "RsDataOrderDetailResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrderDetailResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OrderSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderNumber": {
+            "type": "string"
+          },
+          "orderType": {
+            "type": "string",
+            "enum": [
+              "PERSONAL",
+              "INDIVIDUAL_GROUP"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PAYMENT_PENDING",
+              "PAID",
+              "CANCELED"
+            ]
+          },
+          "totalAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "itemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "firstProductName": {
+            "type": "string"
+          },
+          "paymentDeadlineAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataListOrderSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderSummaryResponse"
+            }
           },
           "statusCode": {
             "type": "integer",
@@ -4672,26 +5207,6 @@
           "statusCode": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "AddressResponse": {
-        "type": "object",
-        "properties": {
-          "receiverName": {
-            "type": "string"
-          },
-          "receiverPhone": {
-            "type": "string"
-          },
-          "zipCode": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "addressDetail": {
-            "type": "string"
           }
         }
       },

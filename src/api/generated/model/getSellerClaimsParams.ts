@@ -6,10 +6,17 @@
  */
 import type { GetSellerClaimsClaimType } from './getSellerClaimsClaimType';
 import type { GetSellerClaimsStatusItem } from './getSellerClaimsStatusItem';
-import type { Pageable } from './pageable';
 
 export type GetSellerClaimsParams = {
 status?: GetSellerClaimsStatusItem[];
 claimType?: GetSellerClaimsClaimType;
-pageable: Pageable;
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ */
+size?: number;
+sort?: string[];
 };

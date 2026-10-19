@@ -24,6 +24,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  DeleteSalesPostParams,
   RegisterSalesPostBody,
   RsDataPageResponseSelectSalesPostResponse,
   RsDataSelectSalesPostResponse,
@@ -134,10 +135,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getRegisterSalesPostMutationOptions(options), queryClient);
     }
-    export const getSelectSalesPostAllUrl = (params: SelectSalesPostAllParams,) => {
+    export const getSelectSalesPostAllUrl = (params?: SelectSalesPostAllParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["sort"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
 
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : String(value))
@@ -149,7 +158,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return stringifiedParams.length > 0 ? `/api/sales-posts?${stringifiedParams}` : `/api/sales-posts`
 }
 
-export const selectSalesPostAll = async (params: SelectSalesPostAllParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageResponseSelectSalesPostResponse> => {
+export const selectSalesPostAll = async (params?: SelectSalesPostAllParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageResponseSelectSalesPostResponse> => {
 
   return http<RsDataPageResponseSelectSalesPostResponse>(getSelectSalesPostAllUrl(params),
   {
@@ -171,7 +180,7 @@ export const getSelectSalesPostAllQueryKey = (params?: SelectSalesPostAllParams,
     }
 
 
-export const getSelectSalesPostAllQueryOptions = <TData = Awaited<ReturnType<typeof selectSalesPostAll>>, TError = unknown>(params: SelectSalesPostAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getSelectSalesPostAllQueryOptions = <TData = Awaited<ReturnType<typeof selectSalesPostAll>>, TError = unknown>(params?: SelectSalesPostAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -194,7 +203,7 @@ export type SelectSalesPostAllQueryError = unknown
 
 
 export function useSelectSalesPostAll<TData = Awaited<ReturnType<typeof selectSalesPostAll>>, TError = unknown>(
- params: SelectSalesPostAllParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>> & Pick<
+ params: undefined |  SelectSalesPostAllParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof selectSalesPostAll>>,
           TError,
@@ -204,7 +213,7 @@ export function useSelectSalesPostAll<TData = Awaited<ReturnType<typeof selectSa
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSelectSalesPostAll<TData = Awaited<ReturnType<typeof selectSalesPostAll>>, TError = unknown>(
- params: SelectSalesPostAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>> & Pick<
+ params?: SelectSalesPostAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof selectSalesPostAll>>,
           TError,
@@ -214,12 +223,12 @@ export function useSelectSalesPostAll<TData = Awaited<ReturnType<typeof selectSa
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSelectSalesPostAll<TData = Awaited<ReturnType<typeof selectSalesPostAll>>, TError = unknown>(
- params: SelectSalesPostAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: SelectSalesPostAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useSelectSalesPostAll<TData = Awaited<ReturnType<typeof selectSalesPostAll>>, TError = unknown>(
- params: SelectSalesPostAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: SelectSalesPostAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostAll>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -336,3 +345,81 @@ export function useSelectSalesPostDetail<TData = Awaited<ReturnType<typeof selec
 
 
 
+export const getDeleteSalesPostUrl = (sellerId: number,
+    postId: number,
+    params: DeleteSalesPostParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/sales-posts/sellers/${sellerId}/posts/${postId}?${stringifiedParams}` : `/api/sales-posts/sellers/${sellerId}/posts/${postId}`
+}
+
+export const deleteSalesPost = async (sellerId: number,
+    postId: number,
+    params: DeleteSalesPostParams, options?: Parameters<typeof http>[1]): Promise<void> => {
+
+  return http<void>(getDeleteSalesPostUrl(sellerId,postId,params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteSalesPostMutationKey = () => ['deleteSalesPost'] as const;
+
+export const getDeleteSalesPostMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSalesPost>>, TError,DeleteSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSalesPost>>, TError,DeleteSalesPostMutationVariables, TContext> => {
+
+const mutationKey = getDeleteSalesPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSalesPost>>, DeleteSalesPostMutationVariables> = (props) => {
+          const {sellerId,postId,params} = props ?? {};
+
+          return  deleteSalesPost(sellerId,postId,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSalesPostMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSalesPost>>>
+
+    export type DeleteSalesPostMutationError = unknown
+    export type DeleteSalesPostMutationVariables = {sellerId: number;postId: number;params: DeleteSalesPostParams}
+
+    export const useDeleteSalesPost = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSalesPost>>, TError,DeleteSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSalesPost>>,
+        TError,
+        DeleteSalesPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteSalesPostMutationOptions(options), queryClient);
+    }

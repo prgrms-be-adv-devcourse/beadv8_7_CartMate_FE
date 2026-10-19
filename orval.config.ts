@@ -1,4 +1,5 @@
 import { defineConfig } from 'orval';
+import transformOpenApi from './scripts/openapi-transform';
 
 // 저장소에 커밋된 OpenAPI 스냅샷으로 API 함수·타입·React Query 훅을 생성한다.
 // BE 없이도 생성할 수 있다. 스펙 갱신은 `npm run api:pull`, 생성은 `npm run api:gen`.
@@ -6,6 +7,8 @@ export default defineConfig({
     cartmate: {
         input: {
             target: './openapi/cartmate.json',
+            // BE 스펙의 누락·객체 쿼리를 생성 전에 보정한다. (scripts/openapi-transform.ts)
+            override: { transformer: transformOpenApi },
         },
         output: {
             mode: 'tags-split',

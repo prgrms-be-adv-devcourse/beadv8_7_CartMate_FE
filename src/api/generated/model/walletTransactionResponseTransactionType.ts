@@ -13,5 +13,6 @@ export const WalletTransactionResponseTransactionType = {
   USE: 'USE',
   REFUND: 'REFUND',
   SETTLEMENT: 'SETTLEMENT',
+  FEE: 'FEE',
   WITHDRAW: 'WITHDRAW',
 } as const;

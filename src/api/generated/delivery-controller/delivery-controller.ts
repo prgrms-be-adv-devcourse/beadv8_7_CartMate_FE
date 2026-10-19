@@ -365,10 +365,18 @@ export function useGetDeliveryDetails<TData = Awaited<ReturnType<typeof getDeliv
 
 
 
-export const getGetSellerDeliveriesUrl = (params: GetSellerDeliveriesParams,) => {
+export const getGetSellerDeliveriesUrl = (params?: GetSellerDeliveriesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["sort"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
 
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : String(value))
@@ -380,7 +388,7 @@ export const getGetSellerDeliveriesUrl = (params: GetSellerDeliveriesParams,) =>
   return stringifiedParams.length > 0 ? `/api/deliveries/seller?${stringifiedParams}` : `/api/deliveries/seller`
 }
 
-export const getSellerDeliveries = async (params: GetSellerDeliveriesParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageSellerDeliveryResponse> => {
+export const getSellerDeliveries = async (params?: GetSellerDeliveriesParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageSellerDeliveryResponse> => {
 
   return http<RsDataPageSellerDeliveryResponse>(getGetSellerDeliveriesUrl(params),
   {
@@ -402,7 +410,7 @@ export const getGetSellerDeliveriesQueryKey = (params?: GetSellerDeliveriesParam
     }
 
 
-export const getGetSellerDeliveriesQueryOptions = <TData = Awaited<ReturnType<typeof getSellerDeliveries>>, TError = unknown>(params: GetSellerDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getGetSellerDeliveriesQueryOptions = <TData = Awaited<ReturnType<typeof getSellerDeliveries>>, TError = unknown>(params?: GetSellerDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -425,7 +433,7 @@ export type GetSellerDeliveriesQueryError = unknown
 
 
 export function useGetSellerDeliveries<TData = Awaited<ReturnType<typeof getSellerDeliveries>>, TError = unknown>(
- params: GetSellerDeliveriesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>> & Pick<
+ params: undefined |  GetSellerDeliveriesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSellerDeliveries>>,
           TError,
@@ -435,7 +443,7 @@ export function useGetSellerDeliveries<TData = Awaited<ReturnType<typeof getSell
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetSellerDeliveries<TData = Awaited<ReturnType<typeof getSellerDeliveries>>, TError = unknown>(
- params: GetSellerDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>> & Pick<
+ params?: GetSellerDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSellerDeliveries>>,
           TError,
@@ -445,12 +453,12 @@ export function useGetSellerDeliveries<TData = Awaited<ReturnType<typeof getSell
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetSellerDeliveries<TData = Awaited<ReturnType<typeof getSellerDeliveries>>, TError = unknown>(
- params: GetSellerDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetSellerDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetSellerDeliveries<TData = Awaited<ReturnType<typeof getSellerDeliveries>>, TError = unknown>(
- params: GetSellerDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetSellerDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSellerDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -466,10 +474,18 @@ export function useGetSellerDeliveries<TData = Awaited<ReturnType<typeof getSell
 
 
 
-export const getGetMyDeliveriesUrl = (params: GetMyDeliveriesParams,) => {
+export const getGetMyDeliveriesUrl = (params?: GetMyDeliveriesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["sort"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
 
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : String(value))
@@ -481,7 +497,7 @@ export const getGetMyDeliveriesUrl = (params: GetMyDeliveriesParams,) => {
   return stringifiedParams.length > 0 ? `/api/deliveries/me?${stringifiedParams}` : `/api/deliveries/me`
 }
 
-export const getMyDeliveries = async (params: GetMyDeliveriesParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageDeliveryResponse> => {
+export const getMyDeliveries = async (params?: GetMyDeliveriesParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageDeliveryResponse> => {
 
   return http<RsDataPageDeliveryResponse>(getGetMyDeliveriesUrl(params),
   {
@@ -503,7 +519,7 @@ export const getGetMyDeliveriesQueryKey = (params?: GetMyDeliveriesParams,) => {
     }
 
 
-export const getGetMyDeliveriesQueryOptions = <TData = Awaited<ReturnType<typeof getMyDeliveries>>, TError = unknown>(params: GetMyDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getGetMyDeliveriesQueryOptions = <TData = Awaited<ReturnType<typeof getMyDeliveries>>, TError = unknown>(params?: GetMyDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -526,7 +542,7 @@ export type GetMyDeliveriesQueryError = unknown
 
 
 export function useGetMyDeliveries<TData = Awaited<ReturnType<typeof getMyDeliveries>>, TError = unknown>(
- params: GetMyDeliveriesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>> & Pick<
+ params: undefined |  GetMyDeliveriesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getMyDeliveries>>,
           TError,
@@ -536,7 +552,7 @@ export function useGetMyDeliveries<TData = Awaited<ReturnType<typeof getMyDelive
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetMyDeliveries<TData = Awaited<ReturnType<typeof getMyDeliveries>>, TError = unknown>(
- params: GetMyDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>> & Pick<
+ params?: GetMyDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getMyDeliveries>>,
           TError,
@@ -546,12 +562,12 @@ export function useGetMyDeliveries<TData = Awaited<ReturnType<typeof getMyDelive
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetMyDeliveries<TData = Awaited<ReturnType<typeof getMyDeliveries>>, TError = unknown>(
- params: GetMyDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetMyDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetMyDeliveries<TData = Awaited<ReturnType<typeof getMyDeliveries>>, TError = unknown>(
- params: GetMyDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetMyDeliveriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeliveries>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

@@ -6,6 +6,10 @@
  */
 
 export interface Item {
-  deliveryItemId?: number;
+  inventoryId: number;
+  /**
+     * @minimum 1
+     * @maximum 999
+     */
   quantity?: number;
 }

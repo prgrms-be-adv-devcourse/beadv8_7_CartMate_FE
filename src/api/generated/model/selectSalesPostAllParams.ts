@@ -4,10 +4,19 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { Pageable } from './pageable';
-import type { SelectSalesPostRequest } from './selectSalesPostRequest';
 
 export type SelectSalesPostAllParams = {
-request: SelectSalesPostRequest;
-pageable: Pageable;
+id?: number;
+title?: string;
+content?: string;
+productName?: string;
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ */
+size?: number;
+sort?: string[];
 };

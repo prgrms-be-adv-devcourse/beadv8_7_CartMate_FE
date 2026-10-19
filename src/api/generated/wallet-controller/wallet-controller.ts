@@ -475,10 +475,18 @@ export function useGetMyWallet<TData = Awaited<ReturnType<typeof getMyWallet>>, 
 
 
 
-export const getGetMyWalletTransactionsUrl = (params: GetMyWalletTransactionsParams,) => {
+export const getGetMyWalletTransactionsUrl = (params?: GetMyWalletTransactionsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["sort"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
 
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : String(value))
@@ -490,7 +498,7 @@ export const getGetMyWalletTransactionsUrl = (params: GetMyWalletTransactionsPar
   return stringifiedParams.length > 0 ? `/api/wallets/me/transactions?${stringifiedParams}` : `/api/wallets/me/transactions`
 }
 
-export const getMyWalletTransactions = async (params: GetMyWalletTransactionsParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageWalletTransactionResponse> => {
+export const getMyWalletTransactions = async (params?: GetMyWalletTransactionsParams, options?: Parameters<typeof http>[1]): Promise<RsDataPageWalletTransactionResponse> => {
 
   return http<RsDataPageWalletTransactionResponse>(getGetMyWalletTransactionsUrl(params),
   {
@@ -512,7 +520,7 @@ export const getGetMyWalletTransactionsQueryKey = (params?: GetMyWalletTransacti
     }
 
 
-export const getGetMyWalletTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getMyWalletTransactions>>, TError = unknown>(params: GetMyWalletTransactionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getGetMyWalletTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getMyWalletTransactions>>, TError = unknown>(params?: GetMyWalletTransactionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -535,7 +543,7 @@ export type GetMyWalletTransactionsQueryError = unknown
 
 
 export function useGetMyWalletTransactions<TData = Awaited<ReturnType<typeof getMyWalletTransactions>>, TError = unknown>(
- params: GetMyWalletTransactionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>> & Pick<
+ params: undefined |  GetMyWalletTransactionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getMyWalletTransactions>>,
           TError,
@@ -545,7 +553,7 @@ export function useGetMyWalletTransactions<TData = Awaited<ReturnType<typeof get
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetMyWalletTransactions<TData = Awaited<ReturnType<typeof getMyWalletTransactions>>, TError = unknown>(
- params: GetMyWalletTransactionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>> & Pick<
+ params?: GetMyWalletTransactionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getMyWalletTransactions>>,
           TError,
@@ -555,12 +563,12 @@ export function useGetMyWalletTransactions<TData = Awaited<ReturnType<typeof get
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetMyWalletTransactions<TData = Awaited<ReturnType<typeof getMyWalletTransactions>>, TError = unknown>(
- params: GetMyWalletTransactionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetMyWalletTransactionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetMyWalletTransactions<TData = Awaited<ReturnType<typeof getMyWalletTransactions>>, TError = unknown>(
- params: GetMyWalletTransactionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ params?: GetMyWalletTransactionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactions>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

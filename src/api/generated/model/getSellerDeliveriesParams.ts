@@ -5,9 +5,16 @@
  * OpenAPI spec version: v0
  */
 import type { GetSellerDeliveriesStatus } from './getSellerDeliveriesStatus';
-import type { Pageable } from './pageable';
 
 export type GetSellerDeliveriesParams = {
 status?: GetSellerDeliveriesStatus;
-pageable: Pageable;
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ */
+size?: number;
+sort?: string[];
 };
