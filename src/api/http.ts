@@ -23,21 +23,41 @@ export class ApiError extends Error {
 export async function http<T>(url: string, options: RequestInit = {}): Promise<T> {
     const baseUrl = typeof window === 'undefined' ? SERVER_BASE_URL : '';
 
-    const response = await fetch(`${baseUrl}${url}`, {
-        ...options,
-        credentials: 'include',
-    });
+    let response: Response;
+    try {
+        response = await fetch(`${baseUrl}${url}`, {
+            ...options,
+            credentials: 'include',
+        });
+    } catch {
+        // 네트워크 단절 등으로 응답 자체를 받지 못한 경우
+        throw new ApiError(0, undefined, '서버에 연결할 수 없습니다.');
+    }
 
-    const text = await response.text();
-    const body = text ? JSON.parse(text) : undefined;
+    const body = parseBody(await response.text());
 
     if (!response.ok) {
+        // BE가 꺼져 있으면 프록시가 JSON이 아닌 에러 페이지를 돌려줄 수 있다.
+        const rsData = isRsData(body) ? body : undefined;
         throw new ApiError(
             response.status,
-            body?.resultCode,
-            body?.msg ?? `요청에 실패했습니다. (${response.status})`,
+            rsData?.resultCode,
+            rsData?.msg ?? `요청에 실패했습니다. (${response.status})`,
         );
     }
 
     return body as T;
+}
+
+function parseBody(text: string): unknown {
+    if (!text) return undefined;
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+}
+
+function isRsData(value: unknown): value is RsData<unknown> {
+    return typeof value === 'object' && value !== null && 'resultCode' in value;
 }
