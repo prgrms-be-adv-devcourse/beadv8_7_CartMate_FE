@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { getGetCartQueryKey, useGetCart } from '@/api/generated/cart-controller/cart-controller';
 import { useProfile } from '@/api/generated/member-controller/member-controller';
@@ -12,31 +12,18 @@ import { useCreatePersonal } from '@/api/generated/order-controller/order-contro
 import { useGetMyWallet } from '@/api/generated/wallet-controller/wallet-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
-import { formatPhone } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
+import DeliveryAddressFields, { INPUT_CLASS, deliveryAddressDefaults, deliveryAddressSchema, toDeliveryAddressRequest } from './DeliveryAddressFields';
 import Notice from './Notice';
 import OrderStatus from './OrderStatus';
 
-// 길이 제한은 BE DeliveryAddressRequest 검증과 맞춘다.
-const addressSchema = z.object({
-    receiverName: z.string().trim().min(1, '받는 분 이름을 입력해주세요.').max(50, '50자 이하로 입력해주세요.'),
-    receiverPhone: z
-        .string()
-        .trim()
-        .min(1, '연락처를 입력해주세요.')
-        .regex(/^0\d{1,2}-\d{3,4}-\d{4}$/, '010-0000-0000 형식으로 입력해주세요.'),
-    zipCode: z.string().trim().min(1, '우편번호를 입력해주세요.').max(10, '10자 이하로 입력해주세요.'),
-    address: z.string().trim().min(1, '주소를 입력해주세요.').max(255, '255자 이하로 입력해주세요.'),
-    addressDetail: z.string().trim().max(255, '255자 이하로 입력해주세요.'),
+const addressSchema = deliveryAddressSchema.extend({
     consent: z.boolean().refine((checked) => checked, '주문 내용 확인에 동의해주세요.'),
 });
 
 type AddressInput = z.input<typeof addressSchema>;
 type AddressOutput = z.output<typeof addressSchema>;
-
-const INPUT_CLASS =
-    'w-full h-10 px-space-md border border-outline-variant bg-surface-container-lowest font-body-sm text-body-sm text-on-surface focus:border-primary outline-none';
 
 type CheckoutItem = CartItemResponse & { cartItemId: number };
 
@@ -93,16 +80,7 @@ function CheckoutContent(props: ContentProps) {
     const profile = useProfile();
     if (profile.isPending) return <div className="h-64 bg-surface-container-low animate-pulse" aria-hidden />;
 
-    const me = profile.data?.data;
-    const defaults: AddressInput = {
-        // 닉네임은 실명이 아닐 수 있어 받는 분 이름은 비워 둔다.
-        receiverName: '',
-        receiverPhone: formatPhone(me?.phone ?? ''),
-        zipCode: me?.defaultAddress?.zipCode ?? '',
-        address: me?.defaultAddress?.basicAddress ?? '',
-        addressDetail: me?.defaultAddress?.detailAddress ?? '',
-        consent: false,
-    };
+    const defaults: AddressInput = { ...deliveryAddressDefaults(profile.data?.data), consent: false };
     return <OrderForm {...props} defaults={defaults} />;
 }
 
@@ -118,15 +96,15 @@ function OrderForm({ items, onCreated, defaults }: ContentProps & { defaults: Ad
         },
     });
 
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        formState: { errors },
-    } = useForm<AddressInput, unknown, AddressOutput>({
+    const form = useForm<AddressInput, unknown, AddressOutput>({
         resolver: zodResolver(addressSchema),
         defaultValues: defaults,
     });
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = form;
 
     const total = items.reduce((sum, item) => sum + (item.totalPrice ?? (item.price ?? 0) * (item.quantity ?? 0)), 0);
     const balance = wallet.data?.data?.balance;
@@ -137,13 +115,7 @@ function OrderForm({ items, onCreated, defaults }: ContentProps & { defaults: Ad
         createOrder.mutate({
             data: {
                 cartItemIds: items.map((item) => item.cartItemId),
-                deliveryAddress: {
-                    receiverName: values.receiverName,
-                    receiverPhone: values.receiverPhone,
-                    zipCode: values.zipCode,
-                    address: values.address,
-                    addressDetail: values.addressDetail || undefined,
-                },
+                deliveryAddress: toDeliveryAddressRequest(values),
             },
         });
     };
@@ -153,32 +125,10 @@ function OrderForm({ items, onCreated, defaults }: ContentProps & { defaults: Ad
             <div className="lg:col-span-8 flex flex-col gap-space-xl">
                 <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
                     <SectionTitle icon="local_shipping" title="배송지 정보" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-                        <Field label="받는 분" error={errors.receiverName?.message}>
-                            <input className={INPUT_CLASS} {...register('receiverName')} autoComplete="name" />
-                        </Field>
-                        <Field label="연락처" error={errors.receiverPhone?.message}>
-                            <input
-                                className={INPUT_CLASS}
-                                type="tel"
-                                placeholder="010-0000-0000"
-                                autoComplete="tel"
-                                {...register('receiverPhone', {
-                                    onChange: (e) => setValue('receiverPhone', formatPhone(e.target.value)),
-                                })}
-                            />
-                        </Field>
-                        <Field label="우편번호" error={errors.zipCode?.message}>
-                            <input className={INPUT_CLASS} inputMode="numeric" autoComplete="postal-code" {...register('zipCode')} />
-                        </Field>
-                        <div className="hidden md:block" />
-                        <Field label="주소" error={errors.address?.message}>
-                            <input className={INPUT_CLASS} autoComplete="address-line1" {...register('address')} />
-                        </Field>
-                        <Field label="상세 주소 (선택)" error={errors.addressDetail?.message}>
-                            <input className={INPUT_CLASS} autoComplete="address-line2" {...register('addressDetail')} />
-                        </Field>
-                    </div>
+                    {/* 배송지 칸은 주문서마다 같은 컴포넌트를 쓰고, 폼 값은 컨텍스트로 넘긴다 */}
+                    <FormProvider {...form}>
+                        <DeliveryAddressFields />
+                    </FormProvider>
                     <div className="flex flex-col gap-space-xs">
                         <label className="font-body-sm text-body-sm text-on-surface-variant" htmlFor="shipping-memo">
                             배송 요청사항 <span className="text-outline">(준비 중)</span>
@@ -271,15 +221,5 @@ function SectionTitle({ icon, title }: { icon: string; title: string }) {
             <Icon name={icon} className="text-[20px] text-primary" />
             <h2 className="font-headline-sm text-headline-sm text-primary">{title}</h2>
         </div>
-    );
-}
-
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
-    return (
-        <label className="flex flex-col gap-space-xs">
-            <span className="font-body-sm text-body-sm text-on-surface-variant">{label}</span>
-            {children}
-            {error && <span className="font-caption text-caption text-error">{error}</span>}
-        </label>
     );
 }

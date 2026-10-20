@@ -22,6 +22,7 @@ export const ROUTES = {
     groupPurchasesIndividual: '/group-purchases/individual',
     groupPurchaseIndividualNew: '/group-purchases/individual/new',
     groupPurchaseIndividual: (id: string | number) => `/group-purchases/individual/${id}`,
+    groupPurchaseIndividualDashboard: (id: string | number) => `/group-purchases/individual/${id}/dashboard`,
     groupPurchaseIndividualInvite: (inviteCode: string) => `/group-purchases/individual/invite/${inviteCode}`,
 
     myPage: '/mypage',

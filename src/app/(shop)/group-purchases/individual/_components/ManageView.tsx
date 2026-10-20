@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +22,7 @@ import Icon from '@/components/ui/Icon';
 import { formatDateTime, parseKst } from '@/lib/format';
 import { formatPrice } from '@/lib/salesPost';
 import { MAX_SALE_HOURS, deadlineBounds, remainingText, toBeLocalDateTime, toLocalInputValue } from '../_lib/deadline';
+import { useNow } from '../_lib/useNow';
 import { MessageBox, SectionTitle, StatusBadge, saleState } from './parts';
 import ProductPicker from './ProductPicker';
 import Thumb from './Thumb';
@@ -51,16 +53,6 @@ export default function ManageView() {
 
 export function ManageSkeleton() {
     return <div className="h-96 bg-surface-container-low animate-pulse" aria-hidden />;
-}
-
-// 남은 시간 표시와 기한 지남 판단에 쓰는 현재 시각. 30초마다 갱신한다.
-function useNow() {
-    const [now, setNow] = useState(() => new Date());
-    useEffect(() => {
-        const timer = setInterval(() => setNow(new Date()), 30_000);
-        return () => clearInterval(timer);
-    }, []);
-    return now;
 }
 
 function useRefreshDetail(purchaseId: number) {
@@ -125,13 +117,13 @@ function ManageContent({ purchaseId, detail }: { purchaseId: number; detail: Det
                 {editable && <DeadlineSection purchaseId={purchaseId} deadlineAt={detail.deadlineAt} now={now} refresh={refresh} />}
                 <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-sm">
                     <SectionTitle icon="monitoring" title="주문 현황" />
-                    <button
-                        className="w-full h-10 border border-outline-variant font-label-md text-label-md text-on-surface-variant disabled:opacity-50 disabled:cursor-not-allowed"
-                        type="button"
-                        disabled
+                    <Link
+                        className="w-full h-10 border border-outline-variant font-label-md text-label-md text-on-surface flex items-center justify-center gap-1 hover:border-primary"
+                        href={ROUTES.groupPurchaseIndividualDashboard(purchaseId)}
                     >
-                        주문 현황판 보기 (준비 중)
-                    </button>
+                        <Icon name="monitoring" className="text-[18px]" />
+                        주문 현황판 보기
+                    </Link>
                     {detail.status === 'OPEN' && (
                         <>
                             <button
@@ -205,7 +197,7 @@ function InviteSection({ inviteCode, closed }: { inviteCode?: string; closed: bo
             </div>
             {copy === 'failed' && <p className="font-caption text-caption text-error">복사하지 못했습니다. 링크를 직접 선택해 복사해주세요.</p>}
             <p className="font-caption text-caption text-secondary">
-                {closed ? '마감된 공동구매입니다. 링크로 들어와도 주문할 수 없습니다.' : '링크를 받은 사람은 담긴 상품을 각자 주문합니다. 참여 화면은 준비 중입니다.'}
+                {closed ? '마감된 공동구매입니다. 링크로 들어와도 주문할 수 없습니다.' : '링크를 받은 사람은 담긴 상품을 골라 각자 주문·결제합니다.'}
             </p>
         </section>
     );
