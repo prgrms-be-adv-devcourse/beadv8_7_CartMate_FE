@@ -11,4 +11,5 @@ export interface BuyerSummary {
   quantity?: number;
   amount?: number;
   lines?: BuyerLine[];
+  nickname?: string;
 }

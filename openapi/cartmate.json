@@ -3677,6 +3677,9 @@
           "joinedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "nickname": {
+            "type": "string"
           }
         }
       },
@@ -3744,6 +3747,9 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "updatedMemberNickname": {
+            "type": "string"
           }
         }
       },
@@ -3829,6 +3835,9 @@
           },
           "hasUnavailableItem": {
             "type": "boolean"
+          },
+          "creatorNickname": {
+            "type": "string"
           }
         }
       },
@@ -6040,6 +6049,9 @@
             "items": {
               "$ref": "#/components/schemas/BuyerLine"
             }
+          },
+          "nickname": {
+            "type": "string"
           }
         }
       },
@@ -6229,6 +6241,9 @@
           "paidAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "nickname": {
+            "type": "string"
           }
         }
       },

@@ -9,4 +9,5 @@ export interface MemberResponse {
   memberId?: number;
   creator?: boolean;
   joinedAt?: string;
+  nickname?: string;
 }

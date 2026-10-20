@@ -28,4 +28,5 @@ export interface SharedGroupPurchaseDetailResponse {
   perPersonAmount?: number;
   creatorAmount?: number;
   hasUnavailableItem?: boolean;
+  creatorNickname?: string;
 }

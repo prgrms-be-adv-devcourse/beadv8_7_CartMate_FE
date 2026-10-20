@@ -12,4 +12,5 @@ export interface ParticipantResponse {
   shareAmount?: number;
   status?: ParticipantResponseStatus;
   paidAt?: string;
+  nickname?: string;
 }

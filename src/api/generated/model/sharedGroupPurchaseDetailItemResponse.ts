@@ -18,4 +18,5 @@ export interface SharedGroupPurchaseDetailItemResponse {
   purchasable?: boolean;
   updatedMemberId?: number;
   updatedAt?: string;
+  updatedMemberNickname?: string;
 }
