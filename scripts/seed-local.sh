@@ -19,7 +19,7 @@ DB_PASSWORD="${DB_PASSWORD:-cartmate}"
 PASSWORD_HASH='$2y$10$.GdXZqlMdvdHMkGnpmi90OXD/2k5zyh3A07HHYkG0mhdir5ek2ebS'
 
 sql() {
-    MYSQL_PWD="$DB_PASSWORD" mysql -u"$DB_USER" "$DB_NAME" -N -e "$1"
+    MYSQL_PWD="$DB_PASSWORD" mysql --default-character-set=utf8mb4 -u"$DB_USER" "$DB_NAME" -N -e "$1"
 }
 
 # 회원가입 API는 휴대폰 인증(BE 로그에만 찍히는 인증번호)이 필요하고 비밀번호 규칙상 test1234 를 쓸 수 없어서,
@@ -38,6 +38,14 @@ add_member() {
 add_member 'test@naver.com' 'admin' '010-0000-0001' 'ADMIN'
 add_member 'buyer@example.test' 'buyer' '010-0000-0002' 'BUYER'
 add_member 'seller@example.test' 'seller' '010-0000-0003' 'SELLER'
+
+# 구매자 기본 배송지 (주문서 자동 채움 확인용). 주소록 API가 없어 DB에 직접 넣는다.
+sql "INSERT INTO member_address (created_at, updated_at, basic_address, is_default, detail_address, receiver_name, receiver_phone, zip_code, member_id)
+     SELECT NOW(6), NOW(6), '서울특별시 강남구 테헤란로 123', b'1', '4층 402호', '테스트 구매자', '010-0000-0002', '06234', m.id
+     FROM member m
+     WHERE m.email = 'buyer@example.test'
+       AND NOT EXISTS (SELECT 1 FROM member_address a WHERE a.member_id = m.id AND a.is_default = b'1');"
+echo "기본 배송지: buyer@example.test"
 
 SELLER_ID=$(sql "SELECT id FROM member WHERE email = 'seller@example.test'")
 EXISTING=$(sql "SELECT COUNT(*) FROM post_sales_post WHERE seller_id = $SELLER_ID")
