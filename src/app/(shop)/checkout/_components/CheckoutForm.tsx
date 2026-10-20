@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,13 +8,15 @@ import { z } from 'zod';
 import { getGetCartQueryKey, useGetCart } from '@/api/generated/cart-controller/cart-controller';
 import { useProfile } from '@/api/generated/member-controller/member-controller';
 import type { CartItemResponse } from '@/api/generated/model';
-import { useCreatePersonal, useGetDetail } from '@/api/generated/order-controller/order-controller';
+import { useCreatePersonal } from '@/api/generated/order-controller/order-controller';
 import { useGetMyWallet } from '@/api/generated/wallet-controller/wallet-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
-import { formatDateTime, formatPhone } from '@/lib/format';
+import { formatPhone } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
+import Notice from './Notice';
+import OrderStatus from './OrderStatus';
 
 // 길이 제한은 BE DeliveryAddressRequest 검증과 맞춘다.
 const addressSchema = z.object({
@@ -42,11 +43,11 @@ type CheckoutItem = CartItemResponse & { cartItemId: number };
 // 장바구니에서 고른 항목(?items=1,2)으로 개인 주문을 만든다.
 // 주문을 만들면 주소를 ?order=주문id 로 바꿔 접수 화면을 보여 준다. 새로고침·뒤로 가기 후에도 접수된 주문을 다시 보여 주어
 // 같은 항목으로 주문을 또 만드는 일을 줄인다. (BE는 같은 장바구니 항목의 중복 주문을 막지 않는다)
-// 결제(예치금 차감)는 ORD-2에서 연결한다. 주문을 만들면 결제 기한(30분) 안에 결제해야 한다.
+// 주문을 만들면 결제 기한(30분) 안에 접수 화면에서 예치금으로 결제한다.
 export default function CheckoutForm() {
     const searchParams = useSearchParams();
     const orderId = Number(searchParams.get('order'));
-    if (Number.isInteger(orderId) && orderId > 0) return <OrderCreated orderId={orderId} />;
+    if (Number.isInteger(orderId) && orderId > 0) return <OrderStatus orderId={orderId} />;
     return <CheckoutItems itemsParam={searchParams.get('items') ?? ''} />;
 }
 
@@ -261,61 +262,6 @@ function OrderForm({ items, onCreated, defaults }: ContentProps & { defaults: Ad
                 </button>
             </aside>
         </form>
-    );
-}
-
-function OrderCreated({ orderId }: { orderId: number }) {
-    const query = useGetDetail(orderId);
-    const order = query.data?.data;
-
-    if (query.isPending) return <div className="h-64 bg-surface-container-low animate-pulse" aria-hidden />;
-    if (!order) return <Notice message={errorMessage(query.error, '주문 정보를 불러오지 못했습니다.')} />;
-
-    const pending = order.status === 'PAYMENT_PENDING';
-    return (
-        <div className="max-w-[640px] mx-auto bg-surface-container-lowest border border-primary p-space-xl flex flex-col gap-space-md">
-            <div className="flex items-center gap-space-sm">
-                <Icon name="check_circle" className="text-primary text-[28px]" />
-                <h2 className="font-headline-md text-headline-md text-on-surface font-bold">
-                    {pending ? '주문이 접수되었습니다' : order.status === 'PAID' ? '결제가 완료된 주문입니다' : '취소된 주문입니다'}
-                </h2>
-            </div>
-            <dl className="grid grid-cols-[120px_1fr] gap-y-space-xs font-body-md text-body-md">
-                <dt className="text-secondary">주문 번호</dt>
-                <dd className="text-on-surface font-semibold">{order.orderNumber}</dd>
-                <dt className="text-secondary">주문 금액</dt>
-                <dd className="text-on-surface font-semibold">{formatPrice(order.totalAmount ?? 0)}</dd>
-                <dt className="text-secondary">결제 기한</dt>
-                <dd className="text-on-surface">{formatDateTime(order.paymentDeadlineAt)} 까지</dd>
-            </dl>
-            {pending && <p className="font-body-sm text-body-sm text-secondary">결제 기한이 지나면 주문은 자동으로 취소됩니다.</p>}
-            <div className="flex flex-col sm:flex-row gap-space-sm">
-                {pending && (
-                    <button
-                        className="flex-1 h-11 bg-primary text-on-primary font-label-md text-label-md disabled:opacity-50 disabled:cursor-not-allowed"
-                        type="button"
-                        disabled
-                        title="예치금 결제는 준비 중입니다"
-                    >
-                        예치금으로 결제하기 (준비 중)
-                    </button>
-                )}
-                <Link className="flex-1 h-11 border border-outline-variant font-label-md text-label-md flex items-center justify-center hover:bg-surface-container" href={ROUTES.home}>
-                    쇼핑 계속하기
-                </Link>
-            </div>
-        </div>
-    );
-}
-
-function Notice({ message }: { message: string }) {
-    return (
-        <div className="bg-surface-container-low p-space-xl flex flex-col items-center gap-space-md text-center">
-            <p className="font-body-md text-body-md text-on-surface">{message}</p>
-            <Link className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md flex items-center" href={ROUTES.cart}>
-                장바구니로 가기
-            </Link>
-        </div>
     );
 }
 
