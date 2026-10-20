@@ -11,6 +11,99 @@
     }
   ],
   "paths": {
+    "/api/members/me/addresses/{addressId}": {
+      "put": {
+        "tags": [
+          "member-address-controller"
+        ],
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "addressId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberAddressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataMemberAddressResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "member-address-controller"
+        ],
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "addressId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallets/webhooks/toss": {
+      "post": {
+        "tags": [
+          "toss-webhook-controller"
+        ],
+        "operationId": "receive",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TossWebhookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/wallets/me/withdraws": {
       "post": {
         "tags": [
@@ -581,12 +674,60 @@
         }
       }
     },
+    "/api/members/me/addresses": {
+      "get": {
+        "tags": [
+          "member-address-controller"
+        ],
+        "operationId": "list",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataListMemberAddressResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "member-address-controller"
+        ],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberAddressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataMemberAddressResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/group-purchases/shared": {
       "post": {
         "tags": [
           "shared-group-purchase-controller"
         ],
-        "operationId": "create",
+        "operationId": "create_1",
         "requestBody": {
           "content": {
             "application/json": {
@@ -780,7 +921,7 @@
         "tags": [
           "individual-group-purchase-controller"
         ],
-        "operationId": "create_1",
+        "operationId": "create_2",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1016,6 +1157,36 @@
         }
       }
     },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "operationId": "refresh",
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/phone/verify": {
       "post": {
         "tags": [
@@ -1082,6 +1253,16 @@
           "auth-controller"
         ],
         "operationId": "logout",
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1119,6 +1300,47 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataMemberDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/payments/{paymentId}/refunds": {
+      "post": {
+        "tags": [
+          "admin-payment-controller"
+        ],
+        "operationId": "refund",
+        "parameters": [
+          {
+            "name": "paymentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRefundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResponse"
                 }
               }
             }
@@ -1299,6 +1521,37 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/members/me/addresses/{addressId}/default": {
+      "patch": {
+        "tags": [
+          "member-address-controller"
+        ],
+        "operationId": "makeDefault",
+        "parameters": [
+          {
+            "name": "addressId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataMemberAddressResponse"
                 }
               }
             }
@@ -2563,7 +2816,7 @@
         "tags": [
           "admin-member-controller"
         ],
-        "operationId": "list",
+        "operationId": "list_1",
         "parameters": [
           {
             "name": "condition",
@@ -2883,6 +3136,117 @@
   },
   "components": {
     "schemas": {
+      "MemberAddressRequest": {
+        "type": "object",
+        "properties": {
+          "addressName": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "receiverName": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "receiverPhone": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^010-\\d{4}-\\d{4}$"
+          },
+          "zipCode": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\d{5}$"
+          },
+          "basicAddress": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "detailAddress": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "makeDefault": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "basicAddress",
+          "receiverName",
+          "receiverPhone",
+          "zipCode"
+        ]
+      },
+      "MemberAddressResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "addressName": {
+            "type": "string"
+          },
+          "receiverName": {
+            "type": "string"
+          },
+          "receiverPhone": {
+            "type": "string"
+          },
+          "zipCode": {
+            "type": "string"
+          },
+          "basicAddress": {
+            "type": "string"
+          },
+          "detailAddress": {
+            "type": "string"
+          },
+          "defaultAddress": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RsDataMemberAddressResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MemberAddressResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Data": {
+        "type": "object",
+        "properties": {
+          "paymentKey": {
+            "type": "string"
+          }
+        }
+      },
+      "TossWebhookRequest": {
+        "type": "object",
+        "properties": {
+          "eventType": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Data"
+          }
+        }
+      },
       "WalletWithdrawOrderRequest": {
         "type": "object",
         "properties": {
@@ -3270,6 +3634,14 @@
             "format": "int64"
           },
           "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refundedAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refundableAmount": {
             "type": "integer",
             "format": "int64"
           },
@@ -4193,6 +4565,24 @@
         "required": [
           "email",
           "password"
+        ]
+      },
+      "PaymentRefundRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "exclusiveMinimum": 0
+          },
+          "memo": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "amount"
         ]
       },
       "AdminSuspendRequest": {
@@ -5710,6 +6100,9 @@
           "purchaseType": {
             "type": "string"
           },
+          "stage": {
+            "type": "string"
+          },
           "title": {
             "type": "string"
           },
@@ -5729,9 +6122,16 @@
             "type": "integer",
             "format": "int32"
           },
-          "editDeadlineAt": {
+          "myPaymentStatus": {
+            "type": "string"
+          },
+          "deadlineAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "sharedGroupOrderId": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -5769,6 +6169,9 @@
           "orderNumber": {
             "type": "string"
           },
+          "orderType": {
+            "type": "string"
+          },
           "orderedAt": {
             "type": "string",
             "format": "date-time"
@@ -5777,10 +6180,6 @@
             "type": "string"
           },
           "itemCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalQuantity": {
             "type": "integer",
             "format": "int32"
           },
@@ -5824,6 +6223,27 @@
           "heldBalance": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "RsDataListMemberAddressResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberAddressResponse"
+            }
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -6099,6 +6519,17 @@
             "items": {
               "$ref": "#/components/schemas/BuyerSummary"
             }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "CLOSED"
+            ]
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

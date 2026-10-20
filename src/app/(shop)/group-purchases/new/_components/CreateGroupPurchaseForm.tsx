@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { getGetMyList1QueryKey, useCreate } from '@/api/generated/shared-group-purchase-controller/shared-group-purchase-controller';
+import { getGetMyList1QueryKey, useCreate1 } from '@/api/generated/shared-group-purchase-controller/shared-group-purchase-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { useCurrentUser } from '@/lib/auth';
@@ -45,7 +45,7 @@ export default function CreateGroupPurchaseForm() {
     const router = useRouter();
     const queryClient = useQueryClient();
     const { user } = useCurrentUser();
-    const createPurchase = useCreate({
+    const createPurchase = useCreate1({
         mutation: {
             onSuccess: (res) => {
                 void queryClient.invalidateQueries({ queryKey: getGetMyList1QueryKey() });

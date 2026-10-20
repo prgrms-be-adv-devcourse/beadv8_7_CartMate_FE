@@ -56,7 +56,7 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getCreate1Url = () => {
+export const getCreate2Url = () => {
 
 
 
@@ -64,7 +64,7 @@ export const getCreate1Url = () => {
   return `/api/group-purchases/individual`
 }
 
-export const create1 = async (individualGroupPurchaseCreateRequest: IndividualGroupPurchaseCreateRequest, options?: Parameters<typeof http>[1]): Promise<RsDataIndividualGroupPurchaseCreateResponse> => {
+export const create2 = async (individualGroupPurchaseCreateRequest: IndividualGroupPurchaseCreateRequest, options?: Parameters<typeof http>[1]): Promise<RsDataIndividualGroupPurchaseCreateResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -80,7 +80,7 @@ export const create1 = async (individualGroupPurchaseCreateRequest: IndividualGr
     }
     return headers;
   };
-return http<RsDataIndividualGroupPurchaseCreateResponse>(getCreate1Url(),
+return http<RsDataIndividualGroupPurchaseCreateResponse>(getCreate2Url(),
   {
     ...options,
     method: 'POST',
@@ -93,13 +93,13 @@ return http<RsDataIndividualGroupPurchaseCreateResponse>(getCreate1Url(),
 
 
 
-export const getCreate1MutationKey = () => ['create1'] as const;
+export const getCreate2MutationKey = () => ['create2'] as const;
 
-export const getCreate1MutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof create1>>, TError,Create1MutationVariables, TContext>, request?: SecondParameter<typeof http>}
-): UseMutationOptions<Awaited<ReturnType<typeof create1>>, TError,Create1MutationVariables, TContext> => {
+export const getCreate2MutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof create2>>, TError,Create2MutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof create2>>, TError,Create2MutationVariables, TContext> => {
 
-const mutationKey = getCreate1MutationKey();
+const mutationKey = getCreate2MutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -109,10 +109,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof create1>>, Create1MutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof create2>>, Create2MutationVariables> = (props) => {
           const {data} = props ?? {};
 
-          return  create1(data,requestOptions)
+          return  create2(data,requestOptions)
         }
 
 
@@ -122,20 +122,20 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type Create1MutationResult = NonNullable<Awaited<ReturnType<typeof create1>>>
-    export type Create1MutationBody = IndividualGroupPurchaseCreateRequest
-    export type Create1MutationError = unknown
-    export type Create1MutationVariables = {data: IndividualGroupPurchaseCreateRequest}
+    export type Create2MutationResult = NonNullable<Awaited<ReturnType<typeof create2>>>
+    export type Create2MutationBody = IndividualGroupPurchaseCreateRequest
+    export type Create2MutationError = unknown
+    export type Create2MutationVariables = {data: IndividualGroupPurchaseCreateRequest}
 
-    export const useCreate1 = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof create1>>, TError,Create1MutationVariables, TContext>, request?: SecondParameter<typeof http>}
+    export const useCreate2 = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof create2>>, TError,Create2MutationVariables, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof create1>>,
+        Awaited<ReturnType<typeof create2>>,
         TError,
-        Create1MutationVariables,
+        Create2MutationVariables,
         TContext
       > => {
-      return useMutation(getCreate1MutationOptions(options), queryClient);
+      return useMutation(getCreate2MutationOptions(options), queryClient);
     }
     export const getAddProductUrl = (id: number,) => {
 

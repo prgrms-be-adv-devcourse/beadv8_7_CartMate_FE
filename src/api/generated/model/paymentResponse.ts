@@ -9,6 +9,8 @@ export interface PaymentResponse {
   paymentId?: number;
   orderId?: number;
   amount?: number;
+  refundedAmount?: number;
+  refundableAmount?: number;
   type?: string;
   status?: string;
   paidAt?: string;
