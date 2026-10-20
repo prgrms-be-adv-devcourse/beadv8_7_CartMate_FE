@@ -16,7 +16,7 @@ export default function SellerLayout({ children }: { children: ReactNode }) {
                         </div>
                     </div>
                 </header>
-                <main className="relative pt-16 bg-surface min-h-[calc(100vh-4rem)] p-space-xl">{children}</main>
+                <main className="relative bg-surface min-h-[calc(100vh-4rem)] p-space-xl pt-24">{children}</main>
                 <footer className="w-full bg-surface-container-low py-space-xl border-t border-surface-variant">
                     <div className="max-w-7xl mx-auto px-space-xl text-center text-on-surface-variant text-body-sm">
                         © 2024 Seller Center. All rights reserved.

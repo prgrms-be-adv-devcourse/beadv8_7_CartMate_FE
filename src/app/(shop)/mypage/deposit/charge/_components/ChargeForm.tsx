@@ -168,7 +168,7 @@ export default function ChargeForm() {
 
             <div className="flex flex-col gap-space-xs pt-space-xs">
                 <button
-                    className="w-full h-12 bg-primary text-on-primary hover:bg-neutral-800 rounded font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs transition-colors shadow-md"
+                    className="w-full h-12 bg-primary text-on-primary hover:opacity-90 rounded font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs transition-colors shadow-md"
                     type="button"
                 >
                     <span>{formatNumber(amount)}원</span>

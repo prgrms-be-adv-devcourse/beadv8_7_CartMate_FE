@@ -174,7 +174,7 @@ export default function AddressBook() {
 
             {/* Modal Backdrop & Dialog */}
             {modal && (
-                <div className="fixed inset-0 z-50 bg-[#111827]/40 backdrop-blur-sm flex items-center justify-center">
+                <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
                     <div className="bg-surface-container-lowest border border-outline-variant rounded-lg w-[480px] p-space-xl shadow-xl flex flex-col gap-space-lg">
                         <div className="flex items-center justify-between border-b border-surface-container pb-space-md">
                             <h3 className="font-headline-md text-headline-md text-on-surface font-bold">

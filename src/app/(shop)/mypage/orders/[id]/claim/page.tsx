@@ -89,7 +89,7 @@ export default function OrderClaimPage() {
                                         className="border border-outline-variant p-space-md rounded flex items-center gap-space-md bg-surface-container-lowest hover:border-primary transition-colors"
                                     >
                                         <input className="w-4 h-4 accent-primary cursor-pointer" defaultChecked={item.checked} type="checkbox" />
-                                        <div className="w-16 h-16 bg-[#F3F4F6] border border-outline-variant relative flex items-center justify-center shrink-0">
+                                        <div className="w-16 h-16 bg-surface-container border border-outline-variant relative flex items-center justify-center shrink-0">
                                             <svg
                                                 className="absolute inset-0 w-full h-full text-outline-variant pointer-events-none"
                                                 preserveAspectRatio="none"

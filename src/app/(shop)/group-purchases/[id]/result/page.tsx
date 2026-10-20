@@ -53,7 +53,7 @@ function ConfirmedView() {
                     </div>
                     <div className="flex flex-col sm:flex-row lg:flex-col gap-space-xs w-full lg:w-auto shrink-0">
                         <Link
-                            className="h-[44px] px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:bg-neutral-800 transition-colors"
+                            className="h-[44px] px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:opacity-90 transition-colors"
                             href={ROUTES.order()}
                         >
                             <Icon name="print" className="text-[18px]" />
@@ -227,7 +227,7 @@ function CancelledView() {
                     </div>
                     <div className="flex flex-col sm:flex-row lg:flex-col gap-space-xs w-full lg:w-auto shrink-0">
                         <Link
-                            className="h-[44px] px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:bg-neutral-800 transition-colors"
+                            className="h-[44px] px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:opacity-90 transition-colors"
                             href={ROUTES.groupPurchaseNew}
                         >
                             <Icon name="replay" className="text-[18px]" />

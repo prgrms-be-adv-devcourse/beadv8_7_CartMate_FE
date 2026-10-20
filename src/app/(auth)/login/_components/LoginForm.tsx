@@ -1,28 +1,46 @@
 'use client';
 
 import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useLogin } from '@/api/generated/auth-controller/auth-controller';
+import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
-
-type LoginValues = {
-    email: string;
-    password: string;
-    remember: boolean;
-};
+import { SKIP_AUTH_EXPIRED, reloadTo } from '@/lib/auth';
+import { ROUTES } from '@/lib/routes';
+import { loginSchema, type LoginValues } from '../../_lib/authSchemas';
 
 const INPUT_CLASS =
     'w-full h-[42px] px-3 border border-outline-variant rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:border-on-surface transition-colors';
 
+// 로그인 후 돌아갈 경로. 외부 주소로 튀지 않도록 사이트 내부 경로만 허용한다.
+function nextPath(): string {
+    const next = new URLSearchParams(window.location.search).get('next');
+    if (!next?.startsWith('/')) return ROUTES.home;
+    // `//evil.com`, `/\evil.com` 같은 우회를 막기 위해 브라우저와 같은 규칙으로 해석해 출처를 비교한다.
+    const url = new URL(next, window.location.origin);
+    return url.origin === window.location.origin ? `${url.pathname}${url.search}${url.hash}` : ROUTES.home;
+}
+
 export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
+    const login = useLogin({ mutation: { meta: SKIP_AUTH_EXPIRED } });
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginValues>({ defaultValues: { remember: true } });
+    } = useForm<LoginValues>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: { email: '', password: '', remember: true },
+    });
 
     const onSubmit = (values: LoginValues) => {
-        console.log('login', values);
+        login.mutate(
+            { data: values },
+            {
+                onSuccess: () => reloadTo(nextPath()),
+            },
+        );
     };
 
     return (
@@ -39,7 +57,7 @@ export default function LoginForm() {
                         id="user-email"
                         placeholder="example@email.com"
                         type="email"
-                        {...register('email', { required: '이메일 주소를 입력해주세요.' })}
+                        {...register('email')}
                     />
                 </div>
                 {errors.email && <p className="font-caption text-caption text-error">{errors.email.message}</p>}
@@ -60,7 +78,7 @@ export default function LoginForm() {
                         id="user-password"
                         placeholder="비밀번호를 입력하세요"
                         type={showPassword ? 'text' : 'password'}
-                        {...register('password', { required: '비밀번호를 입력해주세요.' })}
+                        {...register('password')}
                     />
                     <button
                         className="absolute right-3 text-outline hover:text-on-surface flex items-center justify-center"
@@ -84,12 +102,18 @@ export default function LoginForm() {
                 </label>
                 <span className="text-caption font-caption text-outline">보안 30일 보관</span>
             </div>
+            {login.isError && (
+                <p className="font-caption text-caption text-error" role="alert">
+                    {errorMessage(login.error, '로그인에 실패했습니다.')}
+                </p>
+            )}
             {/* Main Action CTA Button */}
             <button
-                className="w-full h-[44px] mt-2 bg-on-surface text-surface-container-lowest font-label-md text-label-md rounded border border-on-surface flex items-center justify-center gap-2 hover:bg-neutral-800 active:scale-[0.99] transition-all"
+                className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60"
                 type="submit"
+                disabled={login.isPending}
             >
-                <span>로그인</span>
+                <span>{login.isPending ? '로그인 중...' : '로그인'}</span>
                 <Icon name="arrow_forward" className="text-[16px]" />
             </button>
         </form>

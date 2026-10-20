@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import LoginForm from './_components/LoginForm';
+import SessionExpiredNotice from './_components/SessionExpiredNotice';
 
 export const metadata: Metadata = { title: '로그인 | TEAMBUY' };
 
@@ -28,6 +30,10 @@ export default function LoginPage() {
                     </div>
                     <p className="font-body-sm text-body-sm text-on-surface-variant">동호회·팀 유니폼 및 장비 공동구매 서비스</p>
                 </div>
+                {/* 쿼리스트링을 읽는 부분만 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}
+                <Suspense fallback={null}>
+                    <SessionExpiredNotice />
+                </Suspense>
                 <LoginForm />
                 {/* Sign-up Redirect Link */}
                 <div className="flex items-center justify-center gap-2 py-1 text-center font-body-sm text-body-sm text-on-surface-variant border-t border-surface-container-high pt-4">
