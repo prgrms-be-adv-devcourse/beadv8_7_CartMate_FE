@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "api:gen": "orval",
-    "api:pull": "node scripts/pull-openapi.mjs"
+    "api:pull": "node scripts/pull-openapi.mjs",
+    "seed:local": "bash scripts/seed-local.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.2",
