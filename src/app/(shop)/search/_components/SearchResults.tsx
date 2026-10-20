@@ -8,6 +8,7 @@ import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import { toSalesPostCard } from '@/lib/salesPost';
 import SalesPostCard, { SalesPostCardSkeleton } from '../../_components/SalesPostCard';
+import { SearchFilters, SearchSortBar } from './SearchFilters';
 
 const PAGE_SIZE = 12;
 // 페이지 번호는 현재 페이지 앞뒤로 이만큼만 보여 준다.
@@ -33,7 +34,7 @@ function searchHref(keyword: string, page: number): string {
     return query ? `${ROUTES.search}?${query}` : ROUTES.search;
 }
 
-// 검색어(q)로 판매글 제목을 검색한다. 종목·카테고리·가격 필터와 정렬은 BE가 지원하지 않아 숨겨 두었다. (로드맵 SHOP-3)
+// 검색어(q)로 판매글 제목을 검색한다. 종목·카테고리·가격 필터와 정렬은 BE가 지원하지 않아 비활성으로 둔다. (로드맵 SHOP-3)
 export default function SearchResults() {
     const searchParams = useSearchParams();
     const keyword = searchParams.get('q')?.trim() ?? '';
@@ -53,46 +54,52 @@ export default function SearchResults() {
                 {result && <span className="font-label-md text-label-md text-on-surface-variant">(총 {result.totalElements ?? 0}개 상품)</span>}
             </div>
 
-            {query.isPending ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-gutter w-full">
-                    {Array.from({ length: PAGE_SIZE }, (_, i) => (
-                        <SalesPostCardSkeleton key={i} />
-                    ))}
+            <div className="flex flex-col lg:flex-row gap-gutter w-full items-start">
+                <SearchFilters />
+                <div className="flex-1 w-full flex flex-col gap-space-lg">
+                    <SearchSortBar />
+                    {query.isPending ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-gutter w-full">
+                            {Array.from({ length: PAGE_SIZE }, (_, i) => (
+                                <SalesPostCardSkeleton key={i} />
+                            ))}
+                        </div>
+                    ) : query.isError ? (
+                        <div className="w-full bg-surface-container-low border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-sm text-center" role="alert">
+                            <p className="font-body-md text-body-md text-on-surface">{errorMessage(query.error, '검색 결과를 불러오지 못했습니다.')}</p>
+                            <button
+                                className="h-10 px-space-lg bg-surface-container-lowest border border-outline-variant font-label-md text-label-md text-on-surface rounded hover:bg-surface-container"
+                                type="button"
+                                onClick={() => query.refetch()}
+                            >
+                                다시 시도
+                            </button>
+                        </div>
+                    ) : cards.length === 0 && (result?.totalElements ?? 0) > 0 ? (
+                        // 상품은 있는데 마지막 페이지를 넘어선 경우 (예: ?page=999)
+                        <div className="w-full bg-surface-container-low border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-md text-center">
+                            <p className="font-body-md text-body-md text-on-surface">이 페이지에는 상품이 없습니다.</p>
+                            <Link
+                                className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded hover:opacity-90 flex items-center"
+                                href={searchHref(keyword, 1)}
+                            >
+                                첫 페이지로
+                            </Link>
+                        </div>
+                    ) : cards.length === 0 ? (
+                        <EmptyResult keyword={keyword} />
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-gutter w-full">
+                                {cards.map((card) => (
+                                    <SalesPostCard key={card.id} post={card} />
+                                ))}
+                            </div>
+                            {totalPages > 1 && <Pagination keyword={keyword} page={page} totalPages={totalPages} />}
+                        </>
+                    )}
                 </div>
-            ) : query.isError ? (
-                <div className="w-full bg-surface-container-low border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-sm text-center" role="alert">
-                    <p className="font-body-md text-body-md text-on-surface">{errorMessage(query.error, '검색 결과를 불러오지 못했습니다.')}</p>
-                    <button
-                        className="h-10 px-space-lg bg-surface-container-lowest border border-outline-variant font-label-md text-label-md text-on-surface rounded hover:bg-surface-container"
-                        type="button"
-                        onClick={() => query.refetch()}
-                    >
-                        다시 시도
-                    </button>
-                </div>
-            ) : cards.length === 0 && (result?.totalElements ?? 0) > 0 ? (
-                // 상품은 있는데 마지막 페이지를 넘어선 경우 (예: ?page=999)
-                <div className="w-full bg-surface-container-low border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-md text-center">
-                    <p className="font-body-md text-body-md text-on-surface">이 페이지에는 상품이 없습니다.</p>
-                    <Link
-                        className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded hover:opacity-90 flex items-center"
-                        href={searchHref(keyword, 1)}
-                    >
-                        첫 페이지로
-                    </Link>
-                </div>
-            ) : cards.length === 0 ? (
-                <EmptyResult keyword={keyword} />
-            ) : (
-                <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-gutter w-full">
-                        {cards.map((card) => (
-                            <SalesPostCard key={card.id} post={card} />
-                        ))}
-                    </div>
-                    {totalPages > 1 && <Pagination keyword={keyword} page={page} totalPages={totalPages} />}
-                </>
-            )}
+            </div>
         </div>
     );
 }

@@ -10,7 +10,15 @@ import SalesPostCard, { SalesPostCardSkeleton } from './SalesPostCard';
 
 const HOME_PAGE_SIZE = 8;
 
-// 홈 "최신 판매 상품" 목록. BE가 정렬을 지원하지 않아 최신 등록순(BE 기본)만 보여 준다.
+// BE 목록은 최신 등록순만 지원한다. 나머지 정렬은 자리만 남겨 두고 비활성. (로드맵 SHOP-3)
+const SORT_TABS = [
+    { label: '최신순', available: true },
+    { label: '인기 마감순', available: false },
+    { label: '할인율 높은순', available: false },
+    { label: '최저가순', available: false },
+];
+
+// 홈 "최신 판매 상품" 목록.
 export default function HomeSalesPosts() {
     const query = useSelectSalesPostAll({ page: 0, size: HOME_PAGE_SIZE });
     const page = query.data?.data;
@@ -28,10 +36,31 @@ export default function HomeSalesPosts() {
                     </div>
                     <h2 className="font-headline-md text-headline-md text-on-surface">최신 판매 상품</h2>
                 </div>
-                <Link href={ROUTES.search} className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-0.5">
-                    전체 보기
-                    <Icon name="arrow_forward" className="text-[16px]" />
-                </Link>
+                <div className="flex items-center gap-space-md">
+                    <div className="flex items-center gap-1 border border-outline-variant bg-surface-container-lowest p-0.5">
+                        {SORT_TABS.map((tab) => (
+                            <button
+                                key={tab.label}
+                                className={
+                                    tab.available
+                                        ? 'px-space-sm py-1 font-label-sm text-label-sm bg-primary text-on-primary'
+                                        : 'px-space-sm py-1 font-label-sm text-label-sm text-on-surface-variant disabled:cursor-not-allowed disabled:opacity-50'
+                                }
+                                type="button"
+                                disabled={!tab.available}
+                                aria-pressed={tab.available}
+                                title={tab.available ? undefined : '준비 중입니다'}
+                            >
+                                {tab.label}
+                                {!tab.available && <span className="sr-only"> (준비 중)</span>}
+                            </button>
+                        ))}
+                    </div>
+                    <Link href={ROUTES.search} className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-0.5">
+                        전체 보기
+                        <Icon name="arrow_forward" className="text-[16px]" />
+                    </Link>
+                </div>
             </div>
 
             {query.isPending ? (

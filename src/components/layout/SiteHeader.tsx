@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Icon from '@/components/ui/Icon';
+import { CartCountBadge, DepositAmount } from '@/components/layout/HeaderUserBadges';
 import HeaderUtilNav from '@/components/layout/HeaderUtilNav';
 import SidebarNav from '@/components/layout/SidebarNav';
 import { ROUTES } from '@/lib/routes';
@@ -29,7 +30,7 @@ export default function SiteHeader() {
                         >
                             <Icon name="account_balance_wallet" className="text-[15px] text-primary" />
                             <span className="text-on-surface-variant">팀 예치금</span>
-                            <span className="font-label-sm text-label-sm text-primary">₩ 2,450,000</span>
+                            <DepositAmount />
                         </Link>
                         <HeaderUtilNav />
                     </div>
@@ -72,9 +73,7 @@ export default function SiteHeader() {
                         <Link href={ROUTES.cart} className={ICON_BUTTON}>
                             <Icon name="shopping_bag" className="text-[18px]" />
                             장바구니
-                            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-on-primary font-caption text-caption flex items-center justify-center ring-2 ring-white">
-                                3
-                            </span>
+                            <CartCountBadge />
                         </Link>
                         <Link href={ROUTES.myPage} className={ICON_BUTTON}>
                             <Icon name="account_circle" className="text-[18px]" />

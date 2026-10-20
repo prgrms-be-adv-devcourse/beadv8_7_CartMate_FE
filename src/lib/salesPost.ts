@@ -1,4 +1,4 @@
-import type { SelectSalesPostResponse } from '@/api/generated/model';
+import type { SelectSalesPostProduct, SelectSalesPostResponse } from '@/api/generated/model';
 
 // 판매글(SelectSalesPostResponse)을 상품 카드에 필요한 값으로 바꾼다.
 export type SalesPostCardModel = {
@@ -35,6 +35,31 @@ export function toSalesPostCard(post: SelectSalesPostResponse): SalesPostCardMod
         minPrice: prices.length > 0 ? Math.min(...prices) : null,
         productCount: products.length,
         imageUrl: imageUrl(firstImage?.s3key),
+    };
+}
+
+// 상품 상세에서 고를 수 있는 상품 한 줄
+export type ProductOption = {
+    id: number;
+    name: string;
+    description: string;
+    price: number | null;
+    onSale: boolean;
+    imageUrls: string[];
+};
+
+export function toProductOption(product: SelectSalesPostProduct): ProductOption | null {
+    if (product.id === undefined) return null;
+    return {
+        id: product.id,
+        name: product.name ?? '',
+        description: product.description ?? '',
+        price: typeof product.basePrice === 'number' ? product.basePrice : null,
+        onSale: product.status === 'ON_SALE',
+        imageUrls: [...(product.productImageList ?? [])]
+            .sort((a, b) => (a.image_seq ?? 0) - (b.image_seq ?? 0))
+            .map((image) => imageUrl(image.s3key))
+            .filter((url): url is string => url !== null),
     };
 }
 
