@@ -29,7 +29,8 @@ import type {
   RsDataPageResponseSelectSalesPostResponse,
   RsDataSelectSalesPostResponse,
   SelectSalesPostAllParams,
-  SelectSalesPostDetailParams
+  SelectSalesPostDetailParams,
+  UpdateSalesPostBody
 } from '../model';
 
 import { http } from '../../http';
@@ -244,7 +245,81 @@ export function useSelectSalesPostAll<TData = Awaited<ReturnType<typeof selectSa
 
 
 
-export const getSelectSalesPostDetailUrl = (params: SelectSalesPostDetailParams,) => {
+export const getUpdateSalesPostUrl = () => {
+
+
+
+
+  return `/api/sales-posts`
+}
+
+export const updateSalesPost = async (updateSalesPostBody?: UpdateSalesPostBody, options?: Parameters<typeof http>[1]): Promise<void> => {
+    const formData = new FormData();
+if(updateSalesPostBody?.request !== undefined) {
+ formData.append(`request`, JSON.stringify(updateSalesPostBody.request));
+ }
+if(updateSalesPostBody?.images !== undefined) {
+ updateSalesPostBody?.images.forEach(value => formData.append(`images`, value));
+ }
+
+  return http<void>(getUpdateSalesPostUrl(),
+  {
+    ...options,
+    method: 'PATCH'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getUpdateSalesPostMutationKey = () => ['updateSalesPost'] as const;
+
+export const getUpdateSalesPostMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSalesPost>>, TError,UpdateSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSalesPost>>, TError,UpdateSalesPostMutationVariables, TContext> => {
+
+const mutationKey = getUpdateSalesPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSalesPost>>, UpdateSalesPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateSalesPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSalesPostMutationResult = NonNullable<Awaited<ReturnType<typeof updateSalesPost>>>
+    export type UpdateSalesPostMutationBody = UpdateSalesPostBody | undefined
+    export type UpdateSalesPostMutationError = unknown
+    export type UpdateSalesPostMutationVariables = {data?: UpdateSalesPostBody}
+
+    export const useUpdateSalesPost = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSalesPost>>, TError,UpdateSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSalesPost>>,
+        TError,
+        UpdateSalesPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateSalesPostMutationOptions(options), queryClient);
+    }
+    export const getSelectSalesPostDetailUrl = (params: SelectSalesPostDetailParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {

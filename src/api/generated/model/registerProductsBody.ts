@@ -6,7 +6,7 @@
  */
 import type { CreateProductRequest } from './createProductRequest';
 
-export type RegisterProductBody = {
+export type RegisterProductsBody = {
   request: CreateProductRequest;
   images: Blob[];
 };

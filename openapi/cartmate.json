@@ -174,7 +174,7 @@
         "tags": [
           "product-controller"
         ],
-        "operationId": "registerProduct",
+        "operationId": "registerProducts",
         "requestBody": {
           "content": {
             "application/json": {
@@ -203,6 +203,135 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/payments/shared-group-orders/{sharedGroupOrderId}": {
+      "get": {
+        "tags": [
+          "payment-controller"
+        ],
+        "operationId": "getBySharedGroupOrder",
+        "parameters": [
+          {
+            "name": "sharedGroupOrderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "payment-controller"
+        ],
+        "operationId": "paySharedGroupOrder",
+        "parameters": [
+          {
+            "name": "sharedGroupOrderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SharedGroupPaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/orders/{orderId}": {
+      "get": {
+        "tags": [
+          "payment-controller"
+        ],
+        "operationId": "getByOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "payment-controller"
+        ],
+        "operationId": "payOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -993,6 +1122,116 @@
         }
       }
     },
+    "/api/sales-posts": {
+      "get": {
+        "tags": [
+          "sales-post-controller"
+        ],
+        "operationId": "selectSalesPostAll",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SelectSalesPostRequest"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPageResponseSelectSalesPostResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "sales-post-controller"
+        ],
+        "operationId": "updateSalesPost",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "request": {
+                    "$ref": "#/components/schemas/UpdateSalesPostRequest"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "required": [
+                  "request"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/products/update": {
+      "patch": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "updateProducts",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "request": {
+                    "$ref": "#/components/schemas/UpdateProductsRequest"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "required": [
+                  "request"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/members/me": {
       "get": {
         "tags": [
@@ -1538,27 +1777,29 @@
         }
       }
     },
-    "/api/sales-posts": {
+    "/api/settlements": {
       "get": {
         "tags": [
-          "sales-post-controller"
+          "payout-controller"
         ],
-        "operationId": "selectSalesPostAll",
+        "operationId": "getMySettlements",
         "parameters": [
           {
-            "name": "request",
+            "name": "from",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SelectSalesPostRequest"
+              "type": "string",
+              "format": "date"
             }
           },
           {
-            "name": "pageable",
+            "name": "to",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "$ref": "#/components/schemas/Pageable"
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -1568,7 +1809,77 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/RsDataPageResponseSelectSalesPostResponse"
+                  "$ref": "#/components/schemas/RsDataListSettlementResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settlements/{settlementId}": {
+      "get": {
+        "tags": [
+          "payout-controller"
+        ],
+        "operationId": "getMySettlementDetail",
+        "parameters": [
+          {
+            "name": "settlementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataSettlementDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settlements/pending": {
+      "get": {
+        "tags": [
+          "payout-controller"
+        ],
+        "operationId": "getMyPendingPayouts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataListPendingPayoutResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settlements/info": {
+      "get": {
+        "tags": [
+          "payout-controller"
+        ],
+        "operationId": "getMySettlementInfo",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataSettlementInfoResponse"
                 }
               }
             }
@@ -1600,6 +1911,37 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataSelectSalesPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/orders/{orderId}/preview": {
+      "get": {
+        "tags": [
+          "payment-controller"
+        ],
+        "operationId": "preview",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentPreviewResponse"
                 }
               }
             }
@@ -2339,7 +2681,7 @@
         "tags": [
           "product-controller"
         ],
-        "operationId": "deleteProduct",
+        "operationId": "deleteProducts",
         "parameters": [
           {
             "name": "sellerId",
@@ -2756,7 +3098,7 @@
           "s3Key": {
             "type": "string"
           },
-          "image_seq": {
+          "imageSeq": {
             "type": "integer",
             "format": "int32"
           },
@@ -2864,6 +3206,83 @@
             "items": {
               "$ref": "#/components/schemas/CreateProduct"
             }
+          }
+        }
+      },
+      "SharedGroupPaymentRequest": {
+        "type": "object",
+        "properties": {
+          "teamDeliveryAddress": {
+            "$ref": "#/components/schemas/TeamDeliveryAddress"
+          }
+        }
+      },
+      "TeamDeliveryAddress": {
+        "type": "object",
+        "properties": {
+          "receiverName": {
+            "type": "string"
+          },
+          "receiverPhone": {
+            "type": "string"
+          },
+          "zipCode": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "addressDetail": {
+            "type": "string"
+          }
+        }
+      },
+      "PaymentResponse": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "canceledAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataPaymentResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PaymentResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -3833,6 +4252,186 @@
           }
         }
       },
+      "UpdateSalesPostProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "basePrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE",
+              "PENDING"
+            ]
+          },
+          "productImageList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateSalesPostProductImage"
+            }
+          }
+        }
+      },
+      "UpdateSalesPostProductImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "s3Key": {
+            "type": "string"
+          },
+          "imageSeq": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateSalesPostRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sellerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "productList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateSalesPostProduct"
+            }
+          }
+        }
+      },
+      "UpdateProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "basePrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE",
+              "PENDING"
+            ]
+          },
+          "productImageList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateProductImage"
+            }
+          }
+        }
+      },
+      "UpdateProductImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "s3Key": {
+            "type": "string"
+          },
+          "imageSeq": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE",
+              "PENDING"
+            ]
+          }
+        }
+      },
+      "UpdateProductsRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateProduct"
+            }
+          }
+        }
+      },
       "UpdateProfileRequest": {
         "type": "object",
         "properties": {
@@ -4295,6 +4894,253 @@
           }
         }
       },
+      "RsDataListSettlementResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettlementResponse"
+            }
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SettlementResponse": {
+        "type": "object",
+        "properties": {
+          "settlementId": {
+            "type": "string"
+          },
+          "settlementDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "CANCELED",
+              "FAILED"
+            ]
+          },
+          "periodStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "payoutCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "salesAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "feeAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "payoutAmount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RsDataSettlementDetailResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SettlementDetailResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SettlementDetailResponse": {
+        "type": "object",
+        "properties": {
+          "settlementId": {
+            "type": "string"
+          },
+          "settlementDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "CANCELED",
+              "FAILED"
+            ]
+          },
+          "periodStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "payoutCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "salesAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "feeAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "payoutAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            }
+          }
+        }
+      },
+      "PendingPayoutResponse": {
+        "type": "object",
+        "properties": {
+          "payoutId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "settlementDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "orderedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "salesAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "feeAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "payoutAmount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RsDataListPendingPayoutResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingPayoutResponse"
+            }
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RsDataSettlementInfoResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SettlementInfoResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SettlementInfoResponse": {
+        "type": "object",
+        "properties": {
+          "feeRatePercent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "payoutDayOfMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nextPayoutDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "pendingPayoutCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pendingPayoutAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "completedPayoutAmount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "SelectSalesPostRequest": {
         "type": "object",
         "properties": {
@@ -4388,7 +5234,8 @@
               "CLOSED",
               "DELETED",
               "ACTIVE",
-              "INACTIVE"
+              "INACTIVE",
+              "PENDING"
             ]
           },
           "productImageList": {
@@ -4417,7 +5264,7 @@
           "s3key": {
             "type": "string"
           },
-          "image_seq": {
+          "imageSeq": {
             "type": "integer",
             "format": "int32"
           },
@@ -4490,6 +5337,54 @@
           },
           "data": {
             "$ref": "#/components/schemas/SelectSalesPostResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaymentPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "payable": {
+            "type": "boolean"
+          },
+          "walletBalance": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "balanceAfter": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sufficient": {
+            "type": "boolean"
+          },
+          "existingPayment": {
+            "$ref": "#/components/schemas/PaymentResponse"
+          }
+        }
+      },
+      "RsDataPaymentPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PaymentPreviewResponse"
           },
           "statusCode": {
             "type": "integer",

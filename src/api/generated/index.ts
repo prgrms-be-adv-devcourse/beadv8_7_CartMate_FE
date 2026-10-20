@@ -6,6 +6,8 @@ export * from './delivery-controller/delivery-controller';
 export * from './individual-group-purchase-controller/individual-group-purchase-controller';
 export * from './member-controller/member-controller';
 export * from './order-controller/order-controller';
+export * from './payment-controller/payment-controller';
+export * from './payout-controller/payout-controller';
 export * from './product-controller/product-controller';
 export * from './sales-post-controller/sales-post-controller';
 export * from './seller-controller/seller-controller';

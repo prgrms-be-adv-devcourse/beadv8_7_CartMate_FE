@@ -16,4 +16,5 @@ export const SelectSalesPostProductStatus = {
   DELETED: 'DELETED',
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
+  PENDING: 'PENDING',
 } as const;

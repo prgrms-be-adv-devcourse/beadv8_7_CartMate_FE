@@ -26,7 +26,7 @@ export function toSalesPostCard(post: SelectSalesPostResponse): SalesPostCardMod
     const prices = products.map((p) => p.basePrice).filter((price): price is number => typeof price === 'number');
     const firstImage = products
         .flatMap((p) => p.productImageList ?? [])
-        .sort((a, b) => (a.image_seq ?? 0) - (b.image_seq ?? 0))[0];
+        .sort((a, b) => (a.imageSeq ?? 0) - (b.imageSeq ?? 0))[0];
 
     return {
         id: post.id,
@@ -57,7 +57,7 @@ export function toProductOption(product: SelectSalesPostProduct): ProductOption 
         price: typeof product.basePrice === 'number' ? product.basePrice : null,
         onSale: product.status === 'ON_SALE',
         imageUrls: [...(product.productImageList ?? [])]
-            .sort((a, b) => (a.image_seq ?? 0) - (b.image_seq ?? 0))
+            .sort((a, b) => (a.imageSeq ?? 0) - (b.imageSeq ?? 0))
             .map((image) => imageUrl(image.s3key))
             .filter((url): url is string => url !== null),
     };

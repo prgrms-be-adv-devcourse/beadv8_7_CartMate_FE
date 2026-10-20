@@ -8,7 +8,7 @@
 export interface SelectSalesPostProductImage {
   id?: number;
   s3key?: string;
-  image_seq?: number;
+  imageSeq?: number;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -9,6 +9,6 @@ export interface CreateSalesPostProductImage {
   id?: number;
   productId?: number;
   s3Key?: string;
-  image_seq?: number;
+  imageSeq?: number;
   file?: Blob;
 }
