@@ -5,7 +5,7 @@
  * OpenAPI spec version: v0
  */
 
-export interface AddressResponse {
+export interface OrderDetailAddressResponse {
   receiverName?: string;
   receiverPhone?: string;
   zipCode?: string;

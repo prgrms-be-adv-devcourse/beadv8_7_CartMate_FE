@@ -5,6 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type { SelectSalesPostProductImage } from './selectSalesPostProductImage';
+import type { SelectSalesPostProductOption } from './selectSalesPostProductOption';
 import type { SelectSalesPostProductStatus } from './selectSalesPostProductStatus';
 
 export interface SelectSalesPostProduct {
@@ -15,6 +16,7 @@ export interface SelectSalesPostProduct {
   basePrice?: number;
   status?: SelectSalesPostProductStatus;
   productImageList?: SelectSalesPostProductImage[];
+  productOptionList?: SelectSalesPostProductOption[];
   createdAt?: string;
   updatedAt?: string;
 }

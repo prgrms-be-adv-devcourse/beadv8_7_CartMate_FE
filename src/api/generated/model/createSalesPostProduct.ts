@@ -4,6 +4,7 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { CreateProductOption } from './createProductOption';
 import type { CreateSalesPostProductImage } from './createSalesPostProductImage';
 
 export interface CreateSalesPostProduct {
@@ -14,4 +15,5 @@ export interface CreateSalesPostProduct {
   description?: string;
   basePrice?: number;
   productImageList?: CreateSalesPostProductImage[];
+  productOptionList?: CreateProductOption[];
 }

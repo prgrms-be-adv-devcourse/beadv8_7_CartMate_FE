@@ -131,7 +131,43 @@
         }
       }
     },
-    "/api/sales-posts/post": {
+    "/api/sales-posts": {
+      "get": {
+        "tags": [
+          "sales-post-controller"
+        ],
+        "operationId": "selectSalesPostAll",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SelectSalesPostRequest"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPageResponseSelectSalesPostResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "sales-post-controller"
@@ -167,9 +203,44 @@
             "description": "OK"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "sales-post-controller"
+        ],
+        "operationId": "updateSalesPost",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "request": {
+                    "$ref": "#/components/schemas/UpdateSalesPostRequest"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "required": [
+                  "request"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
-    "/api/products/register": {
+    "/api/products": {
       "post": {
         "tags": [
           "product-controller"
@@ -194,6 +265,41 @@
                 },
                 "required": [
                   "images",
+                  "request"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "updateProducts",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "request": {
+                    "$ref": "#/components/schemas/UpdateProductsRequest"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "required": [
                   "request"
                 ]
               }
@@ -1118,116 +1224,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/api/sales-posts": {
-      "get": {
-        "tags": [
-          "sales-post-controller"
-        ],
-        "operationId": "selectSalesPostAll",
-        "parameters": [
-          {
-            "name": "request",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/SelectSalesPostRequest"
-            }
-          },
-          {
-            "name": "pageable",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/Pageable"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/RsDataPageResponseSelectSalesPostResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "sales-post-controller"
-        ],
-        "operationId": "updateSalesPost",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "request": {
-                    "$ref": "#/components/schemas/UpdateSalesPostRequest"
-                  },
-                  "images": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  }
-                },
-                "required": [
-                  "request"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/products/update": {
-      "patch": {
-        "tags": [
-          "product-controller"
-        ],
-        "operationId": "updateProducts",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "request": {
-                    "$ref": "#/components/schemas/UpdateProductsRequest"
-                  },
-                  "images": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  }
-                },
-                "required": [
-                  "request"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
           }
         }
       }
@@ -2676,6 +2672,30 @@
         }
       }
     },
+    "/api/products/{postId}": {
+      "delete": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "deleteProductByPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/products/sellers/{sellerId}/products/{productId}": {
       "delete": {
         "tags": [
@@ -2694,30 +2714,6 @@
           },
           {
             "name": "productId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/products/posts/{postId}": {
-      "delete": {
-        "tags": [
-          "product-controller"
-        ],
-        "operationId": "deleteProductByPost",
-        "parameters": [
-          {
-            "name": "postId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3051,6 +3047,19 @@
           "paymentKey"
         ]
       },
+      "CreateProductOption": {
+        "type": "object",
+        "properties": {
+          "productTypeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productOptionId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "CreateSalesPostProduct": {
         "type": "object",
         "properties": {
@@ -3080,6 +3089,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreateSalesPostProductImage"
+            }
+          },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateProductOption"
             }
           }
         }
@@ -3166,6 +3181,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreateProductImage"
+            }
+          },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateProductOption"
             }
           }
         }
@@ -3397,32 +3418,7 @@
           }
         }
       },
-      "IndividualGroupOrderCreateRequest": {
-        "type": "object",
-        "properties": {
-          "individualGroupPurchaseId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Item"
-            },
-            "maxItems": 100,
-            "minItems": 0
-          },
-          "deliveryAddress": {
-            "$ref": "#/components/schemas/DeliveryAddressRequest"
-          }
-        },
-        "required": [
-          "deliveryAddress",
-          "individualGroupPurchaseId",
-          "items"
-        ]
-      },
-      "Item": {
+      "IndividualGroupOrderCreateItem": {
         "type": "object",
         "properties": {
           "inventoryId": {
@@ -3438,6 +3434,31 @@
         },
         "required": [
           "inventoryId"
+        ]
+      },
+      "IndividualGroupOrderCreateRequest": {
+        "type": "object",
+        "properties": {
+          "individualGroupPurchaseId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IndividualGroupOrderCreateItem"
+            },
+            "maxItems": 100,
+            "minItems": 0
+          },
+          "deliveryAddress": {
+            "$ref": "#/components/schemas/DeliveryAddressRequest"
+          }
+        },
+        "required": [
+          "deliveryAddress",
+          "individualGroupPurchaseId",
+          "items"
         ]
       },
       "SellerRegisterRequest": {
@@ -3643,7 +3664,41 @@
           "inviteCode"
         ]
       },
-      "ItemResponse": {
+      "MemberResponse": {
+        "type": "object",
+        "properties": {
+          "memberId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "creator": {
+            "type": "boolean"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataSharedGroupPurchaseDetailResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SharedGroupPurchaseDetailResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SharedGroupPurchaseDetailItemResponse": {
         "type": "object",
         "properties": {
           "itemId": {
@@ -3689,40 +3744,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          }
-        }
-      },
-      "MemberResponse": {
-        "type": "object",
-        "properties": {
-          "memberId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "creator": {
-            "type": "boolean"
-          },
-          "joinedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "RsDataSharedGroupPurchaseDetailResponse": {
-        "type": "object",
-        "properties": {
-          "resultCode": {
-            "type": "string"
-          },
-          "msg": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/SharedGroupPurchaseDetailResponse"
-          },
-          "statusCode": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },
@@ -3791,7 +3812,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ItemResponse"
+              "$ref": "#/components/schemas/SharedGroupPurchaseDetailItemResponse"
             }
           },
           "totalPrice": {
@@ -3908,6 +3929,19 @@
             "items": {
               "$ref": "#/components/schemas/Item"
             }
+          }
+        }
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "deliveryItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -5244,6 +5278,12 @@
               "$ref": "#/components/schemas/SelectSalesPostProductImage"
             }
           },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectSalesPostProductOption"
+            }
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -5267,6 +5307,31 @@
           "imageSeq": {
             "type": "integer",
             "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SelectSalesPostProductOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productTypeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productOptionId": {
+            "type": "integer",
+            "format": "int64"
           },
           "createdAt": {
             "type": "string",
@@ -5392,7 +5457,7 @@
           }
         }
       },
-      "AddressResponse": {
+      "OrderDetailAddressResponse": {
         "type": "object",
         "properties": {
           "receiverName": {
@@ -5409,6 +5474,41 @@
           },
           "addressDetail": {
             "type": "string"
+          }
+        }
+      },
+      "OrderDetailItemResponse": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inventoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "optionName": {
+            "type": "string"
+          },
+          "unitPrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -5470,12 +5570,12 @@
             "format": "date-time"
           },
           "deliveryAddress": {
-            "$ref": "#/components/schemas/AddressResponse"
+            "$ref": "#/components/schemas/OrderDetailAddressResponse"
           },
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ItemResponse"
+              "$ref": "#/components/schemas/OrderDetailItemResponse"
             }
           }
         }
@@ -6150,6 +6250,64 @@
           }
         }
       },
+      "SharedGroupOrderDetailAddressResponse": {
+        "type": "object",
+        "properties": {
+          "receiverName": {
+            "type": "string"
+          },
+          "receiverPhone": {
+            "type": "string"
+          },
+          "zipCode": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "addressDetail": {
+            "type": "string"
+          }
+        }
+      },
+      "SharedGroupOrderDetailItemResponse": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inventoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "optionName": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "SharedGroupOrderDetailResponse": {
         "type": "object",
         "properties": {
@@ -6208,7 +6366,7 @@
             "format": "date-time"
           },
           "teamDeliveryAddress": {
-            "$ref": "#/components/schemas/AddressResponse"
+            "$ref": "#/components/schemas/SharedGroupOrderDetailAddressResponse"
           },
           "participants": {
             "type": "array",
@@ -6219,7 +6377,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ItemResponse"
+              "$ref": "#/components/schemas/SharedGroupOrderDetailItemResponse"
             }
           },
           "serverTime": {

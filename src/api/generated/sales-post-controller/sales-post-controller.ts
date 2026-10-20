@@ -55,88 +55,7 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getRegisterSalesPostUrl = () => {
-
-
-
-
-  return `/api/sales-posts/post`
-}
-
-export const registerSalesPost = async (registerSalesPostBody?: RegisterSalesPostBody, options?: Parameters<typeof http>[1]): Promise<void> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
-    if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
-      );
-    }
-    const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
-      if (value !== undefined) headers[name] = value;
-    }
-    return headers;
-  };
-return http<void>(getRegisterSalesPostUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(registerSalesPostBody)
-  }
-);}
-
-
-
-
-
-export const getRegisterSalesPostMutationKey = () => ['registerSalesPost'] as const;
-
-export const getRegisterSalesPostMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerSalesPost>>, TError,RegisterSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
-): UseMutationOptions<Awaited<ReturnType<typeof registerSalesPost>>, TError,RegisterSalesPostMutationVariables, TContext> => {
-
-const mutationKey = getRegisterSalesPostMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof registerSalesPost>>, RegisterSalesPostMutationVariables> = (props) => {
-          const {data} = props ?? {};
-
-          return  registerSalesPost(data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type RegisterSalesPostMutationResult = NonNullable<Awaited<ReturnType<typeof registerSalesPost>>>
-    export type RegisterSalesPostMutationBody = RegisterSalesPostBody | undefined
-    export type RegisterSalesPostMutationError = unknown
-    export type RegisterSalesPostMutationVariables = {data?: RegisterSalesPostBody}
-
-    export const useRegisterSalesPost = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerSalesPost>>, TError,RegisterSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof registerSalesPost>>,
-        TError,
-        RegisterSalesPostMutationVariables,
-        TContext
-      > => {
-      return useMutation(getRegisterSalesPostMutationOptions(options), queryClient);
-    }
-    export const getSelectSalesPostAllUrl = (params?: SelectSalesPostAllParams,) => {
+export const getSelectSalesPostAllUrl = (params?: SelectSalesPostAllParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -245,7 +164,88 @@ export function useSelectSalesPostAll<TData = Awaited<ReturnType<typeof selectSa
 
 
 
-export const getUpdateSalesPostUrl = () => {
+export const getRegisterSalesPostUrl = () => {
+
+
+
+
+  return `/api/sales-posts`
+}
+
+export const registerSalesPost = async (registerSalesPostBody?: RegisterSalesPostBody, options?: Parameters<typeof http>[1]): Promise<void> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return http<void>(getRegisterSalesPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(registerSalesPostBody)
+  }
+);}
+
+
+
+
+
+export const getRegisterSalesPostMutationKey = () => ['registerSalesPost'] as const;
+
+export const getRegisterSalesPostMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerSalesPost>>, TError,RegisterSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof registerSalesPost>>, TError,RegisterSalesPostMutationVariables, TContext> => {
+
+const mutationKey = getRegisterSalesPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof registerSalesPost>>, RegisterSalesPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  registerSalesPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RegisterSalesPostMutationResult = NonNullable<Awaited<ReturnType<typeof registerSalesPost>>>
+    export type RegisterSalesPostMutationBody = RegisterSalesPostBody | undefined
+    export type RegisterSalesPostMutationError = unknown
+    export type RegisterSalesPostMutationVariables = {data?: RegisterSalesPostBody}
+
+    export const useRegisterSalesPost = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerSalesPost>>, TError,RegisterSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof registerSalesPost>>,
+        TError,
+        RegisterSalesPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRegisterSalesPostMutationOptions(options), queryClient);
+    }
+    export const getUpdateSalesPostUrl = () => {
 
 
 

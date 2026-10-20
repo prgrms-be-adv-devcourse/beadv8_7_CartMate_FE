@@ -5,6 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type { CreateProductImage } from './createProductImage';
+import type { CreateProductOption } from './createProductOption';
 
 export interface CreateProduct {
   id?: number;
@@ -15,4 +16,5 @@ export interface CreateProduct {
   description?: string;
   basePrice?: number;
   productImageList?: CreateProductImage[];
+  productOptionList?: CreateProductOption[];
 }

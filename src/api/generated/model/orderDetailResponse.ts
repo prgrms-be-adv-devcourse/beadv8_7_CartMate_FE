@@ -4,8 +4,8 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { AddressResponse } from './addressResponse';
-import type { ItemResponse } from './itemResponse';
+import type { OrderDetailAddressResponse } from './orderDetailAddressResponse';
+import type { OrderDetailItemResponse } from './orderDetailItemResponse';
 import type { OrderDetailResponseCancelReason } from './orderDetailResponseCancelReason';
 import type { OrderDetailResponseOrderType } from './orderDetailResponseOrderType';
 import type { OrderDetailResponseStatus } from './orderDetailResponseStatus';
@@ -22,6 +22,6 @@ export interface OrderDetailResponse {
   paidAt?: string;
   canceledAt?: string;
   createdAt?: string;
-  deliveryAddress?: AddressResponse;
-  items?: ItemResponse[];
+  deliveryAddress?: OrderDetailAddressResponse;
+  items?: OrderDetailItemResponse[];
 }

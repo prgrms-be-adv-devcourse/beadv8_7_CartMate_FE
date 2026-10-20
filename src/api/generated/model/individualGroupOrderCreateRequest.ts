@@ -5,7 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type { DeliveryAddressRequest } from './deliveryAddressRequest';
-import type { Item } from './item';
+import type { IndividualGroupOrderCreateItem } from './individualGroupOrderCreateItem';
 
 export interface IndividualGroupOrderCreateRequest {
   individualGroupPurchaseId: number;
@@ -13,6 +13,6 @@ export interface IndividualGroupOrderCreateRequest {
      * @minItems 0
      * @maxItems 100
      */
-  items: Item[];
+  items: IndividualGroupOrderCreateItem[];
   deliveryAddress: DeliveryAddressRequest;
 }

@@ -5,7 +5,7 @@
  * OpenAPI spec version: v0
  */
 
-export interface ItemResponse {
+export interface SharedGroupPurchaseDetailItemResponse {
   itemId?: number;
   productId?: number;
   inventoryId?: number;

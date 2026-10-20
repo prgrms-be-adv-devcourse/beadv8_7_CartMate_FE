@@ -4,9 +4,9 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { AddressResponse } from './addressResponse';
-import type { ItemResponse } from './itemResponse';
 import type { ParticipantResponse } from './participantResponse';
+import type { SharedGroupOrderDetailAddressResponse } from './sharedGroupOrderDetailAddressResponse';
+import type { SharedGroupOrderDetailItemResponse } from './sharedGroupOrderDetailItemResponse';
 import type { SharedGroupOrderDetailResponseCancelReason } from './sharedGroupOrderDetailResponseCancelReason';
 import type { SharedGroupOrderDetailResponseMyPaymentStatus } from './sharedGroupOrderDetailResponseMyPaymentStatus';
 import type { SharedGroupOrderDetailResponseStatus } from './sharedGroupOrderDetailResponseStatus';
@@ -23,8 +23,8 @@ export interface SharedGroupOrderDetailResponse {
   paymentDeadlineAt?: string;
   confirmedAt?: string;
   canceledAt?: string;
-  teamDeliveryAddress?: AddressResponse;
+  teamDeliveryAddress?: SharedGroupOrderDetailAddressResponse;
   participants?: ParticipantResponse[];
-  items?: ItemResponse[];
+  items?: SharedGroupOrderDetailItemResponse[];
   serverTime?: string;
 }

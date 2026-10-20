@@ -48,11 +48,17 @@ sql "INSERT INTO member_address (created_at, updated_at, basic_address, is_defau
 echo "기본 배송지: buyer@example.test"
 
 SELLER_ID=$(sql "SELECT id FROM member WHERE email = 'seller@example.test'")
-EXISTING=$(sql "SELECT COUNT(*) FROM post_sales_post WHERE seller_id = $SELLER_ID")
+# 판매글과 상품 테이블(product_product)이 함께 있어야 장바구니·주문에 쓸 수 있다.
+# 상품만 비어 있으면(BE 스키마 변경·테스트 정리 등으로 어긋난 상태) 이 판매자의 판매글을 지우고 다시 만든다.
+EXISTING=$(sql "SELECT COUNT(*) FROM product_product WHERE seller_id = $SELLER_ID")
 if [ "$EXISTING" -gt 0 ]; then
-    echo "판매글: 이미 ${EXISTING}건 있음 → 건너뜀"
+    echo "판매글: 상품 ${EXISTING}건 있음 → 건너뜀"
     exit 0
 fi
+sql "DELETE i FROM post_product_image i JOIN post_product p ON p.id = i.product_id JOIN post_sales_post s ON s.id = p.sales_post_id WHERE s.seller_id = $SELLER_ID;
+     DELETE o FROM post_product_option o JOIN post_product p ON p.id = o.product_id JOIN post_sales_post s ON s.id = p.sales_post_id WHERE s.seller_id = $SELLER_ID;
+     DELETE p FROM post_product p JOIN post_sales_post s ON s.id = p.sales_post_id WHERE s.seller_id = $SELLER_ID;
+     DELETE FROM post_sales_post WHERE seller_id = $SELLER_ID;"
 
 # 판매글은 BE API로 만든다. (상품·이미지 테이블 동기화를 BE가 처리)
 WORK_DIR=$(mktemp -d)
@@ -66,7 +72,7 @@ post() {
         "$SELLER_ID" "$title" "$title" "$products" > "$WORK_DIR/req.json"
     local images=()
     for _ in $(seq 1 "$image_count"); do images+=(-F "images=@$WORK_DIR/img.png;type=image/png"); done
-    curl -sf -o /dev/null -X POST "$API_URL/api/sales-posts/post" \
+    curl -sf -o /dev/null -X POST "$API_URL/api/sales-posts" \
         -F "request=@$WORK_DIR/req.json;type=application/json" "${images[@]}"
 }
 
