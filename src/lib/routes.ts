@@ -18,6 +18,12 @@ export const ROUTES = {
     groupPurchaseShipping: (id: string | number = 1) => `/group-purchases/${id}/shipping`,
     groupPurchaseResult: (id: string | number = 1) => `/group-purchases/${id}/result`,
 
+    // 개인물품 공동구매 (만든 사람이 판매글 상품을 묶어 초대 링크로 각자 주문받는 공구)
+    groupPurchasesIndividual: '/group-purchases/individual',
+    groupPurchaseIndividualNew: '/group-purchases/individual/new',
+    groupPurchaseIndividual: (id: string | number) => `/group-purchases/individual/${id}`,
+    groupPurchaseIndividualInvite: (inviteCode: string) => `/group-purchases/individual/invite/${inviteCode}`,
+
     myPage: '/mypage',
     orders: '/mypage/orders',
     order: (id: string | number = 1) => `/mypage/orders/${id}`,
