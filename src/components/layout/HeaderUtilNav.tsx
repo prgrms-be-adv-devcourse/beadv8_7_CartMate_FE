@@ -8,10 +8,11 @@ import { ROUTES } from '@/lib/routes';
 
 const LINK_CLASS = 'font-caption text-caption text-on-surface-variant hover:text-primary transition-colors';
 
-const COMMON_LINKS = [
-    { label: '고객센터', href: ROUTES.notices },
-    { label: '판매자 센터', href: ROUTES.seller },
-];
+// 역할별 센터 링크. 관리자·판매자에게만 보인다.
+const ROLE_LINKS: Partial<Record<string, { label: string; href: string }>> = {
+    ADMIN: { label: '관리자 센터', href: ROUTES.adminMembers },
+    SELLER: { label: '판매자 센터', href: ROUTES.seller },
+};
 
 // 헤더 상단 유틸 메뉴. 로그인 여부에 따라 앞부분이 바뀐다.
 export default function HeaderUtilNav() {
@@ -38,9 +39,11 @@ export default function HeaderUtilNav() {
             { key: 'signup', node: <Link href={ROUTES.signup} className={`${LINK_CLASS}${hidden}`} aria-hidden={isLoading}>회원가입</Link> },
         );
     }
-    COMMON_LINKS.forEach((link) =>
-        items.push({ key: link.href, node: <Link href={link.href} className={LINK_CLASS}>{link.label}</Link> }),
-    );
+    items.push({ key: 'notices', node: <Link href={ROUTES.notices} className={LINK_CLASS}>고객센터</Link> });
+    const roleLink = user?.role ? ROLE_LINKS[user.role] : undefined;
+    if (roleLink) {
+        items.push({ key: 'role', node: <Link href={roleLink.href} className={`${LINK_CLASS} font-semibold text-primary`}>{roleLink.label}</Link> });
+    }
 
     return (
         <nav className="flex items-center">
