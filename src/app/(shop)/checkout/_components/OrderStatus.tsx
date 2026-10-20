@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { getGetCartQueryKey } from '@/api/generated/cart-controller/cart-controller';
-import type { ItemResponse, OrderDetailResponse } from '@/api/generated/model';
+import type { OrderDetailItemResponse, OrderDetailResponse } from '@/api/generated/model';
 import { getGetDetailQueryKey, getGetMyListQueryKey, useGetDetail } from '@/api/generated/order-controller/order-controller';
 import { getGetByOrderQueryKey, getPreviewQueryKey, usePayOrder, usePreview } from '@/api/generated/payment-controller/payment-controller';
 import {
@@ -239,12 +239,10 @@ function OrderPaid({ order }: { order: OrderDetailResponse }) {
 }
 
 // BE 스펙에서 이름이 같은 ItemResponse 스키마가 하나로 합쳐져, 생성된 타입에는 개인 주문 항목의 금액 필드(unitPrice·amount)가 없다.
-// TODO: BE 스펙(같은 이름의 중첩 record ItemResponse 병합)이 고쳐지면 생성 타입의 필드만 쓰도록 정리한다.
-// 지금 BE 실제 응답은 unitPrice·amount 인데 생성 타입은 price·totalPrice 라서 둘 다 본다. 값이 없으면 null(금액 숨김).
-function itemAmount(item: ItemResponse): number | null {
-    const { amount, unitPrice } = item as ItemResponse & { amount?: number; unitPrice?: number };
-    const unit = unitPrice ?? item.price;
-    return amount ?? item.totalPrice ?? (unit !== undefined && item.quantity !== undefined ? unit * item.quantity : null);
+// 주문 항목 금액. 값이 없으면 null(금액 숨김).
+function itemAmount(item: OrderDetailItemResponse): number | null {
+    if (item.amount !== undefined) return item.amount;
+    return item.unitPrice !== undefined && item.quantity !== undefined ? item.unitPrice * item.quantity : null;
 }
 
 function OrderCanceled({ order }: { order: OrderDetailResponse }) {
