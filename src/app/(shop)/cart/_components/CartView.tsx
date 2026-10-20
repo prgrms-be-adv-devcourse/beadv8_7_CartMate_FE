@@ -37,7 +37,7 @@ async function removeAll(ids: number[]) {
     if (failed.length > 0) throw new Error(`${failed.length}건을 삭제하지 못했습니다.`);
 }
 
-// 개인 장바구니. 목록·수량·삭제·비우기는 BE와 연결하고, 주문하기는 주문서 연동(ORD-1) 전이라 비활성이다.
+// 개인 장바구니. 목록·수량·삭제·비우기를 BE와 연결하고, 고른 항목으로 주문서(/checkout?items=)로 넘어간다.
 // BE 응답에 판매자·배송비가 없어 와이어프레임의 판매자별 묶음·배송비 계산은 빼고 상품 금액만 합산한다.
 export default function CartView() {
     const queryClient = useQueryClient();
@@ -193,15 +193,24 @@ export default function CartView() {
                         <span className="font-headline-sm text-headline-sm font-bold text-on-surface">상품 합계</span>
                         <span className="font-display-xl text-display-xl font-bold text-primary tracking-tight">{formatPrice(itemsTotal)}</span>
                     </div>
-                    <button
-                        className="w-full h-12 bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs disabled:cursor-not-allowed disabled:opacity-50"
-                        type="button"
-                        disabled
-                        title="주문하기는 준비 중입니다"
-                    >
-                        <span>주문하기 ({selectedItems.length}건) · 준비 중</span>
-                        <Icon name="arrow_forward" className="text-[18px]" />
-                    </button>
+                    {selectedItems.length > 0 && !busy ? (
+                        <Link
+                            className="w-full h-12 bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs hover:bg-inverse-surface transition-colors"
+                            href={`${ROUTES.checkout}?items=${selectedItems.map((item) => item.cartItemId).join(',')}`}
+                        >
+                            <span>주문하기 ({selectedItems.length}건)</span>
+                            <Icon name="arrow_forward" className="text-[18px]" />
+                        </Link>
+                    ) : (
+                        <button
+                            className="w-full h-12 bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs disabled:cursor-not-allowed disabled:opacity-50"
+                            type="button"
+                            disabled
+                        >
+                            <span>주문하기 ({selectedItems.length}건)</span>
+                            <Icon name="arrow_forward" className="text-[18px]" />
+                        </button>
+                    )}
                 </div>
                 <div className="bg-surface-container p-space-md flex items-start gap-space-sm">
                     <Icon name="info" className="text-outline text-[20px] flex-shrink-0 mt-0.5" />

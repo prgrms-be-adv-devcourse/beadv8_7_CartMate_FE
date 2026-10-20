@@ -14,6 +14,7 @@ import {
 } from '@/api/generated/auth-controller/auth-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
+import { formatPhone } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { signupFields, signupSchema, type SignupInput, type SignupOutput } from '../../_lib/authSchemas';
 
@@ -37,14 +38,6 @@ const INPUT_CLASS =
     'h-[42px] px-3 bg-surface-container-lowest text-on-surface rounded-lg font-body-md text-body-md shadow-sm outline-none focus:bg-surface-container-low transition-colors';
 const SUB_BUTTON_CLASS =
     'h-[42px] px-4 bg-surface-container-high text-on-surface font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-dim transition-colors whitespace-nowrap active:scale-[0.98]';
-
-// 01012345678 → 010-1234-5678
-function formatPhone(raw: string): string {
-    const digits = raw.replace(/\D/g, '').slice(0, 11);
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-}
 
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
