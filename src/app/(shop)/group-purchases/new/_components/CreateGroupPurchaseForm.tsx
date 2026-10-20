@@ -1,373 +1,263 @@
 'use client';
 
-import { useState } from 'react';
-import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, useWatch } from 'react-hook-form';
+import { z } from 'zod';
+import { getGetMyList1QueryKey, useCreate } from '@/api/generated/shared-group-purchase-controller/shared-group-purchase-controller';
+import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
+import { useCurrentUser } from '@/lib/auth';
 import { ROUTES } from '@/lib/routes';
 
-const UNIT_PRICE = 33000;
-const MIN_QTY = 10;
-const MAX_QTY = 100;
+// 제한은 BE SharedGroupPurchaseCreateRequest 검증과 맞춘다.
+const TITLE_MAX = 50;
+const MIN_PARTICIPANTS = 2;
+const MAX_PARTICIPANTS = 100;
 
-const CART_TIMES = ['12:00', '18:00', '21:00', '23:59'];
-const PAY_TIMES = ['18:00', '21:00', '23:59'];
+const createSchema = z.object({
+    title: z.string().trim().min(1, '공동구매 제목을 입력해주세요.').max(TITLE_MAX, `${TITLE_MAX}자 이하로 입력해주세요.`),
+    maxParticipants: z
+        .number({ error: '최대 인원을 입력해주세요.' })
+        .int('정수로 입력해주세요.')
+        .min(MIN_PARTICIPANTS, `${MIN_PARTICIPANTS}명 이상으로 입력해주세요.`)
+        .max(MAX_PARTICIPANTS, `${MAX_PARTICIPANTS}명 이하로 입력해주세요.`),
+    agreed: z.boolean().refine((checked) => checked, '진행 규칙을 확인하고 동의해주세요.'),
+});
 
+type CreateValues = z.infer<typeof createSchema>;
+
+// 수정 기한(48시간)·마감 보류(24시간)는 BE가 정한다. (SharedGroupPurchase.EDIT_PERIOD, FROZEN_PERIOD)
 const POLICIES = [
-    { strong: '전원 결제 완료 시:', text: ' 설정된 최소 MOQ 달성 즉시 공장 커스텀 제작 오더가 자동 발주 단계로 전환됩니다.' },
-    { strong: '최소 인원(10명) 미달 시:', text: ' 마감 시간 직후 공동구매는 자동 취소되며 결제된 개별 예치금은 100% 즉시 원복 동결 해제됩니다.' },
-    { strong: '', text: '커스텀 마킹 작업 착수 후에는 단순 변심으로 인한 개별 취소/사이즈 변경이 불가합니다.' },
+    '만든 뒤 48시간 동안 참여자 모두가 상품을 담고 수량·옵션을 바꿀 수 있습니다.',
+    '48시간이 지나면 자동으로 마감되며, 담긴 상품이 없으면 공동구매는 취소됩니다.',
+    '구매할 수 없는 상품이 있으면 24시간 동안 마감이 보류되고, 그 뒤 해당 상품을 빼고 마감됩니다.',
+    '만든 사람은 기한 전에 직접 마감하거나 취소할 수 있습니다.',
 ];
 
-const clampQty = (value: number) => (Number.isNaN(value) ? MIN_QTY : Math.min(MAX_QTY, Math.max(MIN_QTY, value)));
-const toDotDate = (date: string) => date.replace(/-/g, '.');
+const INPUT_CLASS =
+    'w-full h-11 px-space-md border border-outline-variant bg-surface-container-lowest font-body-md text-body-md text-on-surface rounded focus:border-primary outline-none placeholder:text-outline';
 
-// 공동구매 개설 폼 + 우측 실시간 요약 패널 (입력값을 요약에 즉시 반영)
-export default function CreateGroupPurchaseForm({ itemBanner }: { itemBanner: ReactNode }) {
+// 공동물품(N빵) 공동구매를 만든다. 만들면 완료 화면(?id=)에서 초대 링크를 보여 준다.
+export default function CreateGroupPurchaseForm() {
     const router = useRouter();
-    const [title, setTitle] = useState('FC 에이스 2024 하반기 유니폼 단체 공구');
-    const [maxQty, setMaxQty] = useState(15);
-    const [cartDate, setCartDate] = useState('2024-11-08');
-    const [cartTime, setCartTime] = useState('18:00');
-    const [payDate, setPayDate] = useState('2024-11-10');
-    const [payTime, setPayTime] = useState('23:59');
-    const [announcement, setAnnouncement] = useState(
-        '등번호와 영문 이니셜 철자를 정확히 기재 부탁드립니다. 미결제 인원이 발생할 경우 전체 팀원 발주 일정이 지연될 수 있으니 기한 준수 부탁드립니다.',
-    );
-    const [agreed, setAgreed] = useState(true);
+    const queryClient = useQueryClient();
+    const { user } = useCurrentUser();
+    const createPurchase = useCreate({
+        mutation: {
+            onSuccess: (res) => {
+                void queryClient.invalidateQueries({ queryKey: getGetMyList1QueryKey() });
+                const id = res.data?.id;
+                // 응답에 id 가 없으면 완료 화면을 열 수 없으니 목록으로 보낸다. (만들어진 공동구매는 목록에 보인다)
+                router.push(id !== undefined ? `${ROUTES.groupPurchaseCreated}?id=${id}` : ROUTES.groupPurchases);
+            },
+        },
+    });
 
-    const handleSubmit = () => {
-        if (!agreed) {
-            alert('공동구매 진행 및 예치금 결제 정책에 동의해 주세요.');
-            return;
-        }
-        if (!title.trim()) {
-            alert('공동구매 방 제목을 입력해 주세요.');
-            return;
-        }
-        router.push(ROUTES.groupPurchaseCreated);
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        control,
+        formState: { errors },
+    } = useForm<CreateValues>({
+        resolver: zodResolver(createSchema),
+        defaultValues: { title: '', maxParticipants: 10, agreed: false },
+    });
+    const title = useWatch({ control, name: 'title' });
+    const maxParticipants = useWatch({ control, name: 'maxParticipants' });
+
+    const step = (delta: number) => {
+        const current = Number.isNaN(maxParticipants) ? MIN_PARTICIPANTS : maxParticipants;
+        setValue('maxParticipants', Math.min(MAX_PARTICIPANTS, Math.max(MIN_PARTICIPANTS, current + delta)), { shouldValidate: true });
     };
 
+    const onSubmit = (values: CreateValues) => {
+        // 검증이 비동기라 버튼이 비활성되기 전에 두 번 제출될 수 있어 한 번 더 막는다.
+        if (createPurchase.isPending || createPurchase.isSuccess) return;
+        createPurchase.mutate({ data: { title: values.title, maxParticipants: values.maxParticipants } });
+    };
+
+    const busy = createPurchase.isPending || createPurchase.isSuccess;
+
     return (
-        <div className="grid grid-cols-12 gap-gutter items-start">
-            {/* Left & Center Form Flow (8 Columns) */}
+        <form className="grid grid-cols-12 gap-gutter items-start" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="col-span-12 lg:col-span-8 flex flex-col gap-space-lg">
-                {itemBanner}
-                <form className="p-space-lg rounded bg-surface-container-lowest shadow-sm flex flex-col gap-space-lg" onSubmit={(e) => e.preventDefault()}>
-                    {/* Field 1: Title */}
+                <div className="p-space-lg rounded bg-surface-container-lowest shadow-sm flex flex-col gap-space-lg">
+                    {/* 1. 제목 */}
                     <div className="flex flex-col gap-1.5">
                         <label className="font-label-md text-label-md text-primary flex items-center justify-between" htmlFor="group-title">
                             <span className="flex items-center gap-1">
-                                1. 공동구매 방 제목 입력
+                                1. 공동구매 제목
                                 <span className="text-error font-bold">*</span>
                             </span>
-                            <span className="font-caption text-caption text-secondary">{title.length} / 40자</span>
-                        </label>
-                        <div className="relative">
-                            <input
-                                className="w-full h-11 px-space-md bg-surface-container-lowest font-body-md text-body-md text-on-surface rounded focus:outline-none focus:bg-surface transition-all placeholder:text-outline"
-                                id="group-title"
-                                maxLength={40}
-                                name="groupTitle"
-                                placeholder="예: FC 에이스 2024 하반기 유니폼 단체 공구"
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                            />
-                        </div>
-                        <p className="font-caption text-caption text-secondary">팀원들이 알림톡 및 공유 링크 접속 시 확인할 메인 공구 명칭입니다.</p>
-                    </div>
-                    <div className="h-[1px] bg-surface-variant w-full" />
-                    {/* Field 2: Target Member Count */}
-                    <div className="flex flex-col gap-1.5">
-                        <label className="font-label-md text-label-md text-primary flex items-center gap-1">
-                            2. 모집 인원 설정
-                            <span className="text-error font-bold">*</span>
-                        </label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-                            <div className="p-space-md rounded bg-surface-container flex flex-col justify-between">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-label-sm text-label-sm text-secondary">최소 필수 주문 수량 (MOQ)</span>
-                                    <span className="px-1.5 py-0.5 rounded bg-surface-container-highest text-primary font-caption text-caption">고정 기준</span>
-                                </div>
-                                <div className="flex items-baseline gap-1 mt-2">
-                                    <span className="font-display-xl text-display-xl text-primary font-bold">10</span>
-                                    <span className="font-body-md text-body-md text-secondary">벌 (명) 이상 필수</span>
-                                </div>
-                                <p className="font-caption text-caption text-secondary mt-1">최소 수량 미달 시 결제 기한 후 공구는 자동 취소됩니다.</p>
-                            </div>
-                            <div className="p-space-md rounded bg-surface flex flex-col justify-between">
-                                <label className="font-label-sm text-label-sm text-primary flex items-center justify-between" htmlFor="max-quantity">
-                                    <span>최대 모집 정원 (수량 상한)</span>
-                                    <span className="font-caption text-caption text-secondary">권장: 10 ~ 50명</span>
-                                </label>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="flex-1 flex items-center bg-surface-container-lowest rounded px-space-md h-11">
-                                        <input
-                                            className="w-full bg-transparent font-headline-sm text-headline-sm text-primary focus:outline-none"
-                                            id="max-quantity"
-                                            max={MAX_QTY}
-                                            min={MIN_QTY}
-                                            name="maxQuantity"
-                                            type="number"
-                                            value={maxQty}
-                                            onChange={(e) => setMaxQty(Number(e.target.value))}
-                                            onBlur={() => setMaxQty((prev) => clampQty(prev))}
-                                        />
-                                        <span className="font-body-md text-body-md text-secondary ml-1">벌</span>
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <button
-                                            className="w-8 h-5 flex items-center justify-center bg-surface-container-high hover:bg-surface-container-highest text-primary rounded"
-                                            type="button"
-                                            onClick={() => setMaxQty((prev) => clampQty(prev + 1))}
-                                        >
-                                            <Icon name="expand_less" className="text-[14px]" />
-                                        </button>
-                                        <button
-                                            className="w-8 h-5 flex items-center justify-center bg-surface-container-high hover:bg-surface-container-highest text-primary rounded"
-                                            type="button"
-                                            onClick={() => setMaxQty((prev) => clampQty(prev - 1))}
-                                        >
-                                            <Icon name="expand_more" className="text-[14px]" />
-                                        </button>
-                                    </div>
-                                </div>
-                                <p className="font-caption text-caption text-secondary mt-1">설정한 상한선에 도달하면 신규 참여가 자동 마감됩니다.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="h-[1px] bg-surface-variant w-full" />
-                    {/* Field 3 & 4: Deadline Dates */}
-                    <div className="flex flex-col gap-space-md">
-                        <div className="flex items-center justify-between">
-                            <span className="font-label-md text-label-md text-primary">3 &amp; 4. 진행 일정 및 마감 시한 설정</span>
-                            <span className="font-caption text-caption text-secondary">한국 표준시 (KST) 기준</span>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-                            <div className="p-space-md rounded bg-surface-container-low flex flex-col gap-2">
-                                <div className="flex items-center justify-between">
-                                    <label className="font-label-sm text-label-sm text-primary flex items-center gap-1" htmlFor="cart-date">
-                                        <span className="w-2 h-2 rounded-full bg-primary inline-block" />
-                                        수정 마감 일시 (장바구니)
-                                        <span className="text-error font-bold">*</span>
-                                    </label>
-                                    <span className="font-caption text-caption text-secondary">옵션 수정 제한</span>
-                                </div>
-                                <p className="font-caption text-caption text-secondary">팀원이 사이즈/등번호/마킹을 변경할 수 있는 최종 기한입니다.</p>
-                                <div className="flex gap-2 mt-1">
-                                    <div className="flex-1 relative flex items-center bg-surface-container-lowest rounded px-3 h-11">
-                                        <Icon name="calendar_today" className="text-secondary text-[18px] mr-2" />
-                                        <input
-                                            className="w-full bg-transparent font-body-sm text-body-sm text-primary focus:outline-none"
-                                            id="cart-date"
-                                            type="date"
-                                            value={cartDate}
-                                            onChange={(e) => setCartDate(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="w-[120px] relative flex items-center bg-surface-container-lowest rounded px-3 h-11">
-                                        <Icon name="schedule" className="text-secondary text-[18px] mr-2" />
-                                        <select
-                                            className="w-full bg-transparent font-body-sm text-body-sm text-primary focus:outline-none"
-                                            value={cartTime}
-                                            onChange={(e) => setCartTime(e.target.value)}
-                                        >
-                                            {CART_TIMES.map((time) => (
-                                                <option key={time} value={time}>
-                                                    {time}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-space-md rounded bg-surface-container flex flex-col gap-2">
-                                <div className="flex items-center justify-between">
-                                    <label className="font-label-sm text-label-sm text-primary flex items-center gap-1" htmlFor="pay-date">
-                                        <span className="w-2 h-2 rounded-full bg-primary inline-block" />
-                                        결제 기한 일시 (최종 마감)
-                                        <span className="text-error font-bold">*</span>
-                                    </label>
-                                    <span className="font-caption text-caption text-error font-bold">발주 트리거</span>
-                                </div>
-                                <p className="font-caption text-caption text-secondary">수정 마감 이후 개별 예치금 입금 및 결제 확정 시한입니다.</p>
-                                <div className="flex gap-2 mt-1">
-                                    <div className="flex-1 relative flex items-center bg-surface-container-lowest rounded px-3 h-11">
-                                        <Icon name="event_available" className="text-secondary text-[18px] mr-2" />
-                                        <input
-                                            className="w-full bg-transparent font-body-sm text-body-sm text-primary focus:outline-none"
-                                            id="pay-date"
-                                            type="date"
-                                            value={payDate}
-                                            onChange={(e) => setPayDate(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="w-[120px] relative flex items-center bg-surface-container-lowest rounded px-3 h-11">
-                                        <Icon name="schedule" className="text-secondary text-[18px] mr-2" />
-                                        <select
-                                            className="w-full bg-transparent font-body-sm text-body-sm text-primary focus:outline-none"
-                                            value={payTime}
-                                            onChange={(e) => setPayTime(e.target.value)}
-                                        >
-                                            {PAY_TIMES.map((time) => (
-                                                <option key={time} value={time}>
-                                                    {time}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2 p-2.5 rounded bg-surface-container-high text-on-surface">
-                            <Icon name="info" className="text-[18px] text-primary" />
-                            <span className="font-caption text-caption">
-                                권장 안내: 팀원 간 원활한 확인을 위해 <strong>결제 기한은 수정 마감 일시 이후 최소 24시간 이상</strong> 여유를 두는 것을
-                                권장합니다.
+                            <span className="font-caption text-caption text-secondary">
+                                {title.length} / {TITLE_MAX}자
                             </span>
-                        </div>
+                        </label>
+                        <input
+                            className={INPUT_CLASS}
+                            id="group-title"
+                            maxLength={TITLE_MAX}
+                            placeholder="예: FC 에이스 하반기 유니폼 공동구매"
+                            type="text"
+                            {...register('title')}
+                        />
+                        {errors.title ? (
+                            <p className="font-caption text-caption text-error">{errors.title.message}</p>
+                        ) : (
+                            <p className="font-caption text-caption text-secondary">초대 링크를 받은 팀원에게 보이는 이름입니다.</p>
+                        )}
                     </div>
                     <div className="h-[1px] bg-surface-variant w-full" />
-                    {/* Field 5: Team Announcement Textarea */}
+
+                    {/* 2. 최대 인원 */}
                     <div className="flex flex-col gap-1.5">
-                        <label className="font-label-md text-label-md text-primary flex items-center justify-between" htmlFor="announcement-text">
+                        <label className="font-label-md text-label-md text-primary flex items-center justify-between" htmlFor="max-participants">
                             <span className="flex items-center gap-1">
-                                5. 팀원 대상 안내 문구 및 공지사항
-                                <span className="font-caption text-caption text-secondary font-normal">(선택)</span>
+                                2. 최대 참여 인원
+                                <span className="text-error font-bold">*</span>
                             </span>
-                            <span className="font-caption text-caption text-secondary">{announcement.length} / 200자</span>
+                            <span className="font-caption text-caption text-secondary">
+                                {MIN_PARTICIPANTS} ~ {MAX_PARTICIPANTS}명 (나 포함)
+                            </span>
                         </label>
-                        <div className="relative">
-                            <textarea
-                                className="w-full p-space-md bg-surface-container-lowest font-body-md text-body-md text-on-surface rounded focus:outline-none focus:bg-surface transition-all placeholder:text-outline resize-none leading-relaxed"
-                                id="announcement-text"
-                                maxLength={200}
-                                placeholder="팀원들에게 전달할 마킹 가이드라인, 전달 사항, 입금 주의점을 입력하세요."
-                                rows={4}
-                                value={announcement}
-                                onChange={(e) => setAnnouncement(e.target.value)}
-                            />
+                        <div className="flex items-center gap-2 max-w-[280px]">
+                            <div className="flex-1 flex items-center border border-outline-variant bg-surface-container-lowest rounded px-space-md h-11">
+                                <input
+                                    className="w-full bg-transparent font-headline-sm text-headline-sm text-primary focus:outline-none"
+                                    id="max-participants"
+                                    inputMode="numeric"
+                                    max={MAX_PARTICIPANTS}
+                                    min={MIN_PARTICIPANTS}
+                                    type="number"
+                                    {...register('maxParticipants', { valueAsNumber: true })}
+                                />
+                                <span className="font-body-md text-body-md text-secondary ml-1">명</span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <button
+                                    className="w-8 h-5 flex items-center justify-center bg-surface-container-high hover:bg-surface-container-highest text-primary rounded"
+                                    type="button"
+                                    aria-label="인원 늘리기"
+                                    onClick={() => step(1)}
+                                >
+                                    <Icon name="expand_less" className="text-[14px]" />
+                                </button>
+                                <button
+                                    className="w-8 h-5 flex items-center justify-center bg-surface-container-high hover:bg-surface-container-highest text-primary rounded"
+                                    type="button"
+                                    aria-label="인원 줄이기"
+                                    onClick={() => step(-1)}
+                                >
+                                    <Icon name="expand_more" className="text-[14px]" />
+                                </button>
+                            </div>
                         </div>
-                        <p className="font-caption text-caption text-secondary">참여 링크 진입 페이지 상단 및 팀원 카카오톡 알림에 포함되어 노출됩니다.</p>
+                        {errors.maxParticipants ? (
+                            <p className="font-caption text-caption text-error">{errors.maxParticipants.message}</p>
+                        ) : (
+                            <p className="font-caption text-caption text-secondary">정원이 차면 더 참여할 수 없습니다. 만든 뒤에는 늘리는 것만 가능합니다.</p>
+                        )}
                     </div>
                     <div className="h-[1px] bg-surface-variant w-full" />
-                    {/* Field 6: Policy Checkbox Agreement */}
-                    <div className="flex flex-col gap-2 p-space-md rounded bg-surface">
-                        <div className="flex items-start gap-space-sm cursor-pointer">
-                            <input
-                                checked={agreed}
-                                className="w-4 h-4 mt-0.5 accent-primary cursor-pointer"
-                                id="policy-agree"
-                                name="policyAgree"
-                                type="checkbox"
-                                onChange={(e) => setAgreed(e.target.checked)}
-                            />
-                            <label className="font-label-sm text-label-sm text-primary cursor-pointer leading-tight select-none" htmlFor="policy-agree">
-                                [필수] 공동구매 진행 및 예치금 결제 정책 확인 및 동의
-                            </label>
+
+                    {/* 3. 일정: BE가 정하는 고정 기한이라 입력받지 않는다 */}
+                    <div className="flex flex-col gap-1.5">
+                        <span className="font-label-md text-label-md text-primary">3. 진행 일정</span>
+                        <div className="flex items-center gap-2 p-space-md rounded bg-surface-container-low text-on-surface">
+                            <Icon name="schedule" className="text-[18px] text-primary" />
+                            <span className="font-body-sm text-body-sm">
+                                상품 담기·수정은 <strong>만든 시점부터 48시간</strong> 동안 가능하며, 기한이 지나면 자동으로 마감됩니다.
+                            </span>
                         </div>
-                        <div className="pl-6 text-secondary font-caption text-caption space-y-1">
-                            {POLICIES.map((policy) => (
-                                <p key={policy.text}>
-                                    · {policy.strong && <strong>{policy.strong}</strong>}
-                                    {policy.text}
-                                </p>
-                            ))}
-                        </div>
+                        <p className="font-caption text-caption text-secondary">마감 일시 직접 설정은 준비 중입니다.</p>
                     </div>
-                </form>
+                    <div className="h-[1px] bg-surface-variant w-full" />
+
+                    {/* 4. 공지: BE에 저장할 곳이 없어 비활성 */}
+                    <div className="flex flex-col gap-1.5">
+                        <label className="font-label-md text-label-md text-primary flex items-center gap-1" htmlFor="announcement-text">
+                            4. 팀원 안내 문구
+                            <span className="font-caption text-caption text-secondary font-normal">(준비 중)</span>
+                        </label>
+                        <textarea
+                            className="w-full p-space-md border border-outline-variant bg-surface-container-lowest font-body-md text-body-md rounded resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            id="announcement-text"
+                            disabled
+                            placeholder="팀원에게 전달할 안내 사항 (준비 중)"
+                            rows={3}
+                        />
+                    </div>
+                    <div className="h-[1px] bg-surface-variant w-full" />
+
+                    {/* 5. 진행 규칙 동의 */}
+                    <div className="flex flex-col gap-2 p-space-md rounded bg-surface">
+                        <label className="flex items-start gap-space-sm cursor-pointer select-none">
+                            <input className="w-4 h-4 mt-0.5 accent-primary cursor-pointer" type="checkbox" {...register('agreed')} />
+                            <span className="font-label-sm text-label-sm text-primary leading-tight">[필수] 공동구매 진행 규칙 확인 및 동의</span>
+                        </label>
+                        <ul className="pl-6 text-secondary font-caption text-caption space-y-1">
+                            {POLICIES.map((policy) => (
+                                <li key={policy}>· {policy}</li>
+                            ))}
+                        </ul>
+                        {errors.agreed && <p className="pl-6 font-caption text-caption text-error">{errors.agreed.message}</p>}
+                    </div>
+                </div>
             </div>
 
-            {/* Right Summary & Sticky Confirmation Panel (4 Columns) */}
-            <div className="col-span-12 lg:col-span-4 flex flex-col gap-space-lg sticky top-32">
+            {/* 우측 요약 · 제출 */}
+            <div className="col-span-12 lg:col-span-4 flex flex-col gap-space-lg lg:sticky lg:top-32">
                 <div className="p-space-lg rounded bg-surface-container-lowest shadow-sm flex flex-col gap-space-md">
-                    <div className="flex items-center justify-between pb-space-sm">
-                        <h3 className="font-headline-sm text-headline-sm text-primary">개설 요약 시뮬레이션</h3>
-                        <span className="font-caption text-caption text-secondary font-mono">LIVE PREVIEW</span>
-                    </div>
+                    <h3 className="font-headline-sm text-headline-sm text-primary">만들기 요약</h3>
                     <div className="space-y-space-sm font-body-sm text-body-sm">
-                        <div className="flex justify-between py-1">
-                            <span className="text-secondary">개설 대표자</span>
-                            <span className="text-primary font-medium">홍길동 (FC 에이스 총무)</span>
-                        </div>
-                        <div className="flex justify-between py-1">
-                            <span className="text-secondary">대표 공구 품목</span>
-                            <span className="text-primary font-medium text-right">[MATCH-1] 유니폼 세트</span>
-                        </div>
-                        <div className="flex justify-between py-1">
-                            <span className="text-secondary">적용 단가 (MOQ 달성 시)</span>
-                            <span className="text-primary font-bold">33,000원 / 벌당</span>
-                        </div>
-                        <div className="flex justify-between py-1">
-                            <span className="text-secondary">설정 정원 범위</span>
-                            <span className="text-primary font-medium">
-                                {MIN_QTY}명 ~ <span className="font-bold">{maxQty}</span>명
-                            </span>
-                        </div>
-                        <div className="flex justify-between py-1">
-                            <span className="text-secondary">장바구니 수정 마감</span>
-                            <span className="text-primary font-mono text-[12px]">{`${toDotDate(cartDate)} ${cartTime}`}</span>
-                        </div>
-                        <div className="flex justify-between py-1">
-                            <span className="text-secondary">최종 결제 기한</span>
-                            <span className="text-primary font-mono text-[12px] font-bold">{`${toDotDate(payDate)} ${payTime}`}</span>
-                        </div>
-                    </div>
-                    <div className="h-[1px] bg-surface-variant w-full my-1" />
-                    <div className="p-space-md rounded bg-surface-container flex flex-col gap-1">
-                        <div className="flex items-center justify-between text-secondary font-caption text-caption">
-                            <span>목표 달성 시 총 예상 주문액</span>
-                            <span className="font-mono">ESTIMATED</span>
-                        </div>
-                        <div className="flex items-baseline justify-between mt-1">
-                            <span className="font-caption text-caption text-secondary">설정 목표 인원 기준 ({maxQty}명)</span>
-                            <span className="font-headline-md text-headline-md text-primary font-bold">{(maxQty * UNIT_PRICE).toLocaleString('ko-KR')}원</span>
-                        </div>
-                        <p className="font-caption text-[11px] text-secondary mt-1 border-t border-surface-variant pt-1.5">
-                            단가 33,000원 × 설정 인원 (수량 할인 없음, 인원별 정가 고정)
-                        </p>
+                        <SummaryRow label="만드는 사람" value={user?.nickname ?? '-'} />
+                        <SummaryRow label="제목" value={title.trim() || '-'} />
+                        <SummaryRow label="최대 인원" value={Number.isNaN(maxParticipants) ? '-' : `${maxParticipants}명`} />
+                        <SummaryRow label="수정 마감" value="만든 뒤 48시간" />
+                        <SummaryRow label="결제 방식" value="참여 인원 수로 나눠 결제" />
                     </div>
                     <div className="flex gap-2 p-3 rounded bg-surface text-secondary font-caption text-caption">
                         <Icon name="share" className="text-[16px] text-primary mt-0.5" />
                         <p className="leading-normal">
-                            개설 완료 즉시 <strong>팀 고유 참여 링크 및 QR 코드</strong>가 생성되며 팀원들에게 실시간 공유할 수 있습니다.
+                            만들면 바로 <strong>팀 초대 링크</strong>가 생성되어 팀원들에게 공유할 수 있습니다.
                         </p>
                     </div>
                 </div>
                 <div className="p-space-lg rounded bg-surface-container-lowest shadow-sm flex flex-col gap-space-sm">
+                    {createPurchase.isError && (
+                        <p className="font-body-sm text-body-sm text-error" role="alert">
+                            {errorMessage(createPurchase.error, '공동구매를 만들지 못했습니다.')}
+                        </p>
+                    )}
                     <button
-                        className="w-full h-11 bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:opacity-90 transition-all cursor-pointer shadow-sm active:scale-[0.99]"
-                        type="button"
-                        onClick={handleSubmit}
+                        className="w-full h-11 bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-sm disabled:opacity-60"
+                        type="submit"
+                        disabled={busy}
                     >
                         <Icon name="group_add" className="text-[18px]" />
-                        <span>공동구매 만들기 (방 개설)</span>
+                        <span>{busy ? '만드는 중...' : '공동구매 만들기'}</span>
                     </button>
                     <Link
-                        className="w-full h-11 bg-surface-container-lowest text-primary font-label-md text-label-md rounded flex items-center justify-center gap-1 hover:bg-surface-container transition-all cursor-pointer"
+                        className="w-full h-11 bg-surface-container-lowest text-primary font-label-md text-label-md rounded flex items-center justify-center gap-1 hover:bg-surface-container transition-all"
                         href={ROUTES.groupPurchases}
                     >
-                        <span>취소하고 돌아가기</span>
+                        취소하고 돌아가기
                     </Link>
-                    <div className="flex items-center justify-center gap-1.5 mt-1 text-secondary font-caption text-caption">
-                        <Icon name="lock" className="text-[14px]" />
-                        <span>공동구매 생성 수수료 0원 / 개설자 무료</span>
-                    </div>
-                </div>
-                <div className="p-space-md rounded bg-surface text-secondary font-caption text-caption flex flex-col gap-1.5">
-                    <span className="font-label-sm text-label-sm text-primary">자주 묻는 질문</span>
-                    <p>
-                        <strong>Q. 개설 후에도 일정을 변경할 수 있나요?</strong>
-                    </p>
-                    <p className="pl-2">팀원 1인 이상이 결제를 완료하기 전까지는 마감 일시를 연장할 수 있습니다.</p>
-                    <p className="mt-1">
-                        <strong>Q. 예치금 결제는 어떻게 진행되나요?</strong>
-                    </p>
-                    <p className="pl-2">각 팀원이 각자의 계정 예치금 잔액 또는 간편결제를 통해 본인 몫만 분할 결제합니다.</p>
                 </div>
             </div>
+        </form>
+    );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex justify-between gap-space-sm py-1">
+            <span className="text-secondary shrink-0">{label}</span>
+            <span className="text-primary font-medium text-right break-all">{value}</span>
         </div>
     );
 }
