@@ -8,10 +8,10 @@
 export interface RecentOrder {
   id?: number;
   orderNumber?: string;
+  orderType?: string;
   orderedAt?: string;
   title?: string;
   itemCount?: number;
-  totalQuantity?: number;
   totalAmount?: number;
   orderStatus?: string;
   deliveryStatus?: string;

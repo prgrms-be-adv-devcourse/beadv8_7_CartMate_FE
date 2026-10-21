@@ -5,6 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type { BuyerSummary } from './buyerSummary';
+import type { IndividualGroupPurchaseDashboardResponseStatus } from './individualGroupPurchaseDashboardResponseStatus';
 import type { ProductSummary } from './productSummary';
 
 export interface IndividualGroupPurchaseDashboardResponse {
@@ -18,4 +19,6 @@ export interface IndividualGroupPurchaseDashboardResponse {
   totalAmount?: number;
   products?: ProductSummary[];
   buyers?: BuyerSummary[];
+  status?: IndividualGroupPurchaseDashboardResponseStatus;
+  closedAt?: string;
 }

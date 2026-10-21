@@ -29,7 +29,6 @@ import type {
   RsDataPageResponseSelectSalesPostResponse,
   RsDataSelectSalesPostResponse,
   SelectSalesPostAllParams,
-  SelectSalesPostDetailParams,
   UpdateSalesPostBody
 } from '../model';
 
@@ -319,24 +318,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getUpdateSalesPostMutationOptions(options), queryClient);
     }
-    export const getSelectSalesPostDetailUrl = (params: SelectSalesPostDetailParams,) => {
-  const normalizedParams = new URLSearchParams();
+    export const getSelectSalesPostDetailUrl = (postId: number,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
 
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/sales-posts/detail?${stringifiedParams}` : `/api/sales-posts/detail`
+  return `/api/sales-posts/detail/${postId}`
 }
 
-export const selectSalesPostDetail = async (params: SelectSalesPostDetailParams, options?: Parameters<typeof http>[1]): Promise<RsDataSelectSalesPostResponse> => {
+export const selectSalesPostDetail = async (postId: number, options?: Parameters<typeof http>[1]): Promise<RsDataSelectSalesPostResponse> => {
 
-  return http<RsDataSelectSalesPostResponse>(getSelectSalesPostDetailUrl(params),
+  return http<RsDataSelectSalesPostResponse>(getSelectSalesPostDetailUrl(postId),
   {
     ...options,
     method: 'GET'
@@ -349,29 +341,29 @@ export const selectSalesPostDetail = async (params: SelectSalesPostDetailParams,
 
 
 
-export const getSelectSalesPostDetailQueryKey = (params?: SelectSalesPostDetailParams,) => {
+export const getSelectSalesPostDetailQueryKey = (postId: number,) => {
     return [
-    `/api/sales-posts/detail`, ...(params ? [params] : [])
+    `/api/sales-posts/detail/${postId}`
     ] as const;
     }
 
 
-export const getSelectSalesPostDetailQueryOptions = <TData = Awaited<ReturnType<typeof selectSalesPostDetail>>, TError = unknown>(params: SelectSalesPostDetailParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getSelectSalesPostDetailQueryOptions = <TData = Awaited<ReturnType<typeof selectSalesPostDetail>>, TError = unknown>(postId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getSelectSalesPostDetailQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getSelectSalesPostDetailQueryKey(postId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof selectSalesPostDetail>>> = ({ signal }) => selectSalesPostDetail(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof selectSalesPostDetail>>> = ({ signal }) => selectSalesPostDetail(postId, { signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: postId !== null && postId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
 export type SelectSalesPostDetailQueryResult = NonNullable<Awaited<ReturnType<typeof selectSalesPostDetail>>>
@@ -379,7 +371,7 @@ export type SelectSalesPostDetailQueryError = unknown
 
 
 export function useSelectSalesPostDetail<TData = Awaited<ReturnType<typeof selectSalesPostDetail>>, TError = unknown>(
- params: SelectSalesPostDetailParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>> & Pick<
+ postId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof selectSalesPostDetail>>,
           TError,
@@ -389,7 +381,7 @@ export function useSelectSalesPostDetail<TData = Awaited<ReturnType<typeof selec
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSelectSalesPostDetail<TData = Awaited<ReturnType<typeof selectSalesPostDetail>>, TError = unknown>(
- params: SelectSalesPostDetailParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>> & Pick<
+ postId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof selectSalesPostDetail>>,
           TError,
@@ -399,16 +391,16 @@ export function useSelectSalesPostDetail<TData = Awaited<ReturnType<typeof selec
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSelectSalesPostDetail<TData = Awaited<ReturnType<typeof selectSalesPostDetail>>, TError = unknown>(
- params: SelectSalesPostDetailParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ postId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useSelectSalesPostDetail<TData = Awaited<ReturnType<typeof selectSalesPostDetail>>, TError = unknown>(
- params: SelectSalesPostDetailParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ postId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectSalesPostDetail>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getSelectSalesPostDetailQueryOptions(params,options)
+  const queryOptions = getSelectSalesPostDetailQueryOptions(postId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
