@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { getGetSellerDeliveriesQueryKey, useGetSellerDeliveries, useReadyDelivery } from '@/api/generated/delivery-controller/delivery-controller';
+import { getGetSellerDeliveriesQueryKey, useGetSellerDeliveries, useReadyDelivery, useShipDelivery } from '@/api/generated/delivery-controller/delivery-controller';
 import { GetSellerDeliveriesStatus } from '@/api/generated/model';
 import type { SellerDeliveryResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
@@ -15,6 +15,8 @@ const COURIERS = ['CJ대한통운', '우체국택배', '롯데택배'];
 
 // BE 는 택배사·송장번호를 각각 50자까지 받는다.
 const MAX_LENGTH = 50;
+
+const BUTTON_CLASS = 'bg-primary text-on-primary hover:opacity-90 px-3 py-1 rounded text-caption font-label-md disabled:opacity-60 disabled:cursor-not-allowed';
 
 const PAGE_SIZE = 20;
 // 페이지 번호는 현재 페이지 앞뒤로 이만큼만 보여 준다.
@@ -43,7 +45,6 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
     const queryClient = useQueryClient();
     const items = delivery.items ?? [];
     const address = [delivery.zipCode && `[${delivery.zipCode}]`, delivery.address, delivery.addressDetail].filter(Boolean).join(' ');
-    const registered = Boolean(delivery.carrier || delivery.trackingNumber);
     // 이미 등록된 택배사가 고정 목록에 없어도 선택값으로 보이도록 목록에 더한다.
     const courierOptions = delivery.carrier && !COURIERS.includes(delivery.carrier) ? [...COURIERS, delivery.carrier] : COURIERS;
 
@@ -51,18 +52,17 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
     const [trackingNumber, setTrackingNumber] = useState(delivery.trackingNumber ?? '');
     const [error, setError] = useState<string | null>(null);
 
-    // 등록에 성공하면 목록을 다시 조회한다. 배송 준비로 바뀐 배송은 현재 탭(배송 요청)에서 빠지고 "배송 준비" 탭에 나타난다.
-    const ready = useReadyDelivery({
-        mutation: {
-            onSuccess: () => {
-                setError(null);
-                void queryClient.invalidateQueries({ queryKey: getGetSellerDeliveriesQueryKey() });
-            },
-            onError: (e) => setError(errorMessage(e, '송장 등록에 실패했습니다.')),
-        },
-    });
+    // 등록·출고에 성공하면 목록을 다시 조회한다. 상태가 바뀐 배송은 현재 탭에서 빠지고 다음 상태의 탭에 나타난다.
+    function onSuccess() {
+        setError(null);
+        void queryClient.invalidateQueries({ queryKey: getGetSellerDeliveriesQueryKey() });
+    }
+    const ready = useReadyDelivery({ mutation: { onSuccess, onError: (e) => setError(errorMessage(e, '송장 등록에 실패했습니다.')) } });
+    const ship = useShipDelivery({ mutation: { onSuccess, onError: (e) => setError(errorMessage(e, '출고 처리에 실패했습니다.')) } });
+    const busy = ready.isPending || ship.isPending;
     // 송장은 배송 요청일 때만 입력한다. BE 는 이미 등록한 송장의 수정을 지원하지 않는다.
     const editable = delivery.status === GetSellerDeliveriesStatus.REQUESTED;
+    const isPreparing = delivery.status === GetSellerDeliveriesStatus.PREPARING;
 
     function register() {
         const nextCarrier = carrier.trim();
@@ -77,6 +77,12 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
         }
         setError(null);
         ready.mutate({ deliveryId: delivery.deliveryId!, data: { carrier: nextCarrier, trackingNumber: nextTracking } });
+    }
+
+    function shipOut() {
+        if (!window.confirm('출고 처리할까요? 처리 후에는 되돌릴 수 없습니다.')) return;
+        setError(null);
+        ship.mutate({ deliveryId: delivery.deliveryId! });
     }
 
     return (
@@ -110,13 +116,13 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
                 <span className="inline-block px-2.5 py-1 rounded-full text-caption bg-surface-container-high text-on-surface font-label-md">{STATUS_LABEL[delivery.status ?? ''] ?? delivery.status}</span>
             </td>
             <td className="p-space-md">
-                {/* 송장 등록(ready)만 연결했다. 출고(ship)는 다음 단계에서 연결한다. */}
+                {/* 배송 요청: 송장 등록(ready) / 배송 준비: 출고(ship) / 그 이후: 비활성 */}
                 <div className="flex flex-col gap-2">
                     <div className="flex gap-2">
                         <select
                             className="w-28 bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm text-on-surface disabled:opacity-60"
                             value={carrier}
-                            disabled={!editable || ready.isPending}
+                            disabled={!editable || busy}
                             onChange={(e) => setCarrier(e.target.value)}
                         >
                             <option value="">택배사 선택</option>
@@ -129,20 +135,24 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
                             placeholder="송장번호 입력"
                             type="text"
                             value={trackingNumber}
-                            disabled={!editable || ready.isPending}
+                            disabled={!editable || busy}
                             onChange={(e) => setTrackingNumber(e.target.value)}
                         />
                     </div>
-                    <div className="flex justify-end gap-1">
-                        <button
-                            className="bg-primary text-on-primary hover:opacity-90 px-3 py-1 rounded text-caption font-label-md disabled:opacity-60 disabled:cursor-not-allowed"
-                            type="button"
-                            disabled={!editable || ready.isPending}
-                            onClick={register}
-                        >
-                            {ready.isPending ? '처리 중…' : registered ? '등록완료' : '등록'}
-                        </button>
-                    </div>
+                    {/* 배송 중·완료 등 판매자가 더 할 일이 없는 행에는 버튼을 두지 않는다. */}
+                    {(editable || isPreparing) && (
+                        <div className="flex justify-end gap-1">
+                            {editable ? (
+                                <button className={BUTTON_CLASS} type="button" disabled={busy} onClick={register}>
+                                    {ready.isPending ? '처리 중…' : '등록'}
+                                </button>
+                            ) : (
+                                <button className={BUTTON_CLASS} type="button" disabled={busy} onClick={shipOut}>
+                                    {ship.isPending ? '처리 중…' : '출고'}
+                                </button>
+                            )}
+                        </div>
+                    )}
                     {error && (
                         <p className="text-caption text-error text-right" role="alert">
                             {error}
