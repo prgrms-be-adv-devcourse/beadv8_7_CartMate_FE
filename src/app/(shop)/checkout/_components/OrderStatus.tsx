@@ -221,15 +221,12 @@ function OrderPaid({ order }: { order: OrderDetailResponse }) {
                 </p>
             )}
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                {/* 주문 내역 화면은 MY-1에서 연결한다 */}
-                <button
-                    className="flex-1 h-11 border border-outline-variant font-label-md text-label-md disabled:opacity-50 disabled:cursor-not-allowed"
-                    type="button"
-                    disabled
-                    title="주문 내역은 준비 중입니다"
+                <Link
+                    className="flex-1 h-11 border border-outline-variant font-label-md text-label-md flex items-center justify-center hover:bg-surface-container"
+                    href={order.id !== undefined ? ROUTES.order(order.id) : ROUTES.orders}
                 >
-                    주문 내역 보기 (준비 중)
-                </button>
+                    주문 내역 보기
+                </Link>
                 <Link className="flex-1 h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90" href={ROUTES.home}>
                     쇼핑 계속하기
                 </Link>
