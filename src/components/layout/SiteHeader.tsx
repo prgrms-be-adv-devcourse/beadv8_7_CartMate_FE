@@ -29,7 +29,7 @@ export default function SiteHeader() {
                             className="h-7 pl-2 pr-3 rounded-full flex items-center gap-1.5 font-caption text-caption bg-primary-fixed/70 ring-1 ring-white/70 hover:bg-primary-fixed transition-colors"
                         >
                             <Icon name="account_balance_wallet" className="text-[15px] text-primary" />
-                            <span className="text-on-surface-variant">팀 예치금</span>
+                            <span className="text-on-surface-variant">예치금</span>
                             <DepositAmount />
                         </Link>
                         <HeaderUtilNav />

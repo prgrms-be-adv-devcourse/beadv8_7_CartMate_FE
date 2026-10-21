@@ -4,7 +4,7 @@ import { ROUTES } from '@/lib/routes';
 const MENU = [
     { label: '마이페이지 홈', href: ROUTES.myPage },
     { label: '주문/배송 조회', href: ROUTES.orders },
-    { label: '팀 예치금 관리', href: ROUTES.deposit },
+    { label: '예치금 관리', href: ROUTES.deposit },
     { label: '배송지 관리', href: ROUTES.addresses },
     { label: '회원 정보 수정', href: ROUTES.profile },
     { label: '판매자 등록', href: ROUTES.sellerApply },
