@@ -7,6 +7,7 @@ import { formatDateTime } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
 import { inviteUrl, itemPermissions, memberAmount, myAmount, statusBadgeClass, statusLabel } from '../_lib/sharedGroupPurchase';
+import SharedPayLink from '../../checkout/shared/_components/SharedPayLink';
 import CopyLinkButton from './CopyLinkButton';
 import SharedDetailGate, { type SharedDetailContext } from './SharedDetailGate';
 import SharedItemRow from './SharedItemRow';
@@ -210,7 +211,7 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
                         <span className="font-body-md text-body-md text-secondary">결제할 내 몫 금액</span>
                         <span className="font-headline-sm text-headline-sm text-primary font-bold">{formatPrice(myAmount(purchase))}</span>
                     </div>
-                    <ComingSoonButton icon="account_balance_wallet" label="내 몫 결제하기" className="w-full h-12" />
+                    <SharedPayLink sharedGroupPurchaseId={id} className="w-full" />
                 </section>
             )}
             {/* 다시 만들기(복제)는 마감·취소된 공동구매를 만든 사람만 할 수 있다 */}

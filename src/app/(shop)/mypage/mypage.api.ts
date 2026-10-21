@@ -126,7 +126,7 @@ export async function fetchActiveGroupPurchases(): Promise<ActiveGroupPurchase[]
                 summary: `내 분담금 ${won(g.myAmount)} · 결제 ${g.joinedCount}/${g.targetCount}명${iPaid ? ' · 결제 완료' : ''}`,
                 status: 'PAYING',
                 deadline: deadlineText(g.deadlineAt, '결제'),
-                href: ROUTES.groupPurchase(g.id),
+                href: ROUTES.checkoutShared(g.sharedGroupOrderId!),
                 actionText: iPaid ? '결제 현황' : '결제하기',
             };
         }
