@@ -16,7 +16,8 @@
         "tags": [
           "member-address-controller"
         ],
-        "operationId": "update",
+        "summary": "배송지 수정",
+        "operationId": "updateMyAddress",
         "parameters": [
           {
             "name": "addressId",
@@ -55,7 +56,8 @@
         "tags": [
           "member-address-controller"
         ],
-        "operationId": "delete",
+        "summary": "배송지 삭제",
+        "operationId": "deleteMyAddress",
         "parameters": [
           {
             "name": "addressId",
@@ -679,7 +681,8 @@
         "tags": [
           "member-address-controller"
         ],
-        "operationId": "list",
+        "summary": "내 배송지 목록",
+        "operationId": "getMyAddresses",
         "responses": {
           "200": {
             "description": "OK",
@@ -697,7 +700,8 @@
         "tags": [
           "member-address-controller"
         ],
-        "operationId": "create",
+        "summary": "배송지 추가",
+        "operationId": "createMyAddress",
         "requestBody": {
           "content": {
             "application/json": {
@@ -727,7 +731,7 @@
         "tags": [
           "shared-group-purchase-controller"
         ],
-        "operationId": "create_1",
+        "operationId": "create",
         "requestBody": {
           "content": {
             "application/json": {
@@ -921,7 +925,7 @@
         "tags": [
           "individual-group-purchase-controller"
         ],
-        "operationId": "create_2",
+        "operationId": "create_1",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1533,7 +1537,8 @@
         "tags": [
           "member-address-controller"
         ],
-        "operationId": "makeDefault",
+        "summary": "기본 배송지 지정",
+        "operationId": "makeDefaultMyAddress",
         "parameters": [
           {
             "name": "addressId",
@@ -2026,6 +2031,26 @@
         }
       }
     },
+    "/api/wallets/me/transactions/summary": {
+      "get": {
+        "tags": [
+          "wallet-controller"
+        ],
+        "operationId": "getMyWalletTransactionSummary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWalletTransactionSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settlements": {
       "get": {
         "tags": [
@@ -2136,7 +2161,7 @@
         }
       }
     },
-    "/api/sales-posts/detail": {
+    "/api/sales-posts/detail/{postId}": {
       "get": {
         "tags": [
           "sales-post-controller"
@@ -2145,7 +2170,7 @@
         "parameters": [
           {
             "name": "postId",
-            "in": "query",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
@@ -2642,6 +2667,49 @@
         }
       }
     },
+    "/api/deliveries/by-order": {
+      "get": {
+        "tags": [
+          "delivery-controller"
+        ],
+        "operationId": "getDeliveriesByOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "purchaseType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INDIVIDUAL_GROUP",
+                "SHARED_GROUP"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataListDeliveryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/claims/seller": {
       "get": {
         "tags": [
@@ -2816,7 +2884,7 @@
         "tags": [
           "admin-member-controller"
         ],
-        "operationId": "list_1",
+        "operationId": "list",
         "parameters": [
           {
             "name": "condition",
@@ -3335,6 +3403,10 @@
             "format": "int64"
           },
           "balance": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "heldBalance": {
             "type": "integer",
             "format": "int64"
           }
@@ -4278,6 +4350,24 @@
           "productId"
         ]
       },
+      "DeliveryClaimCreateItemRequest": {
+        "type": "object",
+        "properties": {
+          "deliveryItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int64",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "deliveryItemId",
+          "quantity"
+        ]
+      },
       "DeliveryClaimCreateRequest": {
         "type": "object",
         "properties": {
@@ -4303,22 +4393,38 @@
             ]
           },
           "detail": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
           },
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Item"
-            }
+              "$ref": "#/components/schemas/DeliveryClaimCreateItemRequest"
+            },
+            "minItems": 1
           }
-        }
+        },
+        "required": [
+          "claimType",
+          "deliveryId",
+          "items",
+          "reason"
+        ]
       },
-      "Item": {
+      "DeliveryClaimItemResponse": {
         "type": "object",
         "properties": {
           "deliveryItemId": {
             "type": "integer",
             "format": "int64"
+          },
+          "orderItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productName": {
+            "type": "string"
           },
           "quantity": {
             "type": "integer",
@@ -4373,7 +4479,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Item"
+              "$ref": "#/components/schemas/DeliveryClaimItemResponse"
             }
           }
         }
@@ -4685,6 +4791,23 @@
           }
         }
       },
+      "UpdateProductOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productTypeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productOptionId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "UpdateSalesPostProduct": {
         "type": "object",
         "properties": {
@@ -4706,23 +4829,16 @@
             "type": "integer",
             "format": "int64"
           },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ON_SALE",
-              "PAUSED",
-              "SUSPENDED",
-              "CLOSED",
-              "DELETED",
-              "ACTIVE",
-              "INACTIVE",
-              "PENDING"
-            ]
-          },
           "productImageList": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/UpdateSalesPostProductImage"
+            }
+          },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateProductOption"
             }
           }
         }
@@ -4796,23 +4912,16 @@
             "type": "integer",
             "format": "int64"
           },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ON_SALE",
-              "PAUSED",
-              "SUSPENDED",
-              "CLOSED",
-              "DELETED",
-              "ACTIVE",
-              "INACTIVE",
-              "PENDING"
-            ]
-          },
           "productImageList": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/UpdateProductImage"
+            }
+          },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateProductOption"
             }
           }
         }
@@ -4834,19 +4943,6 @@
           "imageSeq": {
             "type": "integer",
             "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ON_SALE",
-              "PAUSED",
-              "SUSPENDED",
-              "CLOSED",
-              "DELETED",
-              "ACTIVE",
-              "INACTIVE",
-              "PENDING"
-            ]
           }
         }
       },
@@ -5019,6 +5115,9 @@
             "type": "integer",
             "format": "int64"
           },
+          "orderNumber": {
+            "type": "string"
+          },
           "purchaseType": {
             "type": "string",
             "enum": [
@@ -5074,12 +5173,20 @@
         "type": "object",
         "properties": {
           "carrier": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
           },
           "trackingNumber": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
           }
-        }
+        },
+        "required": [
+          "carrier",
+          "trackingNumber"
+        ]
       },
       "RsDataSellerClaimResponse": {
         "type": "object",
@@ -5113,6 +5220,9 @@
           "orderId": {
             "type": "integer",
             "format": "int64"
+          },
+          "orderNumber": {
+            "type": "string"
           },
           "claimType": {
             "type": "string",
@@ -5150,7 +5260,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Item"
+              "$ref": "#/components/schemas/DeliveryClaimItemResponse"
             }
           }
         }
@@ -5327,6 +5437,37 @@
           }
         }
       },
+      "RsDataWalletTransactionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WalletTransactionSummaryResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WalletTransactionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "totalCharged": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaid": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "RsDataListSettlementResponse": {
         "type": "object",
         "properties": {
@@ -5376,6 +5517,42 @@
             "format": "date"
           },
           "payoutCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "salesAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "feeAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "payoutAmount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "payoutId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
             "type": "integer",
             "format": "int64"
           },
@@ -6908,6 +7085,43 @@
           }
         }
       },
+      "DeliveryDetailItemResponse": {
+        "type": "object",
+        "properties": {
+          "deliveryItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryDetailOptionResponse"
+            }
+          }
+        }
+      },
+      "DeliveryDetailOptionResponse": {
+        "type": "object",
+        "properties": {
+          "optionName": {
+            "type": "string"
+          },
+          "optionValue": {
+            "type": "string"
+          }
+        }
+      },
       "DeliveryDetailResponse": {
         "type": "object",
         "properties": {
@@ -6926,6 +7140,9 @@
           "orderId": {
             "type": "integer",
             "format": "int64"
+          },
+          "orderNumber": {
+            "type": "string"
           },
           "purchaseType": {
             "type": "string",
@@ -6989,7 +7206,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Item"
+              "$ref": "#/components/schemas/DeliveryDetailItemResponse"
             }
           }
         }
@@ -7087,6 +7304,9 @@
             "type": "integer",
             "format": "int64"
           },
+          "orderNumber": {
+            "type": "string"
+          },
           "purchaseType": {
             "type": "string",
             "enum": [
@@ -7133,7 +7353,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Item"
+              "$ref": "#/components/schemas/DeliveryDetailItemResponse"
             }
           }
         }
@@ -7195,6 +7415,27 @@
           },
           "data": {
             "$ref": "#/components/schemas/PageDeliveryResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RsDataListDeliveryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryResponse"
+            }
           },
           "statusCode": {
             "type": "integer",

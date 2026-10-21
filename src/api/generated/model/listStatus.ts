@@ -5,10 +5,10 @@
  * OpenAPI spec version: v0
  */
 
-export type List1Status = typeof List1Status[keyof typeof List1Status];
+export type ListStatus = typeof ListStatus[keyof typeof ListStatus];
 
 
-export const List1Status = {
+export const ListStatus = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
   WITHDRAWN: 'WITHDRAWN',

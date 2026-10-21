@@ -5,6 +5,8 @@
  * OpenAPI spec version: v0
  */
 
-export type SelectSalesPostDetailParams = {
-postId: number;
-};
+export interface UpdateProductOption {
+  id?: number;
+  productTypeId?: number;
+  productOptionId?: number;
+}

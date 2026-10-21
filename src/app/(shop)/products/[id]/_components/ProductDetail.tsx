@@ -19,7 +19,7 @@ export default function ProductDetail() {
     const postId = Number(id);
     const validId = Number.isInteger(postId) && postId > 0;
 
-    const query = useSelectSalesPostDetail({ postId }, { query: { enabled: validId } });
+    const query = useSelectSalesPostDetail(postId, { query: { enabled: validId } });
     const post = query.data?.data;
 
     if (!validId || (query.error instanceof ApiError && query.error.status === 404)) {

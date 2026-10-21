@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { getGetMyList2QueryKey, useCreate2 } from '@/api/generated/individual-group-purchase-controller/individual-group-purchase-controller';
+import { getGetMyList2QueryKey, useCreate1 } from '@/api/generated/individual-group-purchase-controller/individual-group-purchase-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { formatPrice } from '@/lib/salesPost';
@@ -34,7 +34,7 @@ const INPUT_CLASS =
 export default function CreateForm() {
     const router = useRouter();
     const queryClient = useQueryClient();
-    const create = useCreate2({
+    const create = useCreate1({
         mutation: {
             onSuccess: (res) => {
                 void queryClient.invalidateQueries({ queryKey: getGetMyList2QueryKey() });

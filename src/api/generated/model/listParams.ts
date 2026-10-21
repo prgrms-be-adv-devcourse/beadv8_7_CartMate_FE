@@ -4,14 +4,14 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { List1Role } from './list1Role';
-import type { List1Status } from './list1Status';
+import type { ListRole } from './listRole';
+import type { ListStatus } from './listStatus';
 
-export type List1Params = {
+export type ListParams = {
 searchType?: string;
 keyword?: string;
-status?: List1Status;
-role?: List1Role;
+status?: ListStatus;
+role?: ListRole;
 joinedFrom?: string;
 joinedTo?: string;
 page?: number;

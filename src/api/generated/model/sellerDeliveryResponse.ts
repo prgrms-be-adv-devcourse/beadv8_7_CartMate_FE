@@ -4,13 +4,14 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { Item } from './item';
+import type { DeliveryDetailItemResponse } from './deliveryDetailItemResponse';
 import type { SellerDeliveryResponsePurchaseType } from './sellerDeliveryResponsePurchaseType';
 import type { SellerDeliveryResponseStatus } from './sellerDeliveryResponseStatus';
 
 export interface SellerDeliveryResponse {
   deliveryId?: number;
   orderId?: number;
+  orderNumber?: string;
   purchaseType?: SellerDeliveryResponsePurchaseType;
   status?: SellerDeliveryResponseStatus;
   createdAt?: string;
@@ -21,5 +22,5 @@ export interface SellerDeliveryResponse {
   addressDetail?: string;
   carrier?: string;
   trackingNumber?: string;
-  items?: Item[];
+  items?: DeliveryDetailItemResponse[];
 }

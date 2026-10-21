@@ -5,10 +5,10 @@
  * OpenAPI spec version: v0
  */
 
-export type List1Role = typeof List1Role[keyof typeof List1Role];
+export type ListRole = typeof ListRole[keyof typeof ListRole];
 
 
-export const List1Role = {
+export const ListRole = {
   BUYER: 'BUYER',
   SELLER: 'SELLER',
   ADMIN: 'ADMIN',

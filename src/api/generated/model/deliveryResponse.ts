@@ -10,6 +10,7 @@ import type { DeliveryResponseStatus } from './deliveryResponseStatus';
 export interface DeliveryResponse {
   deliveryId?: number;
   orderId?: number;
+  orderNumber?: string;
   purchaseType?: DeliveryResponsePurchaseType;
   receiverName?: string;
   status?: DeliveryResponseStatus;

@@ -4,7 +4,7 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { Item } from './item';
+import type { DeliveryClaimItemResponse } from './deliveryClaimItemResponse';
 import type { SellerClaimResponseClaimType } from './sellerClaimResponseClaimType';
 import type { SellerClaimResponseReason } from './sellerClaimResponseReason';
 import type { SellerClaimResponseStatus } from './sellerClaimResponseStatus';
@@ -13,10 +13,11 @@ export interface SellerClaimResponse {
   claimId?: number;
   deliveryId?: number;
   orderId?: number;
+  orderNumber?: string;
   claimType?: SellerClaimResponseClaimType;
   reason?: SellerClaimResponseReason;
   detail?: string;
   status?: SellerClaimResponseStatus;
   createdAt?: string;
-  items?: Item[];
+  items?: DeliveryClaimItemResponse[];
 }

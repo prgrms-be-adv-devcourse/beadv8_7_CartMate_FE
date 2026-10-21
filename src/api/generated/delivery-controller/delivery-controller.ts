@@ -25,10 +25,12 @@ import type {
 
 import type {
   DeliveryReadyRequest,
+  GetDeliveriesByOrderParams,
   GetMyDeliveriesParams,
   GetSellerDeliveriesParams,
   RsDataDeliveryDetailResponse,
   RsDataDeliveryResponse,
+  RsDataListDeliveryResponse,
   RsDataPageDeliveryResponse,
   RsDataPageSellerDeliveryResponse
 } from '../model';
@@ -572,6 +574,107 @@ export function useGetMyDeliveries<TData = Awaited<ReturnType<typeof getMyDelive
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetMyDeliveriesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getGetDeliveriesByOrderUrl = (params: GetDeliveriesByOrderParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/deliveries/by-order?${stringifiedParams}` : `/api/deliveries/by-order`
+}
+
+export const getDeliveriesByOrder = async (params: GetDeliveriesByOrderParams, options?: Parameters<typeof http>[1]): Promise<RsDataListDeliveryResponse> => {
+
+  return http<RsDataListDeliveryResponse>(getGetDeliveriesByOrderUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDeliveriesByOrderQueryKey = (params?: GetDeliveriesByOrderParams,) => {
+    return [
+    `/api/deliveries/by-order`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetDeliveriesByOrderQueryOptions = <TData = Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError = unknown>(params: GetDeliveriesByOrderParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDeliveriesByOrderQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDeliveriesByOrder>>> = ({ signal }) => getDeliveriesByOrder(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDeliveriesByOrderQueryResult = NonNullable<Awaited<ReturnType<typeof getDeliveriesByOrder>>>
+export type GetDeliveriesByOrderQueryError = unknown
+
+
+export function useGetDeliveriesByOrder<TData = Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError = unknown>(
+ params: GetDeliveriesByOrderParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDeliveriesByOrder>>,
+          TError,
+          Awaited<ReturnType<typeof getDeliveriesByOrder>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDeliveriesByOrder<TData = Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError = unknown>(
+ params: GetDeliveriesByOrderParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDeliveriesByOrder>>,
+          TError,
+          Awaited<ReturnType<typeof getDeliveriesByOrder>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDeliveriesByOrder<TData = Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError = unknown>(
+ params: GetDeliveriesByOrderParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDeliveriesByOrder<TData = Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError = unknown>(
+ params: GetDeliveriesByOrderParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeliveriesByOrder>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDeliveriesByOrderQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

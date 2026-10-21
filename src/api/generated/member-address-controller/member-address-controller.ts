@@ -52,7 +52,7 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getUpdateUrl = (addressId: number,) => {
+export const getUpdateMyAddressUrl = (addressId: number,) => {
 
 
 
@@ -60,7 +60,10 @@ export const getUpdateUrl = (addressId: number,) => {
   return `/api/members/me/addresses/${addressId}`
 }
 
-export const update = async (addressId: number,
+/**
+ * @summary 배송지 수정
+ */
+export const updateMyAddress = async (addressId: number,
     memberAddressRequest: MemberAddressRequest, options?: Parameters<typeof http>[1]): Promise<RsDataMemberAddressResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
@@ -77,7 +80,7 @@ export const update = async (addressId: number,
     }
     return headers;
   };
-return http<RsDataMemberAddressResponse>(getUpdateUrl(addressId),
+return http<RsDataMemberAddressResponse>(getUpdateMyAddressUrl(addressId),
   {
     ...options,
     method: 'PUT',
@@ -90,13 +93,13 @@ return http<RsDataMemberAddressResponse>(getUpdateUrl(addressId),
 
 
 
-export const getUpdateMutationKey = () => ['update'] as const;
+export const getUpdateMyAddressMutationKey = () => ['updateMyAddress'] as const;
 
-export const getUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof update>>, TError,UpdateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
-): UseMutationOptions<Awaited<ReturnType<typeof update>>, TError,UpdateMutationVariables, TContext> => {
+export const getUpdateMyAddressMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyAddress>>, TError,UpdateMyAddressMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyAddress>>, TError,UpdateMyAddressMutationVariables, TContext> => {
 
-const mutationKey = getUpdateMutationKey();
+const mutationKey = getUpdateMyAddressMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -106,10 +109,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof update>>, UpdateMutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyAddress>>, UpdateMyAddressMutationVariables> = (props) => {
           const {addressId,data} = props ?? {};
 
-          return  update(addressId,data,requestOptions)
+          return  updateMyAddress(addressId,data,requestOptions)
         }
 
 
@@ -119,22 +122,25 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type UpdateMutationResult = NonNullable<Awaited<ReturnType<typeof update>>>
-    export type UpdateMutationBody = MemberAddressRequest
-    export type UpdateMutationError = unknown
-    export type UpdateMutationVariables = {addressId: number;data: MemberAddressRequest}
+    export type UpdateMyAddressMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyAddress>>>
+    export type UpdateMyAddressMutationBody = MemberAddressRequest
+    export type UpdateMyAddressMutationError = unknown
+    export type UpdateMyAddressMutationVariables = {addressId: number;data: MemberAddressRequest}
 
-    export const useUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof update>>, TError,UpdateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+    /**
+ * @summary 배송지 수정
+ */
+export const useUpdateMyAddress = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyAddress>>, TError,UpdateMyAddressMutationVariables, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof update>>,
+        Awaited<ReturnType<typeof updateMyAddress>>,
         TError,
-        UpdateMutationVariables,
+        UpdateMyAddressMutationVariables,
         TContext
       > => {
-      return useMutation(getUpdateMutationOptions(options), queryClient);
+      return useMutation(getUpdateMyAddressMutationOptions(options), queryClient);
     }
-    export const getDeleteUrl = (addressId: number,) => {
+    export const getDeleteMyAddressUrl = (addressId: number,) => {
 
 
 
@@ -142,9 +148,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return `/api/members/me/addresses/${addressId}`
 }
 
-export const _delete = async (addressId: number, options?: Parameters<typeof http>[1]): Promise<RsDataVoid> => {
+/**
+ * @summary 배송지 삭제
+ */
+export const deleteMyAddress = async (addressId: number, options?: Parameters<typeof http>[1]): Promise<RsDataVoid> => {
 
-  return http<RsDataVoid>(getDeleteUrl(addressId),
+  return http<RsDataVoid>(getDeleteMyAddressUrl(addressId),
   {
     ...options,
     method: 'DELETE'
@@ -157,13 +166,13 @@ export const _delete = async (addressId: number, options?: Parameters<typeof htt
 
 
 
-export const getDeleteMutationKey = () => ['_delete'] as const;
+export const getDeleteMyAddressMutationKey = () => ['deleteMyAddress'] as const;
 
-export const getDeleteMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof _delete>>, TError,_DeleteMutationVariables, TContext>, request?: SecondParameter<typeof http>}
-): UseMutationOptions<Awaited<ReturnType<typeof _delete>>, TError,_DeleteMutationVariables, TContext> => {
+export const getDeleteMyAddressMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyAddress>>, TError,DeleteMyAddressMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMyAddress>>, TError,DeleteMyAddressMutationVariables, TContext> => {
 
-const mutationKey = getDeleteMutationKey();
+const mutationKey = getDeleteMyAddressMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -173,10 +182,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof _delete>>, _DeleteMutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMyAddress>>, DeleteMyAddressMutationVariables> = (props) => {
           const {addressId} = props ?? {};
 
-          return  _delete(addressId,requestOptions)
+          return  deleteMyAddress(addressId,requestOptions)
         }
 
 
@@ -186,22 +195,25 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type _DeleteMutationResult = NonNullable<Awaited<ReturnType<typeof _delete>>>
+    export type DeleteMyAddressMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMyAddress>>>
 
-    export type _DeleteMutationError = unknown
-    export type _DeleteMutationVariables = {addressId: number}
+    export type DeleteMyAddressMutationError = unknown
+    export type DeleteMyAddressMutationVariables = {addressId: number}
 
-    export const useDelete = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof _delete>>, TError,_DeleteMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+    /**
+ * @summary 배송지 삭제
+ */
+export const useDeleteMyAddress = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyAddress>>, TError,DeleteMyAddressMutationVariables, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof _delete>>,
+        Awaited<ReturnType<typeof deleteMyAddress>>,
         TError,
-        _DeleteMutationVariables,
+        DeleteMyAddressMutationVariables,
         TContext
       > => {
-      return useMutation(getDeleteMutationOptions(options), queryClient);
+      return useMutation(getDeleteMyAddressMutationOptions(options), queryClient);
     }
-    export const getListUrl = () => {
+    export const getGetMyAddressesUrl = () => {
 
 
 
@@ -209,9 +221,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return `/api/members/me/addresses`
 }
 
-export const list = async ( options?: Parameters<typeof http>[1]): Promise<RsDataListMemberAddressResponse> => {
+/**
+ * @summary 내 배송지 목록
+ */
+export const getMyAddresses = async ( options?: Parameters<typeof http>[1]): Promise<RsDataListMemberAddressResponse> => {
 
-  return http<RsDataListMemberAddressResponse>(getListUrl(),
+  return http<RsDataListMemberAddressResponse>(getGetMyAddressesUrl(),
   {
     ...options,
     method: 'GET'
@@ -224,66 +239,69 @@ export const list = async ( options?: Parameters<typeof http>[1]): Promise<RsDat
 
 
 
-export const getListQueryKey = () => {
+export const getGetMyAddressesQueryKey = () => {
     return [
     `/api/members/me/addresses`
     ] as const;
     }
 
 
-export const getListQueryOptions = <TData = Awaited<ReturnType<typeof list>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getGetMyAddressesQueryOptions = <TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getListQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetMyAddressesQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof list>>> = ({ signal }) => list({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyAddresses>>> = ({ signal }) => getMyAddresses({ signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type ListQueryResult = NonNullable<Awaited<ReturnType<typeof list>>>
-export type ListQueryError = unknown
+export type GetMyAddressesQueryResult = NonNullable<Awaited<ReturnType<typeof getMyAddresses>>>
+export type GetMyAddressesQueryError = unknown
 
 
-export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>> & Pick<
+export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof list>>,
+          Awaited<ReturnType<typeof getMyAddresses>>,
           TError,
-          Awaited<ReturnType<typeof list>>
+          Awaited<ReturnType<typeof getMyAddresses>>
         > , 'initialData'
       >, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>> & Pick<
+export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof list>>,
+          Awaited<ReturnType<typeof getMyAddresses>>,
           TError,
-          Awaited<ReturnType<typeof list>>
+          Awaited<ReturnType<typeof getMyAddresses>>
         > , 'initialData'
       >, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 내 배송지 목록
+ */
 
-export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof list>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getListQueryOptions(options)
+  const queryOptions = getGetMyAddressesQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -295,7 +313,7 @@ export function useList<TData = Awaited<ReturnType<typeof list>>, TError = unkno
 
 
 
-export const getCreateUrl = () => {
+export const getCreateMyAddressUrl = () => {
 
 
 
@@ -303,7 +321,10 @@ export const getCreateUrl = () => {
   return `/api/members/me/addresses`
 }
 
-export const create = async (memberAddressRequest: MemberAddressRequest, options?: Parameters<typeof http>[1]): Promise<RsDataMemberAddressResponse> => {
+/**
+ * @summary 배송지 추가
+ */
+export const createMyAddress = async (memberAddressRequest: MemberAddressRequest, options?: Parameters<typeof http>[1]): Promise<RsDataMemberAddressResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -319,7 +340,7 @@ export const create = async (memberAddressRequest: MemberAddressRequest, options
     }
     return headers;
   };
-return http<RsDataMemberAddressResponse>(getCreateUrl(),
+return http<RsDataMemberAddressResponse>(getCreateMyAddressUrl(),
   {
     ...options,
     method: 'POST',
@@ -332,13 +353,13 @@ return http<RsDataMemberAddressResponse>(getCreateUrl(),
 
 
 
-export const getCreateMutationKey = () => ['create'] as const;
+export const getCreateMyAddressMutationKey = () => ['createMyAddress'] as const;
 
-export const getCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof create>>, TError,CreateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
-): UseMutationOptions<Awaited<ReturnType<typeof create>>, TError,CreateMutationVariables, TContext> => {
+export const getCreateMyAddressMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMyAddress>>, TError,CreateMyAddressMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMyAddress>>, TError,CreateMyAddressMutationVariables, TContext> => {
 
-const mutationKey = getCreateMutationKey();
+const mutationKey = getCreateMyAddressMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -348,10 +369,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof create>>, CreateMutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMyAddress>>, CreateMyAddressMutationVariables> = (props) => {
           const {data} = props ?? {};
 
-          return  create(data,requestOptions)
+          return  createMyAddress(data,requestOptions)
         }
 
 
@@ -361,22 +382,25 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type CreateMutationResult = NonNullable<Awaited<ReturnType<typeof create>>>
-    export type CreateMutationBody = MemberAddressRequest
-    export type CreateMutationError = unknown
-    export type CreateMutationVariables = {data: MemberAddressRequest}
+    export type CreateMyAddressMutationResult = NonNullable<Awaited<ReturnType<typeof createMyAddress>>>
+    export type CreateMyAddressMutationBody = MemberAddressRequest
+    export type CreateMyAddressMutationError = unknown
+    export type CreateMyAddressMutationVariables = {data: MemberAddressRequest}
 
-    export const useCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof create>>, TError,CreateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+    /**
+ * @summary 배송지 추가
+ */
+export const useCreateMyAddress = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMyAddress>>, TError,CreateMyAddressMutationVariables, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof create>>,
+        Awaited<ReturnType<typeof createMyAddress>>,
         TError,
-        CreateMutationVariables,
+        CreateMyAddressMutationVariables,
         TContext
       > => {
-      return useMutation(getCreateMutationOptions(options), queryClient);
+      return useMutation(getCreateMyAddressMutationOptions(options), queryClient);
     }
-    export const getMakeDefaultUrl = (addressId: number,) => {
+    export const getMakeDefaultMyAddressUrl = (addressId: number,) => {
 
 
 
@@ -384,9 +408,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return `/api/members/me/addresses/${addressId}/default`
 }
 
-export const makeDefault = async (addressId: number, options?: Parameters<typeof http>[1]): Promise<RsDataMemberAddressResponse> => {
+/**
+ * @summary 기본 배송지 지정
+ */
+export const makeDefaultMyAddress = async (addressId: number, options?: Parameters<typeof http>[1]): Promise<RsDataMemberAddressResponse> => {
 
-  return http<RsDataMemberAddressResponse>(getMakeDefaultUrl(addressId),
+  return http<RsDataMemberAddressResponse>(getMakeDefaultMyAddressUrl(addressId),
   {
     ...options,
     method: 'PATCH'
@@ -399,13 +426,13 @@ export const makeDefault = async (addressId: number, options?: Parameters<typeof
 
 
 
-export const getMakeDefaultMutationKey = () => ['makeDefault'] as const;
+export const getMakeDefaultMyAddressMutationKey = () => ['makeDefaultMyAddress'] as const;
 
-export const getMakeDefaultMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof makeDefault>>, TError,MakeDefaultMutationVariables, TContext>, request?: SecondParameter<typeof http>}
-): UseMutationOptions<Awaited<ReturnType<typeof makeDefault>>, TError,MakeDefaultMutationVariables, TContext> => {
+export const getMakeDefaultMyAddressMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof makeDefaultMyAddress>>, TError,MakeDefaultMyAddressMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof makeDefaultMyAddress>>, TError,MakeDefaultMyAddressMutationVariables, TContext> => {
 
-const mutationKey = getMakeDefaultMutationKey();
+const mutationKey = getMakeDefaultMyAddressMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -415,10 +442,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof makeDefault>>, MakeDefaultMutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof makeDefaultMyAddress>>, MakeDefaultMyAddressMutationVariables> = (props) => {
           const {addressId} = props ?? {};
 
-          return  makeDefault(addressId,requestOptions)
+          return  makeDefaultMyAddress(addressId,requestOptions)
         }
 
 
@@ -428,18 +455,21 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type MakeDefaultMutationResult = NonNullable<Awaited<ReturnType<typeof makeDefault>>>
+    export type MakeDefaultMyAddressMutationResult = NonNullable<Awaited<ReturnType<typeof makeDefaultMyAddress>>>
 
-    export type MakeDefaultMutationError = unknown
-    export type MakeDefaultMutationVariables = {addressId: number}
+    export type MakeDefaultMyAddressMutationError = unknown
+    export type MakeDefaultMyAddressMutationVariables = {addressId: number}
 
-    export const useMakeDefault = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof makeDefault>>, TError,MakeDefaultMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+    /**
+ * @summary 기본 배송지 지정
+ */
+export const useMakeDefaultMyAddress = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof makeDefaultMyAddress>>, TError,MakeDefaultMyAddressMutationVariables, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof makeDefault>>,
+        Awaited<ReturnType<typeof makeDefaultMyAddress>>,
         TError,
-        MakeDefaultMutationVariables,
+        MakeDefaultMyAddressMutationVariables,
         TContext
       > => {
-      return useMutation(getMakeDefaultMutationOptions(options), queryClient);
+      return useMutation(getMakeDefaultMyAddressMutationOptions(options), queryClient);
     }

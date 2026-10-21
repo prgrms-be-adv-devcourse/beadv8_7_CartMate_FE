@@ -28,6 +28,7 @@ import type {
   RsDataPageWalletTransactionResponse,
   RsDataWalletBalanceResponse,
   RsDataWalletChargeOrderResponse,
+  RsDataWalletTransactionSummaryResponse,
   RsDataWalletWithdrawOrderResponse,
   WalletChargeConfirmRequest,
   WalletChargeOrderRequest,
@@ -573,6 +574,100 @@ export function useGetMyWalletTransactions<TData = Awaited<ReturnType<typeof get
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetMyWalletTransactionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getGetMyWalletTransactionSummaryUrl = () => {
+
+
+
+
+  return `/api/wallets/me/transactions/summary`
+}
+
+export const getMyWalletTransactionSummary = async ( options?: Parameters<typeof http>[1]): Promise<RsDataWalletTransactionSummaryResponse> => {
+
+  return http<RsDataWalletTransactionSummaryResponse>(getGetMyWalletTransactionSummaryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyWalletTransactionSummaryQueryKey = () => {
+    return [
+    `/api/wallets/me/transactions/summary`
+    ] as const;
+    }
+
+
+export const getGetMyWalletTransactionSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyWalletTransactionSummaryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyWalletTransactionSummary>>> = ({ signal }) => getMyWalletTransactionSummary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetMyWalletTransactionSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getMyWalletTransactionSummary>>>
+export type GetMyWalletTransactionSummaryQueryError = unknown
+
+
+export function useGetMyWalletTransactionSummary<TData = Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyWalletTransactionSummary>>,
+          TError,
+          Awaited<ReturnType<typeof getMyWalletTransactionSummary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyWalletTransactionSummary<TData = Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyWalletTransactionSummary>>,
+          TError,
+          Awaited<ReturnType<typeof getMyWalletTransactionSummary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyWalletTransactionSummary<TData = Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetMyWalletTransactionSummary<TData = Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyWalletTransactionSummary>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMyWalletTransactionSummaryQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
