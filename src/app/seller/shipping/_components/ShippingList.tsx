@@ -1,7 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useGetSellerDeliveries } from '@/api/generated/delivery-controller/delivery-controller';
+import { useQueryClient } from '@tanstack/react-query';
+import { getGetSellerDeliveriesQueryKey, useGetSellerDeliveries, useReadyDelivery } from '@/api/generated/delivery-controller/delivery-controller';
+import { GetSellerDeliveriesStatus } from '@/api/generated/model';
 import type { SellerDeliveryResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -9,6 +12,9 @@ import { formatDateTime, formatPhone } from '@/lib/format';
 import { readShippingStatus } from './ShippingStatusTabs';
 
 const COURIERS = ['CJ대한통운', '우체국택배', '롯데택배'];
+
+// BE 는 택배사·송장번호를 각각 50자까지 받는다.
+const MAX_LENGTH = 50;
 
 const PAGE_SIZE = 20;
 // 페이지 번호는 현재 페이지 앞뒤로 이만큼만 보여 준다.
@@ -34,11 +40,44 @@ function totalQuantity(delivery: SellerDeliveryResponse): number {
 }
 
 function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
+    const queryClient = useQueryClient();
     const items = delivery.items ?? [];
     const address = [delivery.zipCode && `[${delivery.zipCode}]`, delivery.address, delivery.addressDetail].filter(Boolean).join(' ');
     const registered = Boolean(delivery.carrier || delivery.trackingNumber);
     // 이미 등록된 택배사가 고정 목록에 없어도 선택값으로 보이도록 목록에 더한다.
     const courierOptions = delivery.carrier && !COURIERS.includes(delivery.carrier) ? [...COURIERS, delivery.carrier] : COURIERS;
+
+    const [carrier, setCarrier] = useState(delivery.carrier ?? '');
+    const [trackingNumber, setTrackingNumber] = useState(delivery.trackingNumber ?? '');
+    const [error, setError] = useState<string | null>(null);
+
+    // 등록에 성공하면 목록을 다시 조회한다. 배송 준비로 바뀐 배송은 현재 탭(배송 요청)에서 빠지고 "배송 준비" 탭에 나타난다.
+    const ready = useReadyDelivery({
+        mutation: {
+            onSuccess: () => {
+                setError(null);
+                void queryClient.invalidateQueries({ queryKey: getGetSellerDeliveriesQueryKey() });
+            },
+            onError: (e) => setError(errorMessage(e, '송장 등록에 실패했습니다.')),
+        },
+    });
+    // 송장은 배송 요청일 때만 입력한다. BE 는 이미 등록한 송장의 수정을 지원하지 않는다.
+    const editable = delivery.status === GetSellerDeliveriesStatus.REQUESTED;
+
+    function register() {
+        const nextCarrier = carrier.trim();
+        const nextTracking = trackingNumber.trim();
+        if (!nextCarrier || !nextTracking) {
+            setError('택배사와 송장번호를 입력해 주세요.');
+            return;
+        }
+        if (nextCarrier.length > MAX_LENGTH || nextTracking.length > MAX_LENGTH) {
+            setError(`택배사와 송장번호는 ${MAX_LENGTH}자 이하로 입력해 주세요.`);
+            return;
+        }
+        setError(null);
+        ready.mutate({ deliveryId: delivery.deliveryId!, data: { carrier: nextCarrier, trackingNumber: nextTracking } });
+    }
 
     return (
         <tr className="hover:bg-surface-container-low transition-colors">
@@ -71,20 +110,44 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
                 <span className="inline-block px-2.5 py-1 rounded-full text-caption bg-surface-container-high text-on-surface font-label-md">{STATUS_LABEL[delivery.status ?? ''] ?? delivery.status}</span>
             </td>
             <td className="p-space-md">
-                {/* 송장 등록(ready)·출고(ship) API 는 다음 단계에서 연결한다. */}
+                {/* 송장 등록(ready)만 연결했다. 출고(ship)는 다음 단계에서 연결한다. */}
                 <div className="flex flex-col gap-2">
                     <div className="flex gap-2">
-                        <select className="w-28 bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm text-on-surface" defaultValue={delivery.carrier ?? ''}>
+                        <select
+                            className="w-28 bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm text-on-surface disabled:opacity-60"
+                            value={carrier}
+                            disabled={!editable || ready.isPending}
+                            onChange={(e) => setCarrier(e.target.value)}
+                        >
                             <option value="">택배사 선택</option>
                             {courierOptions.map((courier) => (
                                 <option key={courier}>{courier}</option>
                             ))}
                         </select>
-                        <input className="flex-1 bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm text-on-surface" placeholder="송장번호 입력" type="text" defaultValue={delivery.trackingNumber ?? ''} />
+                        <input
+                            className="flex-1 bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm text-on-surface disabled:opacity-60"
+                            placeholder="송장번호 입력"
+                            type="text"
+                            value={trackingNumber}
+                            disabled={!editable || ready.isPending}
+                            onChange={(e) => setTrackingNumber(e.target.value)}
+                        />
                     </div>
                     <div className="flex justify-end gap-1">
-                        <button className="bg-primary text-on-primary hover:opacity-90 px-3 py-1 rounded text-caption font-label-md">{registered ? '등록완료' : '등록'}</button>
+                        <button
+                            className="bg-primary text-on-primary hover:opacity-90 px-3 py-1 rounded text-caption font-label-md disabled:opacity-60 disabled:cursor-not-allowed"
+                            type="button"
+                            disabled={!editable || ready.isPending}
+                            onClick={register}
+                        >
+                            {ready.isPending ? '처리 중…' : registered ? '등록완료' : '등록'}
+                        </button>
                     </div>
+                    {error && (
+                        <p className="text-caption text-error text-right" role="alert">
+                            {error}
+                        </p>
+                    )}
                 </div>
             </td>
         </tr>
@@ -183,8 +246,8 @@ export default function ShippingList() {
                             </thead>
                             <tbody className="divide-y divide-surface-variant text-body-md text-on-surface">
                                 {rows.map((delivery) => (
-                                    // 입력칸이 기본값(defaultValue)을 쓰므로 송장 정보가 바뀌면 행을 새로 그려 값이 반영되게 한다.
-                                    <DeliveryRow key={`${delivery.deliveryId}-${delivery.carrier ?? ''}-${delivery.trackingNumber ?? ''}`} delivery={delivery} />
+                                    // 행 안의 입력값·오류 상태를 상태나 송장 정보가 바뀌면 새로 시작하도록 key 에 포함한다.
+                                    <DeliveryRow key={`${delivery.deliveryId}-${delivery.status}-${delivery.carrier ?? ''}-${delivery.trackingNumber ?? ''}`} delivery={delivery} />
                                 ))}
                             </tbody>
                         </table>
