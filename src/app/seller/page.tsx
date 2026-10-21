@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
+import PendingSettlementCard from './_components/PendingSettlementCard';
 
 export const metadata: Metadata = { title: '판매자 대시보드 | TEAMBUY' };
 
 const SUMMARY_CARDS = [
     { label: '배송 요청 건수', icon: 'local_shipping', value: '12', unit: '건', note: '전일 대비 동일', status: '진행률 100%' },
     { label: '교환·환불 대기 건수', icon: 'sync_alt', value: '3', unit: '건', note: '신규 접수 1건 포함', status: '조치 필요' },
-    { label: '이번 정산 예정 금액', icon: 'payments', value: '2,450,000', unit: '원', note: '정산 예정일: 10월 25일', status: '확정 완료' },
 ];
 
 const RECENT_ORDERS = [
@@ -57,6 +57,8 @@ export default function SellerDashboardPage() {
                         </div>
                     </div>
                 ))}
+                {/* 정산 예정 금액과 정산 예정일은 BE 의 정산 정보를 조회한다 */}
+                <PendingSettlementCard />
             </div>
             <div className="grid grid-cols-3 gap-space-lg">
                 <div className="col-span-2 bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/40 flex flex-col">
