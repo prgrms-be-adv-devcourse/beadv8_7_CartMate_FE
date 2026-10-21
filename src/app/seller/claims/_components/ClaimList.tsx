@@ -25,7 +25,7 @@ const REASON_LABEL: Record<string, string> = {
     OTHER: '기타',
 };
 
-const BADGE = 'inline-flex items-center px-space-sm py-0.5 rounded-full text-caption font-label-sm';
+const BADGE = 'inline-flex items-center whitespace-nowrap px-space-sm py-0.5 rounded-full text-caption font-label-sm';
 
 // URL 의 page 는 사람이 보는 1부터, BE 요청은 0부터다.
 function readPage(raw: string | null): number {
@@ -41,7 +41,7 @@ function formatDate(value: string | undefined): string {
 
 function StatusBadge({ status }: { status: string | undefined }) {
     if (status === 'COMPLETED') return <span className={`${BADGE} bg-surface-container-high text-on-surface-variant`}>완료</span>;
-    if (status === 'APPROVED') return <span className={`${BADGE} bg-primary-fixed text-on-primary-fixed`}>수락됨</span>;
+    if (status === 'APPROVED') return <span className={`${BADGE} bg-primary-fixed text-on-primary-fixed`}>처리 중</span>;
     if (status === 'REJECTED') return <span className={`${BADGE} bg-surface-container-high text-on-surface-variant`}>거절됨</span>;
     return <span className={`${BADGE} bg-primary-fixed text-on-primary-fixed`}>처리 대기</span>;
 }
@@ -69,8 +69,8 @@ function ClaimRow({ claim }: { claim: SellerClaimResponse }) {
                 <StatusBadge status={claim.status} />
             </td>
             <td className="py-space-md px-space-lg text-right space-x-space-xs">
-                {/* 수락·완료 API 는 다음 단계에서 연결한다. */}
-                {claim.status === 'COMPLETED' ? <span className="text-caption text-on-surface-variant">처리됨</span> : <ClaimActions />}
+                {/* 접수·처리 중인 클레임만 처리 버튼을 보여 주고, 완료(·거절)된 클레임은 "처리됨"으로 표시한다. */}
+                {claim.status === 'REQUESTED' || claim.status === 'APPROVED' ? <ClaimActions claim={claim} /> : <span className="text-caption text-on-surface-variant">처리됨</span>}
             </td>
         </tr>
     );

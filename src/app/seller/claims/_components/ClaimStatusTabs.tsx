@@ -3,19 +3,22 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { GetSellerClaimsStatusItem } from '@/api/generated/model';
 
-export type ClaimTab = 'all' | 'pending' | 'done';
+export type ClaimTab = 'all' | 'pending' | 'progress' | 'done';
 
 // BE 에 상태별 건수를 한 번에 주는 API 가 없어 탭에는 개수를 보여 주지 않는다.
 const TABS: { key: ClaimTab; label: string }[] = [
     { key: 'all', label: '전체' },
     { key: 'pending', label: '처리대기' },
+    { key: 'progress', label: '처리중' },
     { key: 'done', label: '처리완료' },
 ];
 
-// 탭별로 조회할 클레임 상태. 처리대기는 접수(REQUESTED)와 수락(APPROVED), 처리완료는 COMPLETED 다. 전체는 상태를 지정하지 않는다.
+// 탭별로 조회할 클레임 상태. 처리대기는 접수(REQUESTED), 처리중은 수락(APPROVED), 처리완료는 COMPLETED 다.
+// 전체는 상태를 지정하지 않는다. (거절 REJECTED 는 전체에서만 보인다)
 export const CLAIM_TAB_STATUSES: Record<ClaimTab, GetSellerClaimsStatusItem[] | undefined> = {
     all: undefined,
-    pending: [GetSellerClaimsStatusItem.REQUESTED, GetSellerClaimsStatusItem.APPROVED],
+    pending: [GetSellerClaimsStatusItem.REQUESTED],
+    progress: [GetSellerClaimsStatusItem.APPROVED],
     done: [GetSellerClaimsStatusItem.COMPLETED],
 };
 
