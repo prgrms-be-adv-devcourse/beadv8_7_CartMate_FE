@@ -8,10 +8,13 @@
 export interface GroupPurchase {
   id?: number;
   purchaseType?: string;
+  stage?: string;
   title?: string;
   itemCount?: number;
   myAmount?: number;
   joinedCount?: number;
   targetCount?: number;
-  editDeadlineAt?: string;
+  myPaymentStatus?: string;
+  deadlineAt?: string;
+  sharedGroupOrderId?: number;
 }
