@@ -1,28 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { CLAIM_TABS, type ClaimTab } from './claim';
 
-const TABS = ['전체 (12)', '처리대기 (5)', '처리완료 (7)'];
+type Props = {
+    active: ClaimTab;
+    // 탭별 건수. 아직 못 받았으면 '-'
+    counts: Partial<Record<ClaimTab, number>>;
+    onChange: (tab: ClaimTab) => void;
+};
 
-export default function ClaimStatusTabs() {
-    const [active, setActive] = useState(0);
-
+export default function ClaimStatusTabs({ active, counts, onChange }: Props) {
     return (
-        <div className="flex bg-surface-container rounded-lg p-space-xs border border-outline-variant">
-            {TABS.map((tab, index) => (
-                <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setActive(index)}
-                    className={
-                        index === active
-                            ? 'px-space-md py-space-xs text-label-sm font-label-sm bg-primary text-on-primary rounded-lg transition-all'
-                            : 'px-space-md py-space-xs text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface transition-all'
-                    }
-                >
-                    {tab}
-                </button>
-            ))}
+        <div role="group" aria-label="처리 상태" className="flex flex-wrap bg-surface-container rounded-lg p-space-xs border border-outline-variant gap-1">
+            {CLAIM_TABS.map(({ tab, label }) => {
+                const isActive = tab === active;
+                return (
+                    <button
+                        key={tab}
+                        type="button"
+                        aria-pressed={isActive}
+                        onClick={() => onChange(tab)}
+                        className={
+                            isActive
+                                ? 'px-space-md py-space-xs text-label-sm font-label-sm bg-primary text-on-primary rounded-lg transition-all'
+                                : 'px-space-md py-space-xs text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface transition-all'
+                        }
+                    >
+                        {label} ({counts[tab] ?? '-'})
+                    </button>
+                );
+            })}
         </div>
     );
 }
