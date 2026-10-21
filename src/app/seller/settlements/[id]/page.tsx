@@ -3,10 +3,9 @@ import { Suspense } from 'react';
 import Icon from '@/components/ui/Icon';
 import SettlementDetailSummary from './_components/SettlementDetailSummary';
 import SettlementDetailTable from './_components/SettlementDetailTable';
+import SettlementSwitcher from './_components/SettlementSwitcher';
 
 export const metadata: Metadata = { title: '정산 상세 | TEAMBUY' };
-
-const WEEKS = ['2024년 10월 4주차 (10.21 ~ 10.27)', '2024년 10월 3주차 (10.14 ~ 10.20)', '2024년 10월 2주차 (10.07 ~ 10.13)'];
 
 export default function SellerSettlementDetailPage() {
     return (
@@ -17,14 +16,10 @@ export default function SellerSettlementDetailPage() {
             </Suspense>
             {/* Period & Filter Bar */}
             <div className="bg-surface-container-lowest p-space-md rounded-lg border border-outline-variant mb-space-lg flex items-center justify-between">
-                <div className="flex items-center gap-space-md">
-                    <span className="text-label-md text-primary">정산 주차:</span>
-                    <select className="h-[42px] px-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-body-md text-primary focus:outline-none focus:border-primary">
-                        {WEEKS.map((week) => (
-                            <option key={week}>{week}</option>
-                        ))}
-                    </select>
-                </div>
+                {/* 내 정산 목록에서 골라 다른 정산의 상세로 이동한다 */}
+                <Suspense>
+                    <SettlementSwitcher />
+                </Suspense>
                 <div className="flex items-center gap-space-sm">
                     <button className="h-[42px] px-4 border border-outline-variant bg-surface-container-lowest text-primary text-label-md rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-2">
                         <Icon name="download" className="text-[18px]" />
