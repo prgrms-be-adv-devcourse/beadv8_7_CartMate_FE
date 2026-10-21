@@ -14,6 +14,7 @@ import { formatDateTime, parseKst } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
 import { CANCEL_REASON_LABEL, errorStatus, hasCode, KIND_LABEL, ORDER_STATUS, STATUS_TONE_CLASS } from '../../_lib/orderView';
+import OrderDeliveries, { summarizeDeliveries, useOrderDeliveries } from './OrderDeliveries';
 
 const CARD = 'bg-surface-container-lowest border border-outline-variant rounded p-space-md';
 const CARD_TITLE = 'font-label-md text-label-md text-on-surface font-bold mb-space-md pb-space-xs border-b border-surface-container';
@@ -66,10 +67,13 @@ function OrderDetail({ order, orderId }: { order: OrderDetailResponse; orderId: 
                     </div>
                     <div className="font-body-sm text-body-sm text-on-surface-variant">주문일시 {formatDateTime(order.createdAt)}</div>
                 </div>
-                <OrderSteps order={order} />
+                <OrderSteps order={order} orderId={orderId} />
             </div>
 
             <OrderStatusPanel order={order} orderId={orderId} />
+
+            {/* 결제가 끝난 주문만 배송이 생긴다 */}
+            {order.paidAt && <OrderDeliveries orderId={orderId} />}
 
             {/* 주문 상품 */}
             <section className={CARD} aria-label="주문 상품">
@@ -162,10 +166,13 @@ const STEP_CIRCLE: Record<StepState, string> = {
     canceled: 'bg-surface-container border border-outline text-outline',
 };
 
-// 주문 접수 → 결제 → 배송 · 구매 확정. 배송 단계는 MY-8에서 연결하므로 지금은 "준비 중"으로 둔다.
-function OrderSteps({ order }: { order: OrderDetailResponse }) {
+// 주문 접수 → 결제 → 배송 · 구매 확정. 마지막 칸은 배송 상태 요약이고, 자세한 단계는 아래 배송 조회 카드에 있다.
+function OrderSteps({ order, orderId }: { order: OrderDetailResponse; orderId: number }) {
     const canceled = order.status === 'CANCELED';
     const paid = !!order.paidAt;
+    // 배송 조회 영역과 같은 쿼리라 요청은 한 번만 나간다.
+    const deliveries = useOrderDeliveries(orderId, paid && !canceled);
+    const summary = summarizeDeliveries(deliveries.data?.data);
     const steps: { label: string; note: string; state: StepState }[] = [
         { label: '주문 접수', note: formatDateTime(order.createdAt), state: 'done' },
         canceled && !paid
@@ -173,7 +180,9 @@ function OrderSteps({ order }: { order: OrderDetailResponse }) {
             : { label: '결제 완료', note: paid ? formatDateTime(order.paidAt) : '결제 대기 중', state: paid ? 'done' : 'current' },
         canceled && paid
             ? { label: '주문 취소', note: formatDateTime(order.canceledAt), state: 'canceled' }
-            : { label: '배송 · 구매 확정', note: '배송 조회 준비 중', state: 'todo' },
+            : summary
+              ? { label: summary.done ? '구매 확정' : '배송 · 구매 확정', note: summary.label, state: summary.done ? 'done' : 'current' }
+              : { label: '배송 · 구매 확정', note: paid ? '배송 정보 확인 중' : '결제 후 배송', state: 'todo' },
     ];
 
     return (
@@ -258,7 +267,7 @@ function OrderStatusPanel({ order, orderId }: { order: OrderDetailResponse; orde
                     <Icon name="task_alt" className="text-[22px] text-primary mt-0.5" />
                     <div>
                         <div className="font-bold text-on-surface">결제가 완료된 주문입니다</div>
-                        <p className="text-on-surface-variant mt-0.5">결제 완료 주문의 취소 · 환불과 배송 조회 · 구매 확정은 준비 중입니다.</p>
+                        <p className="text-on-surface-variant mt-0.5">배송 현황과 구매 확정은 아래 배송 조회에서 확인하세요. 결제 완료 주문의 취소 · 환불은 준비 중입니다.</p>
                     </div>
                 </div>
             )}
@@ -289,9 +298,6 @@ function OrderStatusPanel({ order, orderId }: { order: OrderDetailResponse; orde
                         {/* BE가 결제 완료 주문 취소 시 예치금을 자동 환불하지 않아(BE ISS-2) 환불 연동 전까지 막는다 */}
                         <button className={`${OUTLINE_BUTTON} flex-1`} type="button" disabled title="결제 완료 주문 취소 · 환불은 준비 중입니다">
                             주문 취소 (준비 중)
-                        </button>
-                        <button className={`${OUTLINE_BUTTON} flex-1`} type="button" disabled title="배송 조회 · 구매 확정은 준비 중입니다">
-                            배송 조회 · 구매 확정 (준비 중)
                         </button>
                     </>
                 )}

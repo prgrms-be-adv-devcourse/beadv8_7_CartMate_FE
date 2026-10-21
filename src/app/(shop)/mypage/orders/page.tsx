@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import MyPageSidebar from '@/components/layout/MyPageSidebar';
 import Icon from '@/components/ui/Icon';
+import { ROUTES } from '@/lib/routes';
 import OrderList from './_components/OrderList';
 
 export const metadata: Metadata = {
@@ -32,6 +34,19 @@ export default function OrdersPage() {
                     </div>
 
                     <section className="lg:col-span-9 flex flex-col gap-space-md">
+                        <div className="flex gap-space-sm">
+                            <span className="px-space-md py-2 bg-primary text-on-primary font-label-sm text-label-sm rounded" aria-current="page">
+                                주문 내역
+                            </span>
+                            <Link
+                                className="px-space-md py-2 bg-surface text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-sm text-label-sm rounded transition-colors border border-outline-variant inline-flex items-center gap-0.5"
+                                href={ROUTES.deliveries}
+                            >
+                                <Icon name="local_shipping" className="text-[16px]" />
+                                배송 조회
+                            </Link>
+                        </div>
+
                         <OrderList />
 
                         <div className="p-space-md bg-surface-container border border-outline-variant rounded flex items-start gap-space-md">
