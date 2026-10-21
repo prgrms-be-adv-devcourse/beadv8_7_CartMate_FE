@@ -8,5 +8,5 @@ import type { CreateSalesPostRequest } from './createSalesPostRequest';
 
 export type RegisterSalesPostBody = {
   request: CreateSalesPostRequest;
-  images: Blob[];
+  images: (Blob | File)[];
 };
