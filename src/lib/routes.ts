@@ -7,6 +7,7 @@ export const ROUTES = {
     product: (id: string | number = 1) => `/products/${id}`,
     cart: '/cart',
     checkout: '/checkout',
+    checkoutShared: (orderId: string | number) => `/checkout/shared?order=${orderId}`,
 
     groupPurchases: '/group-purchases',
     groupPurchaseNew: '/group-purchases/new',

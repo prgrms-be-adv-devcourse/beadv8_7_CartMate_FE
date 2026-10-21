@@ -1,9 +1,10 @@
 // =====================================================================
-// 마이페이지 데이터 (실제 API: GET /api/members/me/dashboard)
-// mypage.mock.ts 와 같은 함수 이름·타입을 유지해서 화면 코드는 import 경로만 바꾸면 된다.
+// 마이페이지 데이터 (GET /api/members/me/dashboard)
+// 백엔드가 wallet, cart, order, delivery 모듈에서 회원별 정보를 모아서 준다.
 // =====================================================================
 
 import { apiFetch } from '@/lib/api';
+import { ROUTES } from '@/lib/routes';
 
 export type WalletSummary = {
     balance: number;
@@ -16,11 +17,11 @@ export type ActiveGroupPurchase = {
     icon: string;
     category: string;
     title: string;
-    myAmount: number;
-    joinedCount: number;
-    targetCount: number;
+    summary: string; // 카드 두 번째 줄 (분담금, 참여·결제 인원)
     status: 'EDITING' | 'PAYING' | 'CONFIRMED' | 'SHIPPING';
     deadline: string;
+    href: string;
+    actionText: string;
 };
 
 export type RecentOrder = {
@@ -30,32 +31,35 @@ export type RecentOrder = {
     option: string;
     quantity: string;
     amount: number;
-    status: 'PAID' | 'SHIPPING' | 'DELIVERED' | 'PURCHASE_CONFIRMED';
+    status: 'PAYMENT_PENDING' | 'PAID' | 'PREPARING' | 'SHIPPING' | 'DELIVERED' | 'PURCHASE_CONFIRMED' | 'CANCELED';
 };
 
-// 백엔드 응답 모양 (MyPageDashboardResponse)
+// 백엔드 응답 (MyPageDashboardResponse)
 type DashboardResponse = {
     wallet: { balance: number; heldBalance: number };
     groupPurchases: {
         id: number;
-        purchaseType: 'PER_PERSON' | 'SHARED';
-        title: string | null;
+        purchaseType: 'SHARED' | 'PER_PERSON';
+        stage: 'RECRUITING' | 'PAYING';
+        title: string;
         itemCount: number;
         myAmount: number;
         joinedCount: number;
         targetCount: number;
-        editDeadlineAt: string | null;
+        myPaymentStatus: 'UNPAID' | 'PAID' | null;
+        deadlineAt: string | null;
+        sharedGroupOrderId: number | null;
     }[];
     recentOrders: {
         id: number;
         orderNumber: string;
+        orderType: 'PERSONAL' | 'INDIVIDUAL_GROUP';
         orderedAt: string | null;
-        title: string | null;
+        title: string;
         itemCount: number;
-        totalQuantity: number;
         totalAmount: number;
-        orderStatus: string | null;
-        deliveryStatus: string | null;
+        orderStatus: 'PAYMENT_PENDING' | 'PAID' | 'CANCELED';
+        deliveryStatus: 'REQUESTED' | 'PREPARING' | 'SHIPPING' | 'DELIVERED' | 'CONFIRMED' | 'CANCELED' | null;
     }[];
     shippingCount: number;
 };
@@ -76,10 +80,19 @@ function getDashboard(): Promise<DashboardResponse> {
     return pending;
 }
 
+const won = (n: number) => `₩ ${n.toLocaleString('ko-KR')}`;
+
 function daysLeft(iso: string | null) {
     if (!iso) return null;
     const diff = new Date(iso).getTime() - Date.now();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+function deadlineText(iso: string | null, label: string) {
+    const left = daysLeft(iso);
+    if (left === null) return '';
+    if (left <= 0) return `${label} 마감 임박`;
+    return `${label} 마감 D-${left}`;
 }
 
 function formatDate(iso: string | null) {
@@ -99,22 +112,37 @@ export async function fetchActiveGroupPurchases(): Promise<ActiveGroupPurchase[]
     const { groupPurchases } = await getDashboard();
 
     return groupPurchases.map((g) => {
-        const left = daysLeft(g.editDeadlineAt);
-        const isOpen = left !== null && left > 0;
         const isShared = g.purchaseType === 'SHARED';
-        const baseTitle = g.title ?? '상품 정보 없음';
 
+        // 공동물품 분담금 결제 중
+        if (g.stage === 'PAYING') {
+            const iPaid = g.myPaymentStatus === 'PAID';
+            return {
+                id: `GB-${g.id}`,
+                purchaseType: g.purchaseType,
+                icon: 'sports_soccer',
+                category: '분담금 결제',
+                title: g.title,
+                summary: `내 분담금 ${won(g.myAmount)} · 결제 ${g.joinedCount}/${g.targetCount}명${iPaid ? ' · 결제 완료' : ''}`,
+                status: 'PAYING',
+                deadline: deadlineText(g.deadlineAt, '결제'),
+                href: ROUTES.checkoutShared(g.sharedGroupOrderId!),
+                actionText: iPaid ? '결제 현황' : '결제하기',
+            };
+        }
+
+        // 모집 중
         return {
             id: `GB-${g.id}`,
             purchaseType: g.purchaseType,
             icon: isShared ? 'sports_soccer' : 'checkroom',
-            category: `상품 ${g.itemCount}종`,
-            title: g.itemCount > 1 ? `${baseTitle} 외 ${g.itemCount - 1}건` : baseTitle,
-            myAmount: g.myAmount,
-            joinedCount: g.joinedCount,
-            targetCount: g.targetCount,
-            status: isOpen ? 'EDITING' : 'PAYING',
-            deadline: isOpen ? `${isShared ? '모집' : '수정'} 마감 D-${left}` : '마감 완료',
+            category: isShared ? '참여자 모집' : `상품 ${g.itemCount}종`,
+            title: g.title,
+            summary: isShared ? `참여 ${g.joinedCount}/${g.targetCount}명` : '각자 사이즈를 골라 주문',
+            status: 'EDITING',
+            deadline: deadlineText(g.deadlineAt, isShared ? '모집' : '주문'),
+            href: isShared ? ROUTES.groupPurchase(g.id) : ROUTES.groupPurchaseIndividual(g.id),
+            actionText: '상세 보기',
         };
     });
 }
@@ -123,18 +151,22 @@ export async function fetchRecentOrders(): Promise<RecentOrder[]> {
     const { recentOrders } = await getDashboard();
 
     return recentOrders.map((o) => {
-        let status: RecentOrder['status'] = 'PAID';
-        if (o.orderStatus === 'PURCHASE_CONFIRMED') status = 'PURCHASE_CONFIRMED';
-        else if (o.deliveryStatus === 'SHIPPING') status = 'SHIPPING';
+        // 주문 상태가 우선, 결제 이후에는 배송 상태로 보여준다
+        let status: RecentOrder['status'];
+        if (o.orderStatus === 'PAYMENT_PENDING') status = 'PAYMENT_PENDING';
+        else if (o.orderStatus === 'CANCELED') status = 'CANCELED';
+        else if (o.deliveryStatus === 'CONFIRMED') status = 'PURCHASE_CONFIRMED';
         else if (o.deliveryStatus === 'DELIVERED') status = 'DELIVERED';
+        else if (o.deliveryStatus === 'SHIPPING') status = 'SHIPPING';
+        else if (o.deliveryStatus === 'PREPARING') status = 'PREPARING';
+        else status = 'PAID';
 
-        const baseName = o.title ?? '상품 정보 없음';
         return {
             id: o.orderNumber,
             date: formatDate(o.orderedAt),
-            name: o.itemCount > 1 ? `${baseName} 외 ${o.itemCount - 1}건` : baseName,
-            option: '',
-            quantity: `${o.totalQuantity}개`,
+            name: o.itemCount > 1 ? `${o.title} 외 ${o.itemCount - 1}건` : o.title,
+            option: o.orderType === 'INDIVIDUAL_GROUP' ? '공동구매 주문' : '',
+            quantity: `${o.itemCount}종`,
             amount: o.totalAmount,
             status,
         };
