@@ -1,30 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { STATUS_TABS, type DeliveryStatus } from './delivery';
 
-const TABS = [
-    { label: '배송 요청', count: 12 },
-    { label: '배송 준비', count: 5 },
-    { label: '배송 중', count: 28 },
-    { label: '배송 완료', count: 142 },
-];
+type Props = {
+    active: DeliveryStatus;
+    // 상태별 건수. 아직 못 받았으면 undefined로 두고 '-'를 보여 준다.
+    counts: Partial<Record<DeliveryStatus, number>>;
+    onChange: (status: DeliveryStatus) => void;
+};
 
-export default function ShippingStatusTabs() {
-    const [active, setActive] = useState(0);
-
+export default function ShippingStatusTabs({ active, counts, onChange }: Props) {
     return (
-        <div className="flex items-center gap-space-xs">
-            {TABS.map((tab, index) => {
-                const isActive = index === active;
+        <div role="group" aria-label="배송 상태" className="flex flex-wrap items-center gap-space-xs">
+            {STATUS_TABS.map((tab) => {
+                const isActive = tab.status === active;
+                const count = counts[tab.status];
                 return (
                     <button
-                        key={tab.label}
+                        key={tab.status}
                         type="button"
-                        onClick={() => setActive(index)}
+                        aria-pressed={isActive}
+                        onClick={() => onChange(tab.status)}
                         className={`px-space-md py-space-sm rounded-lg font-label-md transition-all ${isActive ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
                     >
                         {tab.label}{' '}
-                        <span className={`ml-space-xs px-1.5 py-0.5 rounded text-caption ${isActive ? 'bg-surface/20' : 'bg-surface-container-high'}`}>{tab.count}</span>
+                        <span className={`ml-space-xs px-1.5 py-0.5 rounded text-caption ${isActive ? 'bg-surface/20' : 'bg-surface-container-high'}`}>
+                            {count ?? '-'}
+                        </span>
                     </button>
                 );
             })}
