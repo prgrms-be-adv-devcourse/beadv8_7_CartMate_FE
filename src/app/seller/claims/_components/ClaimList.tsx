@@ -7,6 +7,7 @@ import { errorMessage } from '@/api/http';
 import { parseKst, toKstLocal } from '@/lib/format';
 import ClaimActions from './ClaimActions';
 import { CLAIM_TAB_STATUSES, readClaimTab } from './ClaimStatusTabs';
+import { readClaimType } from './ClaimTypeFilter';
 
 const PAGE_SIZE = 20;
 // 페이지 번호는 현재 페이지 앞뒤로 이만큼만 보여 준다.
@@ -94,7 +95,9 @@ export default function ClaimList() {
     const tab = readClaimTab(searchParams.get('tab'));
     const page = readPage(searchParams.get('page'));
 
-    const query = useGetSellerClaims({ status: CLAIM_TAB_STATUSES[tab], page: page - 1, size: PAGE_SIZE });
+    const claimType = readClaimType(searchParams.get('type'));
+
+    const query = useGetSellerClaims({ status: CLAIM_TAB_STATUSES[tab], claimType, page: page - 1, size: PAGE_SIZE });
     const result = query.data?.data;
     const rows = result?.content ?? [];
     const totalElements = result?.totalElements ?? 0;

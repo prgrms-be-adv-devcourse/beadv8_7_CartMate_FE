@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import Icon from '@/components/ui/Icon';
 import ClaimList from './_components/ClaimList';
 import ClaimStatusTabs from './_components/ClaimStatusTabs';
+import ClaimTypeFilter from './_components/ClaimTypeFilter';
 
 export const metadata: Metadata = { title: '교환·환불 관리 | TEAMBUY' };
 
@@ -25,14 +26,10 @@ export default function SellerClaimsPage() {
             {/* Filters & Search Toolbar */}
             <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-space-md mb-space-lg flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-space-md">
-                    <div className="flex items-center gap-space-sm">
-                        <span className="text-caption text-on-surface-variant font-label-sm">유형</span>
-                        <select className="bg-surface border border-outline-variant text-on-surface text-body-sm rounded px-space-md py-space-xs outline-none focus:border-primary">
-                            <option>전체 유형</option>
-                            <option>교환</option>
-                            <option>환불</option>
-                        </select>
-                    </div>
+                    {/* 선택한 유형을 URL 쿼리스트링에서 읽는 부분은 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}
+                    <Suspense>
+                        <ClaimTypeFilter />
+                    </Suspense>
                     <div className="flex items-center gap-space-sm">
                         <span className="text-caption text-on-surface-variant font-label-sm">기간</span>
                         <select className="bg-surface border border-outline-variant text-on-surface text-body-sm rounded px-space-md py-space-xs outline-none focus:border-primary">
