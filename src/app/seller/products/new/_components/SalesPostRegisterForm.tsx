@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
 import { errorMessage } from '@/api/http';
@@ -23,6 +23,8 @@ const CATEGORIES = [
 const INPUT_CLASS =
     'h-[42px] px-space-md bg-surface border border-outline-variant rounded text-on-surface placeholder:text-outline focus:border-primary focus:outline-none transition-colors';
 
+type PickedImage = { file: File; preview: string };
+
 // 판매글 등록 → POST /api/sales-posts (multipart: request JSON + images)
 export default function SalesPostRegisterForm() {
     const { user, isLoading } = useCurrentUser();
@@ -30,9 +32,16 @@ export default function SalesPostRegisterForm() {
         mutationFn: ({ request, images: files }: { request: Parameters<typeof registerSalesPostMultipart>[0]; images: Blob[] }) =>
             registerSalesPostMultipart(request, files),
     });
-    const imageInputRef = useRef<HTMLInputElement>(null);
-    const [images, setImages] = useState<File[]>([]);
+    const [images, setImages] = useState<PickedImage[]>([]);
+    const imagesRef = useRef(images);
+    imagesRef.current = images;
     const [formError, setFormError] = useState<string | null>(null);
+
+    useEffect(() => {
+        return () => {
+            for (const item of imagesRef.current) URL.revokeObjectURL(item.preview);
+        };
+    }, []);
 
     function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -75,7 +84,7 @@ export default function SalesPostRegisterForm() {
                         },
                     ],
                 },
-                images,
+                images: images.map((item) => item.file),
             },
             {
                 onSuccess: () => {
@@ -90,7 +99,26 @@ export default function SalesPostRegisterForm() {
 
     function onPickImages(fileList: FileList | null) {
         if (!fileList?.length) return;
-        setImages((prev) => [...prev, ...Array.from(fileList)].slice(0, 5));
+        const picked = Array.from(fileList).map((file) => ({
+            file,
+            preview: URL.createObjectURL(file),
+        }));
+        setImages((prev) => {
+            const next = [...prev, ...picked].slice(0, 5);
+            for (const item of picked) {
+                if (!next.includes(item)) URL.revokeObjectURL(item.preview);
+            }
+            return next;
+        });
+    }
+
+    function removeImage(index: number) {
+        setImages((prev) => {
+            const next = [...prev];
+            const [removed] = next.splice(index, 1);
+            if (removed) URL.revokeObjectURL(removed.preview);
+            return next;
+        });
     }
 
     return (
@@ -207,44 +235,43 @@ export default function SalesPostRegisterForm() {
                         <p className="text-body-sm text-on-surface-variant">대표 상품 이미지를 등록하세요. (최대 5장)</p>
                     </div>
                     <div className="flex flex-col space-y-space-md">
-                        <input
-                            ref={imageInputRef}
-                            className="sr-only"
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={(e) => {
-                                onPickImages(e.target.files);
-                                e.target.value = '';
-                            }}
-                        />
-                        <button
+                        <label
+                            htmlFor="sales-images"
                             className="relative w-full aspect-square border-2 border-dashed border-outline-variant rounded-xl bg-surface flex flex-col items-center justify-center p-space-lg text-center hover:border-primary transition-colors cursor-pointer group"
-                            type="button"
-                            onClick={() => imageInputRef.current?.click()}
                         >
-                            <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-space-sm group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                            <input
+                                id="sales-images"
+                                className="absolute inset-0 z-10 w-full h-full opacity-0 cursor-pointer"
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={(e) => {
+                                    onPickImages(e.target.files);
+                                    e.target.value = '';
+                                }}
+                            />
+                            <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-space-sm group-hover:bg-primary group-hover:text-on-primary transition-colors pointer-events-none">
                                 <Icon name="add_a_photo" className="text-[24px]" />
                             </div>
-                            <span className="text-label-md text-on-surface mb-space-xs">
+                            <span className="text-label-md text-on-surface mb-space-xs pointer-events-none">
                                 {images.length > 0 ? `${images.length}장 선택됨` : '대표 이미지 업로드'}
                             </span>
-                            <span className="text-caption text-outline">CLICK TO BROWSE (최대 5장)</span>
-                        </button>
+                            <span className="text-caption text-outline pointer-events-none">CLICK TO BROWSE (최대 5장)</span>
+                        </label>
                         {images.length > 0 && (
                             <ul className="grid grid-cols-4 gap-space-sm">
-                                {images.map((file, index) => (
+                                {images.map((item, index) => (
                                     <li
-                                        key={`${file.name}-${index}`}
-                                        className="aspect-square bg-surface border border-outline-variant rounded flex items-center justify-center text-caption text-on-surface-variant p-1 text-center relative"
-                                        title={file.name}
+                                        key={`${item.file.name}-${index}`}
+                                        className="aspect-square bg-surface border border-outline-variant rounded overflow-hidden relative"
+                                        title={item.file.name}
                                     >
-                                        <span className="line-clamp-3 break-all">{file.name}</span>
+                                        <img src={item.preview} alt={item.file.name} className="w-full h-full object-cover" />
                                         <button
-                                            className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-on-surface/70 text-surface text-[10px] flex items-center justify-center"
+                                            className="absolute top-0.5 right-0.5 z-20 w-5 h-5 rounded-full bg-on-surface/70 text-surface text-[10px] flex items-center justify-center"
                                             type="button"
                                             aria-label="이미지 제거"
-                                            onClick={() => setImages((prev) => prev.filter((_, i) => i !== index))}
+                                            onClick={() => removeImage(index)}
                                         >
                                             ×
                                         </button>
