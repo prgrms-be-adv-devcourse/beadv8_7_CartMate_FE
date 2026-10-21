@@ -4,8 +4,8 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { UpdateProductOption } from './updateProductOption';
 import type { UpdateSalesPostProductImage } from './updateSalesPostProductImage';
-import type { UpdateSalesPostProductStatus } from './updateSalesPostProductStatus';
 
 export interface UpdateSalesPostProduct {
   id?: number;
@@ -13,6 +13,6 @@ export interface UpdateSalesPostProduct {
   name?: string;
   description?: string;
   basePrice?: number;
-  status?: UpdateSalesPostProductStatus;
   productImageList?: UpdateSalesPostProductImage[];
+  productOptionList?: UpdateProductOption[];
 }
