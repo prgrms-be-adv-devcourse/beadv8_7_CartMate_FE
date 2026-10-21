@@ -2031,6 +2031,26 @@
         }
       }
     },
+    "/api/wallets/me/transactions/summary": {
+      "get": {
+        "tags": [
+          "wallet-controller"
+        ],
+        "operationId": "getMyWalletTransactionSummary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWalletTransactionSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settlements": {
       "get": {
         "tags": [
@@ -3383,6 +3403,41 @@
             "format": "int64"
           },
           "balance": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "heldBalance": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RsDataWalletTransactionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WalletTransactionSummaryResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WalletTransactionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "totalCharged": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaid": {
             "type": "integer",
             "format": "int64"
           }
