@@ -3,6 +3,7 @@ import SidebarNav from '@/components/layout/SidebarNav';
 import { ROUTES } from '@/lib/routes';
 
 const MENU = [
+    { label: '대시보드', icon: 'dashboard', href: ROUTES.admin },
     { label: '회원 관리', icon: 'group', href: ROUTES.adminMembers },
     { label: '판매글 관리', icon: 'inventory_2', href: ROUTES.adminPosts },
     { label: '공지사항 관리', icon: 'campaign', href: ROUTES.adminNotices },
@@ -24,6 +25,7 @@ export default function AdminSidebar() {
                 <nav className="flex flex-col gap-space-xs px-space-md">
                     <SidebarNav
                         items={MENU}
+                        exactHref={ROUTES.admin}
                         className="flex items-center gap-space-sm px-space-md py-space-sm rounded font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
                         activeClassName="flex items-center gap-space-sm px-space-md py-space-sm rounded transition-colors bg-primary text-on-primary font-label-md text-label-md"
                         iconClassName="text-[18px]"

@@ -10,7 +10,7 @@ const LINK_CLASS = 'font-caption text-caption text-on-surface-variant hover:text
 
 // 역할별 센터 링크. 관리자·판매자에게만 보인다.
 const ROLE_LINKS: Partial<Record<string, { label: string; href: string }>> = {
-    ADMIN: { label: '관리자 센터', href: ROUTES.adminMembers },
+    ADMIN: { label: '관리자 센터', href: ROUTES.admin },
     SELLER: { label: '판매자 센터', href: ROUTES.seller },
 };
 

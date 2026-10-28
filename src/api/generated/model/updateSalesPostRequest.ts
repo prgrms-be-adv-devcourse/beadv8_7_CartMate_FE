@@ -11,6 +11,5 @@ export interface UpdateSalesPostRequest {
   sellerId?: number;
   title?: string;
   content?: string;
-  status?: string;
   productList?: UpdateSalesPostProduct[];
 }
