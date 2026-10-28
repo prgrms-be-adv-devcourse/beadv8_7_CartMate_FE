@@ -5,17 +5,28 @@
  * OpenAPI spec version: v0
  */
 import {
-  useMutation
+  useMutation,
+  useQuery
 } from '@tanstack/react-query';
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
-  UseMutationResult
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
   RegisterProductsBody,
+  RestoreProductsRequest,
+  RsDataListSelectProductResponse,
   UpdateProductsBody
 } from '../model';
 
@@ -26,7 +37,104 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
-export const getRegisterProductsUrl = () => {
+const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
+  const result = { queryKey } as T & { queryKey: K };
+  for (const key of Object.keys(query)) {
+    // The explicit queryKey always wins, matching the previous
+    // `{ ...query, queryKey }` spread where it was set last.
+    if (key === 'queryKey') continue;
+    Object.defineProperty(result, key, {
+      enumerable: true,
+      configurable: true,
+      get: () => (query as Record<string, unknown>)[key],
+    });
+  }
+  return result;
+};
+
+export const getRestoreProductsUrl = (postId: number,) => {
+
+
+
+
+  return `/api/products/${postId}/restore`
+}
+
+export const restoreProducts = async (postId: number,
+    restoreProductsRequest: RestoreProductsRequest, options?: Parameters<typeof http>[1]): Promise<void> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return http<void>(getRestoreProductsUrl(postId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(restoreProductsRequest)
+  }
+);}
+
+
+
+
+
+export const getRestoreProductsMutationKey = () => ['restoreProducts'] as const;
+
+export const getRestoreProductsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof restoreProducts>>, TError,RestoreProductsMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof restoreProducts>>, TError,RestoreProductsMutationVariables, TContext> => {
+
+const mutationKey = getRestoreProductsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof restoreProducts>>, RestoreProductsMutationVariables> = (props) => {
+          const {postId,data} = props ?? {};
+
+          return  restoreProducts(postId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RestoreProductsMutationResult = NonNullable<Awaited<ReturnType<typeof restoreProducts>>>
+    export type RestoreProductsMutationBody = RestoreProductsRequest
+    export type RestoreProductsMutationError = unknown
+    export type RestoreProductsMutationVariables = {postId: number;data: RestoreProductsRequest}
+
+    export const useRestoreProducts = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof restoreProducts>>, TError,RestoreProductsMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof restoreProducts>>,
+        TError,
+        RestoreProductsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRestoreProductsMutationOptions(options), queryClient);
+    }
+    export const getRegisterProductsUrl = () => {
 
 
 
@@ -181,7 +289,101 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getUpdateProductsMutationOptions(options), queryClient);
     }
-    export const getDeleteProductByPostUrl = (postId: number,) => {
+    export const getSelectProductsByPostUrl = (postId: number,) => {
+
+
+
+
+  return `/api/products/${postId}`
+}
+
+export const selectProductsByPost = async (postId: number, options?: Parameters<typeof http>[1]): Promise<RsDataListSelectProductResponse> => {
+
+  return http<RsDataListSelectProductResponse>(getSelectProductsByPostUrl(postId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSelectProductsByPostQueryKey = (postId: number,) => {
+    return [
+    `/api/products/${postId}`
+    ] as const;
+    }
+
+
+export const getSelectProductsByPostQueryOptions = <TData = Awaited<ReturnType<typeof selectProductsByPost>>, TError = unknown>(postId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectProductsByPost>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSelectProductsByPostQueryKey(postId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof selectProductsByPost>>> = ({ signal }) => selectProductsByPost(postId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: postId !== null && postId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof selectProductsByPost>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SelectProductsByPostQueryResult = NonNullable<Awaited<ReturnType<typeof selectProductsByPost>>>
+export type SelectProductsByPostQueryError = unknown
+
+
+export function useSelectProductsByPost<TData = Awaited<ReturnType<typeof selectProductsByPost>>, TError = unknown>(
+ postId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectProductsByPost>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof selectProductsByPost>>,
+          TError,
+          Awaited<ReturnType<typeof selectProductsByPost>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSelectProductsByPost<TData = Awaited<ReturnType<typeof selectProductsByPost>>, TError = unknown>(
+ postId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectProductsByPost>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof selectProductsByPost>>,
+          TError,
+          Awaited<ReturnType<typeof selectProductsByPost>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSelectProductsByPost<TData = Awaited<ReturnType<typeof selectProductsByPost>>, TError = unknown>(
+ postId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectProductsByPost>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useSelectProductsByPost<TData = Awaited<ReturnType<typeof selectProductsByPost>>, TError = unknown>(
+ postId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof selectProductsByPost>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSelectProductsByPostQueryOptions(postId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getDeleteProductByPostUrl = (postId: number,) => {
 
 
 

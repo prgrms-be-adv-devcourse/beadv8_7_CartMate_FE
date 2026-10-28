@@ -11,6 +11,40 @@
     }
   ],
   "paths": {
+    "/api/products/{postId}/restore": {
+      "put": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "restoreProducts",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreProductsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/members/me/addresses/{addressId}": {
       "put": {
         "tags": [
@@ -270,7 +304,7 @@
         "operationId": "registerSalesPost",
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -2192,6 +2226,59 @@
         }
       }
     },
+    "/api/products/{postId}": {
+      "get": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "selectProductsByPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataListSelectProductResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "deleteProductByPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/payments/orders/{orderId}/preview": {
       "get": {
         "tags": [
@@ -2960,6 +3047,27 @@
         }
       }
     },
+    "/api/admin/dashboard": {
+      "get": {
+        "tags": [
+          "admin-dashboard-controller"
+        ],
+        "summary": "관리자 대시보드",
+        "operationId": "getAdminDashboard",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataAdminDashboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sales-posts/sellers/{sellerId}/posts/{postId}": {
       "delete": {
         "tags": [
@@ -2979,30 +3087,6 @@
           {
             "name": "postId",
             "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/products/{postId}": {
-      "delete": {
-        "tags": [
-          "product-controller"
-        ],
-        "operationId": "deleteProductByPost",
-        "parameters": [
-          {
-            "name": "postId",
-            "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
@@ -3204,6 +3288,78 @@
   },
   "components": {
     "schemas": {
+      "RestoreProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "basePrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productImageList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestoreProductImage"
+            }
+          },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestoreProductOption"
+            }
+          }
+        }
+      },
+      "RestoreProductImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "imageSeq": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RestoreProductOption": {
+        "type": "object",
+        "properties": {
+          "productTypeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productOptionId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RestoreProductsRequest": {
+        "type": "object",
+        "properties": {
+          "productList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestoreProduct"
+            }
+          }
+        }
+      },
       "MemberAddressRequest": {
         "type": "object",
         "properties": {
@@ -3407,37 +3563,6 @@
             "format": "int64"
           },
           "heldBalance": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "RsDataWalletTransactionSummaryResponse": {
-        "type": "object",
-        "properties": {
-          "resultCode": {
-            "type": "string"
-          },
-          "msg": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/WalletTransactionSummaryResponse"
-          },
-          "statusCode": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "WalletTransactionSummaryResponse": {
-        "type": "object",
-        "properties": {
-          "totalCharged": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "totalPaid": {
             "type": "integer",
             "format": "int64"
           }
@@ -4911,9 +5036,6 @@
           "content": {
             "type": "string"
           },
-          "status": {
-            "type": "string"
-          },
           "productList": {
             "type": "array",
             "items": {
@@ -5468,6 +5590,37 @@
           }
         }
       },
+      "RsDataWalletTransactionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WalletTransactionSummaryResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WalletTransactionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "totalCharged": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaid": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "RsDataListSettlementResponse": {
         "type": "object",
         "properties": {
@@ -5982,6 +6135,141 @@
           "statusCode": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "RsDataListSelectProductResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectProductResponse"
+            }
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SelectProductImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "s3key": {
+            "type": "string"
+          },
+          "imageSeq": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE",
+              "PENDING"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SelectProductOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productTypeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productOptionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SelectProductResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "salesPostId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "basePrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE",
+              "PENDING"
+            ]
+          },
+          "productImageList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectProductImage"
+            }
+          },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectProductOption"
+            }
           }
         }
       },
@@ -7859,6 +8147,116 @@
           },
           "adminNickname": {
             "type": "string"
+          }
+        }
+      },
+      "AdminDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "$ref": "#/components/schemas/AdminMemberStats"
+          },
+          "payments": {
+            "$ref": "#/components/schemas/AdminPaymentStats"
+          },
+          "recentMembers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminRecentMember"
+            }
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AdminMemberStats": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todaySignups": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "buyers": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sellers": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "suspended": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminPaymentStats": {
+        "type": "object",
+        "properties": {
+          "todayPaidCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayPaidAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayRefundCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayRefundAmount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminRecentMember": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataAdminDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminDashboardResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       }

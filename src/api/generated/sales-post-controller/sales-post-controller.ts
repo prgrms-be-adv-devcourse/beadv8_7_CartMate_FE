@@ -172,20 +172,27 @@ export const getRegisterSalesPostUrl = () => {
 }
 
 export const registerSalesPost = async (registerSalesPostBody?: RegisterSalesPostBody, options?: Parameters<typeof http>[1]): Promise<void> => {
-    const formData = new FormData();
-if(registerSalesPostBody?.request !== undefined) {
- formData.append(`request`, JSON.stringify(registerSalesPostBody.request));
- }
-if(registerSalesPostBody?.images !== undefined) {
- registerSalesPostBody?.images.forEach(value => formData.append(`images`, value));
- }
 
-  return http<void>(getRegisterSalesPostUrl(),
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return http<void>(getRegisterSalesPostUrl(),
   {
     ...options,
-    method: 'POST'
-    ,
-    body: formData
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(registerSalesPostBody)
   }
 );}
 

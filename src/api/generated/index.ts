@@ -1,3 +1,4 @@
+export * from './admin-dashboard-controller/admin-dashboard-controller';
 export * from './admin-member-controller/admin-member-controller';
 export * from './admin-payment-controller/admin-payment-controller';
 export * from './auth-controller/auth-controller';
