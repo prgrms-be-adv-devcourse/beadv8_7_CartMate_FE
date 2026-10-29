@@ -22,6 +22,7 @@ const CANCEL_REASON_LABEL: Record<string, string> = {
     BUYER_CANCELED: '주문을 취소했습니다.',
     PAYMENT_EXPIRED: '결제 기한이 지나 자동으로 취소되었습니다.',
     OUT_OF_STOCK: '재고가 부족해 취소되었습니다.',
+    SALES_STOPPED: '판매자가 판매를 중지해 주문이 취소되었습니다.',
 };
 
 // 접수된 주문(?order=주문id)을 상태별로 보여 준다. 결제 대기면 예치금 결제, 결제 완료면 결제 결과 화면이 된다.
@@ -255,6 +256,16 @@ function OrderCanceled({ order }: { order: OrderDetailResponse }) {
             </OrderSummary>
             {order.cancelReason && (
                 <p className="font-body-sm text-body-sm text-secondary">{CANCEL_REASON_LABEL[order.cancelReason] ?? '취소된 주문입니다.'}</p>
+            )}
+            {/* 결제한 뒤 취소된 주문이면 환불 안내 (결제 전 취소는 나간 돈이 없음) */}
+            {order.paidAt && (
+                <div className="p-space-sm bg-surface-container-low border border-outline-variant font-body-sm text-body-sm flex items-center gap-space-xs">
+                    <Icon name="undo" className="text-[18px] text-primary" />
+                    결제 금액 {formatPrice(order.totalAmount ?? 0)}은 예치금으로 환불되었습니다.
+                    <Link className="ml-auto underline font-semibold text-primary" href={ROUTES.depositHistory}>
+                        예치금 내역
+                    </Link>
+                </div>
             )}
             <div className="flex flex-col sm:flex-row gap-space-sm">
                 <Link className="flex-1 h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90" href={ROUTES.cart}>
