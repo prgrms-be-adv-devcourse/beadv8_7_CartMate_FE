@@ -47,7 +47,6 @@ export const ROUTES = {
     sellerClaims: '/seller/claims',
     sellerSettlements: '/seller/settlements',
     sellerSettlement: (id: string | number = 1) => `/seller/settlements/${id}`,
-    sellerNoticeNew: '/seller/notices/new',
     sellerAccount: '/seller/account',
 
     admin: '/admin',

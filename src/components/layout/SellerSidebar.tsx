@@ -9,7 +9,6 @@ const MENU = [
     { label: '배송 관리', icon: 'local_shipping', href: ROUTES.sellerShipping },
     { label: '교환·환불', icon: 'sync_alt', href: ROUTES.sellerClaims },
     { label: '정산', icon: 'payments', href: ROUTES.sellerSettlements },
-    { label: '판매자 공지', icon: 'campaign', href: ROUTES.sellerNoticeNew },
     { label: '정산 계좌', icon: 'account_balance', href: ROUTES.sellerAccount },
 ];
 

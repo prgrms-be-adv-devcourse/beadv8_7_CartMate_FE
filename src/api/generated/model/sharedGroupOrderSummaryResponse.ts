@@ -19,4 +19,7 @@ export interface SharedGroupOrderSummaryResponse {
   participantCount?: number;
   paymentDeadlineAt?: string;
   createdAt?: string;
+  purchaseTitle?: string;
+  firstProductName?: string;
+  itemCount?: number;
 }
