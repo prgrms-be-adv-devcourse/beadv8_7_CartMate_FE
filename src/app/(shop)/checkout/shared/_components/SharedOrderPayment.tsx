@@ -31,6 +31,7 @@ const CANCEL_REASON_LABEL: Record<string, string> = {
     DEADLINE_EXPIRED: '결제 기한 안에 모든 참여자가 결제하지 않아 취소되었습니다.',
     CREATOR_CANCELED: '만든 사람이 공동구매를 취소했습니다.',
     OUT_OF_STOCK: '재고가 부족해 취소되었습니다.',
+    SALES_STOPPED: '판매자가 판매를 중지해 공동 주문이 취소되었습니다.', 
 };
 
 // 공동 주문(?order=공동주문id)을 상태별로 보여 준다.
