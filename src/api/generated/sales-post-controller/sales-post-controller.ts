@@ -28,6 +28,7 @@ import type {
   RegisterSalesPostBody,
   RsDataPageResponseSelectSalesPostResponse,
   RsDataSelectSalesPostResponse,
+  RsDataVoid,
   SelectSalesPostAllParams,
   UpdateSalesPostBody
 } from '../model';
@@ -317,6 +318,156 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getUpdateSalesPostMutationOptions(options), queryClient);
+    }
+    export const getResumeSalesPostBySellerUrl = (sellerId: number,
+    postId: number,) => {
+
+
+
+
+  return `/api/sales-posts/sellers/${sellerId}/posts/${postId}/resume`
+}
+
+/**
+ * @summary 판매자 판매 재개
+ */
+export const resumeSalesPostBySeller = async (sellerId: number,
+    postId: number, options?: Parameters<typeof http>[1]): Promise<RsDataVoid> => {
+
+  return http<RsDataVoid>(getResumeSalesPostBySellerUrl(sellerId,postId),
+  {
+    ...options,
+    method: 'PATCH'
+
+
+  }
+);}
+
+
+
+
+
+export const getResumeSalesPostBySellerMutationKey = () => ['resumeSalesPostBySeller'] as const;
+
+export const getResumeSalesPostBySellerMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resumeSalesPostBySeller>>, TError,ResumeSalesPostBySellerMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof resumeSalesPostBySeller>>, TError,ResumeSalesPostBySellerMutationVariables, TContext> => {
+
+const mutationKey = getResumeSalesPostBySellerMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resumeSalesPostBySeller>>, ResumeSalesPostBySellerMutationVariables> = (props) => {
+          const {sellerId,postId} = props ?? {};
+
+          return  resumeSalesPostBySeller(sellerId,postId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResumeSalesPostBySellerMutationResult = NonNullable<Awaited<ReturnType<typeof resumeSalesPostBySeller>>>
+
+    export type ResumeSalesPostBySellerMutationError = unknown
+    export type ResumeSalesPostBySellerMutationVariables = {sellerId: number;postId: number}
+
+    /**
+ * @summary 판매자 판매 재개
+ */
+export const useResumeSalesPostBySeller = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resumeSalesPostBySeller>>, TError,ResumeSalesPostBySellerMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof resumeSalesPostBySeller>>,
+        TError,
+        ResumeSalesPostBySellerMutationVariables,
+        TContext
+      > => {
+      return useMutation(getResumeSalesPostBySellerMutationOptions(options), queryClient);
+    }
+    export const getPauseSalesPostUrl = (sellerId: number,
+    postId: number,) => {
+
+
+
+
+  return `/api/sales-posts/sellers/${sellerId}/posts/${postId}/pause`
+}
+
+/**
+ * @summary 판매자 판매 중지
+ */
+export const pauseSalesPost = async (sellerId: number,
+    postId: number, options?: Parameters<typeof http>[1]): Promise<RsDataVoid> => {
+
+  return http<RsDataVoid>(getPauseSalesPostUrl(sellerId,postId),
+  {
+    ...options,
+    method: 'PATCH'
+
+
+  }
+);}
+
+
+
+
+
+export const getPauseSalesPostMutationKey = () => ['pauseSalesPost'] as const;
+
+export const getPauseSalesPostMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pauseSalesPost>>, TError,PauseSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof pauseSalesPost>>, TError,PauseSalesPostMutationVariables, TContext> => {
+
+const mutationKey = getPauseSalesPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof pauseSalesPost>>, PauseSalesPostMutationVariables> = (props) => {
+          const {sellerId,postId} = props ?? {};
+
+          return  pauseSalesPost(sellerId,postId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PauseSalesPostMutationResult = NonNullable<Awaited<ReturnType<typeof pauseSalesPost>>>
+
+    export type PauseSalesPostMutationError = unknown
+    export type PauseSalesPostMutationVariables = {sellerId: number;postId: number}
+
+    /**
+ * @summary 판매자 판매 중지
+ */
+export const usePauseSalesPost = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pauseSalesPost>>, TError,PauseSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof pauseSalesPost>>,
+        TError,
+        PauseSalesPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPauseSalesPostMutationOptions(options), queryClient);
     }
     export const getSelectSalesPostDetailUrl = (postId: number,) => {
 
