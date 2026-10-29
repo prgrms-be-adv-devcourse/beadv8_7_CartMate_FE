@@ -1,5 +1,6 @@
 export * from './admin-dashboard-controller/admin-dashboard-controller';
 export * from './admin-member-controller/admin-member-controller';
+export * from './admin-notice-controller/admin-notice-controller';
 export * from './admin-payment-controller/admin-payment-controller';
 export * from './admin-sales-post-controller/admin-sales-post-controller';
 export * from './auth-controller/auth-controller';
@@ -9,6 +10,7 @@ export * from './delivery-controller/delivery-controller';
 export * from './individual-group-purchase-controller/individual-group-purchase-controller';
 export * from './member-address-controller/member-address-controller';
 export * from './member-controller/member-controller';
+export * from './notice-controller/notice-controller';
 export * from './order-controller/order-controller';
 export * from './payment-controller/payment-controller';
 export * from './payout-controller/payout-controller';

@@ -12,4 +12,5 @@ export const OrderDetailResponseCancelReason = {
   BUYER_CANCELED: 'BUYER_CANCELED',
   PAYMENT_EXPIRED: 'PAYMENT_EXPIRED',
   OUT_OF_STOCK: 'OUT_OF_STOCK',
+  SALES_STOPPED: 'SALES_STOPPED',
 } as const;

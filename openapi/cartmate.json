@@ -117,6 +117,108 @@
         }
       }
     },
+    "/api/admin/notices/{id}": {
+      "get": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "관리자 공지사항 상세 (조회수 증가 없음)",
+        "operationId": "getAdminNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataNoticeDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "공지사항 수정",
+        "operationId": "updateNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoticeSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataNoticeDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "공지사항 삭제",
+        "operationId": "deleteNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/wallets/webhooks/toss": {
       "post": {
         "tags": [
@@ -1470,6 +1572,100 @@
         }
       }
     },
+    "/api/admin/notices": {
+      "get": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "관리자 공지사항 목록",
+        "operationId": "getAdminNotices",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NOTICE",
+                "GUIDE",
+                "EVENT",
+                "URGENT"
+              ]
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPageResponseNoticeSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "공지사항 등록",
+        "operationId": "createNotice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoticeSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataNoticeDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/members/{id}/suspend": {
       "post": {
         "tags": [
@@ -1890,6 +2086,56 @@
         }
       }
     },
+    "/api/group-purchases/shared/{id}/items/{itemId}/quantity/adjust": {
+      "patch": {
+        "tags": [
+          "shared-group-purchase-controller"
+        ],
+        "operationId": "adjustItemQuantity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SharedGroupPurchaseItemQuantityAdjustRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataSharedGroupPurchaseItemQuantityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/group-purchases/shared/{id}/items/{itemId}/option": {
       "patch": {
         "tags": [
@@ -2077,6 +2323,47 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataDeliveryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/claims/{claimId}/reject": {
+      "patch": {
+        "tags": [
+          "claim-controller"
+        ],
+        "operationId": "rejectClaim",
+        "parameters": [
+          {
+            "name": "claimId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryClaimRejectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataSellerClaimResponse"
                 }
               }
             }
@@ -2555,6 +2842,103 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataListOrderSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notices": {
+      "get": {
+        "tags": [
+          "notice-controller"
+        ],
+        "summary": "공지사항 목록 (고정 먼저, 최신순)",
+        "operationId": "getNotices",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NOTICE",
+                "GUIDE",
+                "EVENT",
+                "URGENT"
+              ]
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPageResponseNoticeSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notices/{id}": {
+      "get": {
+        "tags": [
+          "notice-controller"
+        ],
+        "summary": "공지사항 상세 (조회수 증가)",
+        "operationId": "getNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataNoticeDetailResponse"
                 }
               }
             }
@@ -3773,6 +4157,95 @@
           }
         }
       },
+      "NoticeSaveRequest": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "NOTICE",
+              "GUIDE",
+              "EVENT",
+              "URGENT"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          },
+          "pinned": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "category",
+          "content",
+          "title"
+        ]
+      },
+      "NoticeDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "NOTICE",
+              "GUIDE",
+              "EVENT",
+              "URGENT"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "viewCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataNoticeDetailResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/NoticeDetailResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "Data": {
         "type": "object",
         "properties": {
@@ -4940,6 +5413,9 @@
           "detail": {
             "type": "string"
           },
+          "rejectReason": {
+            "type": "string"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -5588,6 +6064,48 @@
           }
         }
       },
+      "SharedGroupPurchaseItemQuantityAdjustRequest": {
+        "type": "object",
+        "properties": {
+          "delta": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 998,
+            "minimum": -998
+          }
+        }
+      },
+      "RsDataSharedGroupPurchaseItemQuantityResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SharedGroupPurchaseItemQuantityResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SharedGroupPurchaseItemQuantityResponse": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "SharedGroupPurchaseItemOptionUpdateRequest": {
         "type": "object",
         "properties": {
@@ -5696,6 +6214,19 @@
           "trackingNumber"
         ]
       },
+      "DeliveryClaimRejectRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
       "RsDataSellerClaimResponse": {
         "type": "object",
         "properties": {
@@ -5750,6 +6281,9 @@
             ]
           },
           "detail": {
+            "type": "string"
+          },
+          "rejectReason": {
             "type": "string"
           },
           "status": {
@@ -6765,7 +7299,8 @@
             "enum": [
               "BUYER_CANCELED",
               "PAYMENT_EXPIRED",
-              "OUT_OF_STOCK"
+              "OUT_OF_STOCK",
+              "SALES_STOPPED"
             ]
           },
           "totalAmount": {
@@ -6877,6 +7412,83 @@
             "items": {
               "$ref": "#/components/schemas/OrderSummaryResponse"
             }
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NoticeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "NOTICE",
+              "GUIDE",
+              "EVENT",
+              "URGENT"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "viewCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageResponseNoticeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NoticeSummaryResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RsDataPageResponseNoticeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseNoticeSummaryResponse"
           },
           "statusCode": {
             "type": "integer",
@@ -7598,7 +8210,8 @@
             "enum": [
               "DEADLINE_EXPIRED",
               "OUT_OF_STOCK",
-              "CREATOR_CANCELED"
+              "CREATOR_CANCELED",
+              "SALES_STOPPED"
             ]
           },
           "creator": {
@@ -7725,6 +8338,16 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "purchaseTitle": {
+            "type": "string"
+          },
+          "firstProductName": {
+            "type": "string"
+          },
+          "itemCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
