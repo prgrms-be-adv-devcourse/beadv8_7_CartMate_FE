@@ -6,6 +6,14 @@
  */
 
 export interface DeliveryReadyRequest {
-  carrier?: string;
-  trackingNumber?: string;
+  /**
+     * @minLength 0
+     * @maxLength 50
+     */
+  carrier: string;
+  /**
+     * @minLength 0
+     * @maxLength 50
+     */
+  trackingNumber: string;
 }

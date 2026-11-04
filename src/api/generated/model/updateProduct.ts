@@ -5,7 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type { UpdateProductImage } from './updateProductImage';
-import type { UpdateProductStatus } from './updateProductStatus';
+import type { UpdateProductOption } from './updateProductOption';
 
 export interface UpdateProduct {
   id?: number;
@@ -13,6 +13,6 @@ export interface UpdateProduct {
   name?: string;
   description?: string;
   basePrice?: number;
-  status?: UpdateProductStatus;
   productImageList?: UpdateProductImage[];
+  productOptionList?: UpdateProductOption[];
 }

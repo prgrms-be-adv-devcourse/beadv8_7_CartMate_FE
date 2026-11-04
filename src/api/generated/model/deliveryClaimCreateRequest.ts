@@ -4,14 +4,19 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { DeliveryClaimCreateItemRequest } from './deliveryClaimCreateItemRequest';
 import type { DeliveryClaimCreateRequestClaimType } from './deliveryClaimCreateRequestClaimType';
 import type { DeliveryClaimCreateRequestReason } from './deliveryClaimCreateRequestReason';
-import type { Item } from './item';
 
 export interface DeliveryClaimCreateRequest {
-  deliveryId?: number;
-  claimType?: DeliveryClaimCreateRequestClaimType;
-  reason?: DeliveryClaimCreateRequestReason;
+  deliveryId: number;
+  claimType: DeliveryClaimCreateRequestClaimType;
+  reason: DeliveryClaimCreateRequestReason;
+  /**
+     * @minLength 0
+     * @maxLength 1000
+     */
   detail?: string;
-  items?: Item[];
+  /** @minItems 1 */
+  items: DeliveryClaimCreateItemRequest[];
 }

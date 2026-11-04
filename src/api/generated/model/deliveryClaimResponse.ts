@@ -4,10 +4,10 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { DeliveryClaimItemResponse } from './deliveryClaimItemResponse';
 import type { DeliveryClaimResponseClaimType } from './deliveryClaimResponseClaimType';
 import type { DeliveryClaimResponseReason } from './deliveryClaimResponseReason';
 import type { DeliveryClaimResponseStatus } from './deliveryClaimResponseStatus';
-import type { Item } from './item';
 
 export interface DeliveryClaimResponse {
   claimId?: number;
@@ -17,5 +17,5 @@ export interface DeliveryClaimResponse {
   detail?: string;
   status?: DeliveryClaimResponseStatus;
   createdAt?: string;
-  items?: Item[];
+  items?: DeliveryClaimItemResponse[];
 }

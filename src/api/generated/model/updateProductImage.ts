@@ -4,12 +4,10 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { UpdateProductImageStatus } from './updateProductImageStatus';
 
 export interface UpdateProductImage {
   id?: number;
   productId?: number;
   s3Key?: string;
   imageSeq?: number;
-  status?: UpdateProductImageStatus;
 }

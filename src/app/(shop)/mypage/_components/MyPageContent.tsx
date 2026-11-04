@@ -33,10 +33,13 @@ const GROUP_STATUS_LABEL: Record<ActiveGroupPurchase['status'], { text: string; 
 };
 
 const ORDER_STATUS_LABEL: Record<RecentOrder['status'], { text: string; className: string }> = {
+    PAYMENT_PENDING: { text: '결제대기', className: 'border border-error text-error' },
     PAID: { text: '결제완료', className: 'border border-outline-variant text-on-surface-variant' },
+    PREPARING: { text: '배송준비', className: 'border border-outline-variant text-on-surface-variant' },
     SHIPPING: { text: '배송중', className: 'bg-primary text-on-primary' },
     DELIVERED: { text: '배송완료', className: 'bg-primary text-on-primary' },
     PURCHASE_CONFIRMED: { text: '구매확정', className: 'border border-outline-variant text-on-surface-variant' },
+    CANCELED: { text: '취소', className: 'border border-outline-variant text-outline' },
 };
 
 const OUTLINE_BUTTON =
@@ -68,16 +71,22 @@ export default function MyPageContent() {
                 return;
             }
 
-            const [walletData, groupData, orderData] = await Promise.all([
-                fetchWalletSummary(),
-                fetchActiveGroupPurchases(),
-                fetchRecentOrders(),
-            ]);
-            if (cancelled) return;
-            setWallet(walletData);
-            setGroups(groupData);
-            setOrders(orderData);
-            setLoading(false);
+            try {
+                const [walletData, groupData, orderData] = await Promise.all([
+                    fetchWalletSummary(),
+                    fetchActiveGroupPurchases(),
+                    fetchRecentOrders(),
+                ]);
+                if (cancelled) return;
+                setWallet(walletData);
+                setGroups(groupData);
+                setOrders(orderData);
+            } catch {
+                // 활동 정보를 못 불러와도 화면은 띄운다 (빈 상태로 표시)
+                if (!cancelled) setWallet({ balance: 0, heldBalance: 0 });
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
         })();
 
         return () => {
@@ -100,6 +109,9 @@ export default function MyPageContent() {
 
     const available = wallet ? wallet.balance - wallet.heldBalance : 0;
     const shippingCount = orders.filter((o) => o.status === 'SHIPPING').length;
+    const pendingPayCount =
+        orders.filter((o) => o.status === 'PAYMENT_PENDING').length +
+        groups.filter((g) => g.status === 'PAYING' && g.actionText === '결제하기').length;
 
     const metricCards = [
         {
@@ -108,7 +120,7 @@ export default function MyPageContent() {
             value: won(available),
             valueClassName: 'text-primary',
             suffix: null,
-            note: `공동구매 동결 중 ${won(wallet?.heldBalance ?? 0)}`,
+            note: `결제 대기 ${pendingPayCount}건`,
             action: '충전/환불 >',
             href: ROUTES.deposit,
         },
@@ -241,7 +253,7 @@ export default function MyPageContent() {
                                                         </div>
                                                         <div className="font-label-md text-label-md text-on-surface font-bold">{group.title}</div>
                                                         <div className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-                                                            내 분담금 {won(group.myAmount)} · 참여 {group.joinedCount}/{group.targetCount}명
+                                                            {group.summary}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -250,9 +262,9 @@ export default function MyPageContent() {
                                                     <div className="font-caption text-caption text-outline mt-1">{group.deadline}</div>
                                                     <Link
                                                         className="mt-2 h-8 px-space-sm border border-outline-variant bg-surface-container-lowest text-on-surface font-label-sm text-label-sm rounded hover:border-primary transition-colors inline-flex items-center"
-                                                        href={ROUTES.order(group.id)}
+                                                        href={group.href}
                                                     >
-                                                        상세 보기
+                                                        {group.actionText}
                                                     </Link>
                                                 </div>
                                             </div>
@@ -302,7 +314,7 @@ export default function MyPageContent() {
                                                         </td>
                                                         <td className="py-3 px-2">
                                                             <div className="font-label-md text-on-surface font-bold">{order.name}</div>
-                                                            {order.option && <div className="text-outline text-caption">옵션: {order.option}</div>}
+                                                            {order.option && <div className="text-outline text-caption">{order.option}</div>}
                                                         </td>
                                                         <td className="py-3 px-2">{order.quantity}</td>
                                                         <td className="py-3 px-2 font-bold">{won(order.amount)}</td>

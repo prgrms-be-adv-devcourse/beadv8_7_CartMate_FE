@@ -6,6 +6,12 @@
  */
 
 export interface Item {
-  deliveryItemId?: number;
+  payoutId?: number;
+  orderedAt?: string;
+  confirmedAt?: string;
+  productName?: string;
   quantity?: number;
+  salesAmount?: number;
+  feeAmount?: number;
+  payoutAmount?: number;
 }
