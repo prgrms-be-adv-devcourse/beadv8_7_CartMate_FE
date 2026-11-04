@@ -7,6 +7,7 @@ export const ROUTES = {
     product: (id: string | number = 1) => `/products/${id}`,
     cart: '/cart',
     checkout: '/checkout',
+    checkoutShared: (orderId: string | number) => `/checkout/shared?order=${orderId}`,
 
     groupPurchases: '/group-purchases',
     groupPurchaseNew: '/group-purchases/new',
@@ -15,8 +16,6 @@ export const ROUTES = {
     groupPurchaseInvite: (id: string | number = 1) => `/group-purchases/${id}/invite`,
     groupPurchaseOptions: (id: string | number = 1) => `/group-purchases/${id}/options`,
     groupPurchaseCart: (id: string | number = 1) => `/group-purchases/${id}/cart`,
-    groupPurchaseShipping: (id: string | number = 1) => `/group-purchases/${id}/shipping`,
-    groupPurchaseResult: (id: string | number = 1) => `/group-purchases/${id}/result`,
 
     // 개인물품 공동구매 (만든 사람이 판매글 상품을 묶어 초대 링크로 각자 주문받는 공구)
     groupPurchasesIndividual: '/group-purchases/individual',
@@ -49,7 +48,6 @@ export const ROUTES = {
     sellerClaims: '/seller/claims',
     sellerSettlements: '/seller/settlements',
     sellerSettlement: (id: string | number = 1) => `/seller/settlements/${id}`,
-    sellerNoticeNew: '/seller/notices/new',
     sellerAccount: '/seller/account',
 
     admin: '/admin',

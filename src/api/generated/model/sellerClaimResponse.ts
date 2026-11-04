@@ -17,6 +17,7 @@ export interface SellerClaimResponse {
   claimType?: SellerClaimResponseClaimType;
   reason?: SellerClaimResponseReason;
   detail?: string;
+  rejectReason?: string;
   status?: SellerClaimResponseStatus;
   createdAt?: string;
   items?: DeliveryClaimItemResponse[];

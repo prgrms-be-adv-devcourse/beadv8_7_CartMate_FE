@@ -11,7 +11,7 @@ type AdminMember = {
     email: string;
     nickname: string;
     role: 'BUYER' | 'SELLER' | 'ADMIN';
-    status: 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
+    status: 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWAL_PENDING' | 'WITHDRAWN';
     joinedAt: string;
 };
 
@@ -62,7 +62,7 @@ const ROLE_OPTIONS: { value: RoleFilter; label: string }[] = [
 ];
 
 const ROLE_LABEL: Record<AdminMember['role'], Member['role']> = { BUYER: '일반', SELLER: '판매자', ADMIN: '관리자' };
-const STATUS_LABEL: Record<AdminMember['status'], Member['status']> = { ACTIVE: '정상', SUSPENDED: '정지', WITHDRAWN: '탈퇴' };
+const STATUS_LABEL: Record<AdminMember['status'], Member['status']> = { ACTIVE: '정상', SUSPENDED: '정지', WITHDRAWAL_PENDING: '탈퇴 대기', WITHDRAWN: '탈퇴' };
 
 const toDateInput = (d: Date) => d.toISOString().slice(0, 10);
 

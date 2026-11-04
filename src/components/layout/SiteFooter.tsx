@@ -65,7 +65,7 @@ export default function SiteFooter() {
                     ))}
                     <div className="col-span-2">
                         <div className="font-label-sm text-label-sm text-on-surface font-bold uppercase mb-space-md">
-                            팀 예치금 &amp; 계좌
+                            예치금 &amp; 계좌
                         </div>
                         <div className="p-space-sm bg-surface-container border border-outline-variant font-caption text-caption text-on-surface">
                             <div className="text-outline mb-1">가상계좌 입금 전용</div>

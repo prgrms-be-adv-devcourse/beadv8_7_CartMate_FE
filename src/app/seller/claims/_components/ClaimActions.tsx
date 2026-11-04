@@ -1,85 +1,60 @@
 'use client';
 
 import { useState } from 'react';
-import { useApproveClaim, useCompleteClaim } from '@/api/generated/claim-controller/claim-controller';
+import { useQueryClient } from '@tanstack/react-query';
+import { getGetSellerClaimsQueryKey, useApproveClaim, useCompleteClaim } from '@/api/generated/claim-controller/claim-controller';
 import type { SellerClaimResponse } from '@/api/generated/model';
-import { claimActionError, type ActionResult } from './claim';
+import { errorMessage } from '@/api/http';
 
-const OUTLINE = 'whitespace-nowrap bg-surface border border-outline-variant text-on-surface text-caption px-space-md py-1 rounded hover:bg-surface-container font-label-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed';
-const PRIMARY = 'whitespace-nowrap bg-primary text-on-primary text-caption px-space-md py-1 rounded hover:opacity-90 font-label-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed';
+const APPROVE_BUTTON = 'whitespace-nowrap bg-surface border border-outline-variant text-on-surface text-caption px-space-md py-1 rounded hover:bg-surface-container font-label-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed';
+const COMPLETE_BUTTON = 'whitespace-nowrap bg-primary text-on-primary text-caption px-space-md py-1 rounded hover:opacity-90 font-label-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed';
 
-type Props = {
-    claim: SellerClaimResponse;
-    onResult: (result: ActionResult) => void;
-};
+// 클레임 상태에 맞는 처리 버튼. 접수(REQUESTED)는 "수락", 처리 중(APPROVED)은 "처리 완료"만 보여 준다.
+// 수락 후에만 완료할 수 있고, 순서를 어기면 BE 가 409 를 돌려준다.
+export default function ClaimActions({ claim }: { claim: SellerClaimResponse }) {
+    const queryClient = useQueryClient();
+    const [error, setError] = useState<string | null>(null);
 
-// 한 행의 처리 버튼. 승인 대기 → 승인(확인 한 번 더), 승인됨 → 완료 처리.
-export default function ClaimActions({ claim, onResult }: Props) {
-    if (claim.status === 'REQUESTED') return <ApproveButton claim={claim} onResult={onResult} />;
-    if (claim.status === 'APPROVED') return <CompleteButton claim={claim} onResult={onResult} />;
-    return <span className="text-caption text-on-surface-variant">{claim.status === 'REJECTED' ? '거절됨' : '처리됨'}</span>;
-}
+    // 성공하면 목록을 다시 조회한다. 상태가 바뀐 클레임은 현재 탭에서 빠지고 다음 상태의 탭에 나타난다.
+    function onSuccess() {
+        setError(null);
+        void queryClient.invalidateQueries({ queryKey: getGetSellerClaimsQueryKey() });
+    }
+    const approve = useApproveClaim({ mutation: { onSuccess, onError: (e) => setError(errorMessage(e, '수락 처리에 실패했습니다.')) } });
+    const complete = useCompleteClaim({ mutation: { onSuccess, onError: (e) => setError(errorMessage(e, '처리 완료 변경에 실패했습니다.')) } });
+    const busy = approve.isPending || complete.isPending;
 
-function ApproveButton({ claim, onResult }: Props) {
-    const claimId = claim.claimId!;
-    const refund = claim.claimType === 'REFUND';
-    const [confirming, setConfirming] = useState(false);
-    // 결과 콜백은 훅 옵션에 둔다. 재조회로 행이 바뀌어도(언마운트) 결과 안내가 사라지지 않게.
-    const approve = useApproveClaim({
-        mutation: {
-            onSuccess: () =>
-                onResult({
-                    ok: true,
-                    message: refund
-                        ? `요청 #${claimId}을(를) 승인했습니다. 환불 금액이 구매자 예치금으로 환불되었습니다. 반품 상품을 받으면 완료 처리해 주세요.`
-                        : `요청 #${claimId}을(를) 승인했습니다. 교환 상품을 보낸 뒤 완료 처리해 주세요.`,
-                }),
-            onError: (error) => onResult({ ok: false, ...claimActionError(error) }),
-        },
-    });
+    function handleApprove() {
+        // 환불은 수락하는 순간 결제 환불이 실행되고, 환불이 실패하면 수락도 취소된다.
+        const message = claim.claimType === 'REFUND' ? '수락하면 환불이 바로 진행되고 되돌릴 수 없습니다. 수락할까요?' : '교환 요청을 수락할까요?';
+        if (!window.confirm(message)) return;
+        setError(null);
+        approve.mutate({ claimId: claim.claimId! });
+    }
 
-    if (confirming) {
-        return (
-            <div className="inline-flex flex-col items-end gap-1">
-                <span className="text-caption text-on-surface-variant max-w-[220px] text-right">
-                    {refund ? '승인하면 바로 구매자 예치금으로 환불됩니다.' : '교환 요청을 승인합니다.'}
-                </span>
-                <div className="flex gap-space-xs">
-                    <button type="button" className={OUTLINE} disabled={approve.isPending} onClick={() => setConfirming(false)}>
-                        취소
-                    </button>
-                    <button type="button" className={PRIMARY} data-action="approve-confirm" disabled={approve.isPending} onClick={() => approve.mutate({ claimId })}>
-                        {approve.isPending ? '승인하는 중...' : refund ? '승인 · 환불' : '승인 확인'}
-                    </button>
-                </div>
-            </div>
-        );
+    function handleComplete() {
+        if (!window.confirm('처리 완료로 변경할까요? 변경 후에는 되돌릴 수 없습니다.')) return;
+        setError(null);
+        complete.mutate({ claimId: claim.claimId! });
     }
 
     return (
-        <div className="inline-flex gap-space-xs">
-            {/* BE에 거절 API가 없어 비활성으로 둔다. */}
-            <button type="button" className={OUTLINE} disabled title="준비 중인 기능입니다">
-                거절 (준비 중)
-            </button>
-            <button type="button" className={PRIMARY} data-action="approve" onClick={() => setConfirming(true)}>
-                승인
-            </button>
+        <div className="flex flex-col items-end gap-space-xs">
+            {claim.status === 'REQUESTED' && (
+                <button className={APPROVE_BUTTON} type="button" disabled={busy} onClick={handleApprove}>
+                    {approve.isPending ? '처리 중…' : '수락'}
+                </button>
+            )}
+            {claim.status === 'APPROVED' && (
+                <button className={COMPLETE_BUTTON} type="button" disabled={busy} onClick={handleComplete}>
+                    {complete.isPending ? '처리 중…' : '처리 완료'}
+                </button>
+            )}
+            {error && (
+                <p className="text-caption text-error text-right" role="alert">
+                    {error}
+                </p>
+            )}
         </div>
-    );
-}
-
-function CompleteButton({ claim, onResult }: Props) {
-    const claimId = claim.claimId!;
-    const complete = useCompleteClaim({
-        mutation: {
-            onSuccess: () => onResult({ ok: true, message: `요청 #${claimId}을(를) 완료 처리했습니다.` }),
-            onError: (error) => onResult({ ok: false, ...claimActionError(error) }),
-        },
-    });
-    return (
-        <button type="button" className={PRIMARY} data-action="complete" disabled={complete.isPending} onClick={() => complete.mutate({ claimId })}>
-            {complete.isPending ? '처리하는 중...' : '완료 처리'}
-        </button>
     );
 }

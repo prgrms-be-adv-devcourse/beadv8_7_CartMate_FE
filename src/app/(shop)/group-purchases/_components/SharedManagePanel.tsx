@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { SharedGroupPurchaseDetailResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
@@ -9,6 +8,7 @@ import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import { hasErrorCode, inviteUrl, managePermissions, MAX_PARTICIPANTS } from '../_lib/sharedGroupPurchase';
 import { useSharedPurchaseActions } from '../_lib/useSharedPurchaseActions';
+import SharedPayLink from '../../checkout/shared/_components/SharedPayLink';
 import CopyLinkButton from './CopyLinkButton';
 
 type Props = {
@@ -56,8 +56,8 @@ export default function SharedManagePanel({ id, purchase, deadlinePassed, action
         const count = purchase.participantCount ?? 0;
         if (!window.confirm(`지금 마감할까요?\n참여자 ${count}명, 상품 ${itemCount}종으로 공동 주문이 만들어지고 각자 결제가 시작됩니다. 마감 후에는 품목과 인원을 바꿀 수 없습니다.`)) return;
         setError(null);
-        // 마감되면 BE가 같은 요청 안에서 공동 주문을 만든다. 바로 결제 화면으로 보낸다.
-        actions.close.mutate({ id }, { onSuccess: () => router.push(ROUTES.groupPurchaseResult(id)), onError: onError('마감하지 못했습니다.') });
+        // 마감되면 BE가 같은 요청 안에서 공동 주문을 만든다. 상세가 마감 상태로 바뀌며 내 몫 결제 버튼(SharedPayLink)이 나타난다.
+        actions.close.mutate({ id }, { onSuccess: () => router.refresh(), onError: onError('마감하지 못했습니다.') });
     };
 
     const cancel = () => {
@@ -94,14 +94,11 @@ export default function SharedManagePanel({ id, purchase, deadlinePassed, action
                     <div className="flex items-start gap-space-xs">
                         <Icon name="account_balance_wallet" className="text-primary text-[22px] shrink-0" />
                         <p className="font-body-md text-body-md text-on-surface">
-                            마감되어 공동 주문이 만들어졌습니다. 공동 주문 화면에서 내 몫을 결제하고 팀원들의 결제 현황을 확인하세요.
+                            마감되어 공동 주문이 만들어졌습니다. 결제 화면에서 내 몫을 결제하고 팀원들의 결제 현황을 확인하세요.
                             {purchase.viewerIsCreator && ' 만든 사람은 결제할 때 팀 배송지를 함께 입력합니다.'}
                         </p>
                     </div>
-                    <Link className={`${PRIMARY} shrink-0`} href={ROUTES.groupPurchaseResult(id)}>
-                        <Icon name="arrow_forward" className="text-[18px]" />
-                        공동 주문 · 결제로
-                    </Link>
+                    <SharedPayLink sharedGroupPurchaseId={id} className="shrink-0 px-space-lg rounded" />
                 </div>
             )}
 

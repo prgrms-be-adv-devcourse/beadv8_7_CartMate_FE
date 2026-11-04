@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/Icon';
 import { apiFetch, ApiError } from '@/lib/api';
 import { ROUTES } from '@/lib/routes';
-import WithdrawalButton from './WithdrawalButton';
+import WithdrawalSection from './WithdrawalSection';
 
 type Profile = {
     email: string;
@@ -18,10 +18,6 @@ type Profile = {
     defaultAddress: { zipCode: string; basicAddress: string; detailAddress: string | null } | null;
 };
 
-type DashboardSummary = {
-    wallet: { balance: number; heldBalance: number };
-    groupPurchases: unknown[];
-};
 
 type CheckState = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
@@ -59,7 +55,6 @@ export default function ProfileContent() {
     const router = useRouter();
 
     const [profile, setProfile] = useState<Profile | null>(null);
-    const [summary, setSummary] = useState<DashboardSummary | null>(null);
 
     // 수정 입력값
     const [nickname, setNickname] = useState('');
@@ -102,14 +97,6 @@ export default function ProfileContent() {
                 }
                 alert(errorMessage(e, '회원정보를 불러오지 못했습니다.'));
                 return;
-            }
-
-            // 탈퇴 안내용 요약 (실패해도 화면은 계속 보여줌)
-            try {
-                const res = await apiFetch<DashboardSummary>('/api/members/me/dashboard');
-                setSummary(res.data);
-            } catch {
-                setSummary(null);
             }
         })();
     }, [applyProfile, router]);
@@ -247,8 +234,6 @@ export default function ProfileContent() {
     }[nicknameCheck];
 
     const isSeller = profile.role === 'SELLER';
-    const groupCount = summary?.groupPurchases.length ?? 0;
-    const balance = summary?.wallet.balance ?? 0;
 
     return (
         <div className="col-span-9 flex flex-col gap-space-xl">
@@ -550,44 +535,7 @@ export default function ProfileContent() {
             </div>
 
             {/* 회원 탈퇴 */}
-            <div className="bg-surface-container-lowest border border-error/50 rounded p-space-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-error" />
-                <div className="flex items-start justify-between pb-space-md border-b border-surface-container mb-space-md">
-                    <div>
-                        <h3 className="font-headline-md text-headline-md text-error font-bold flex items-center gap-space-xs">
-                            <Icon name="warning" />
-                            회원 탈퇴
-                        </h3>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                            탈퇴하면 계정을 다시 사용할 수 없으며, 진행 중인 공동구매와 예치금이 없어야 탈퇴할 수 있습니다.
-                        </p>
-                    </div>
-                </div>
-
-                {(groupCount > 0 || balance > 0) && (
-                    <div className="bg-error-container/20 border border-error/30 rounded p-space-md mb-space-lg flex items-start gap-space-md">
-                        <Icon name="block" className="text-error text-[24px]" />
-                        <div className="flex flex-col gap-space-xs">
-                            <span className="font-label-sm text-label-sm text-error font-bold">
-                                [회원 탈퇴 제한 안내] 진행 중인 공동구매 또는 남은 예치금이 있습니다.
-                            </span>
-                            <p className="font-body-sm text-body-sm text-on-surface-variant">
-                                현재 <strong className="text-on-surface font-semibold">{groupCount}건의 공동구매</strong>에 참여 중이며,{' '}
-                                <strong className="text-on-surface font-semibold">₩{balance.toLocaleString('ko-KR')}의 예치금</strong>이
-                                남아있습니다. 공동구매 종료 후 예치금을 환불받은 뒤 탈퇴할 수 있습니다.
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                    <div className={`flex items-center gap-space-xs ${CAPTION} text-outline`}>
-                        <Icon name="info" className="text-[16px]" />
-                        <span>탈퇴 관련 약관 및 환불 규정은 고객센터 FAQ를 참고해주세요.</span>
-                    </div>
-                    <WithdrawalButton groupCount={groupCount} balance={balance} />
-                </div>
-            </div>
+            <WithdrawalSection />
         </div>
     );
 }

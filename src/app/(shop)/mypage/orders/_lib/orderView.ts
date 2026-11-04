@@ -97,8 +97,8 @@ export function sharedRow(order: SharedGroupOrderSummaryResponse): OrderRow {
         status,
         amount: order.myShareAmount ?? 0,
         amountNote: `총 ${(order.totalAmount ?? 0).toLocaleString('ko-KR')}원 중 내 몫`,
-        // 공동 주문의 상세·결제는 공동구매 결과 화면이 맡는다.
-        href: ROUTES.groupPurchaseResult(order.sharedGroupPurchaseId ?? 0),
+        // 공동 주문의 결제 현황·내 몫 결제는 공동 주문 결제 화면(/checkout/shared)이 맡는다.
+        href: ROUTES.checkoutShared(order.id ?? 0),
     };
 }
 
