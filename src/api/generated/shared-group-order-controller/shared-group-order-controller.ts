@@ -25,8 +25,10 @@ import type {
 
 import type {
   RsDataListSharedGroupOrderSummaryResponse,
+  RsDataPaymentResult,
   RsDataSharedGroupOrderDetailResponse,
-  RsDataVoid
+  RsDataVoid,
+  SharedGroupPaymentRequest
 } from '../model';
 
 import { http } from '../../http';
@@ -51,7 +53,95 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getCancel2Url = (id: number,) => {
+export const getPaySharedGroupOrderUrl = (id: number,) => {
+
+
+
+
+  return `/api/group-orders/shared/${id}/payment`
+}
+
+/**
+ * @summary 공동 주문 분담금 예치금 결제
+ */
+export const paySharedGroupOrder = async (id: number,
+    sharedGroupPaymentRequest?: SharedGroupPaymentRequest, options?: Parameters<typeof http>[1]): Promise<RsDataPaymentResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return http<RsDataPaymentResult>(getPaySharedGroupOrderUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sharedGroupPaymentRequest)
+  }
+);}
+
+
+
+
+
+export const getPaySharedGroupOrderMutationKey = () => ['paySharedGroupOrder'] as const;
+
+export const getPaySharedGroupOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paySharedGroupOrder>>, TError,PaySharedGroupOrderMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof paySharedGroupOrder>>, TError,PaySharedGroupOrderMutationVariables, TContext> => {
+
+const mutationKey = getPaySharedGroupOrderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof paySharedGroupOrder>>, PaySharedGroupOrderMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  paySharedGroupOrder(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PaySharedGroupOrderMutationResult = NonNullable<Awaited<ReturnType<typeof paySharedGroupOrder>>>
+    export type PaySharedGroupOrderMutationBody = SharedGroupPaymentRequest | undefined
+    export type PaySharedGroupOrderMutationError = unknown
+    export type PaySharedGroupOrderMutationVariables = {id: number;data?: SharedGroupPaymentRequest}
+
+    /**
+ * @summary 공동 주문 분담금 예치금 결제
+ */
+export const usePaySharedGroupOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paySharedGroupOrder>>, TError,PaySharedGroupOrderMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof paySharedGroupOrder>>,
+        TError,
+        PaySharedGroupOrderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPaySharedGroupOrderMutationOptions(options), queryClient);
+    }
+    export const getCancel2Url = (id: number,) => {
 
 
 

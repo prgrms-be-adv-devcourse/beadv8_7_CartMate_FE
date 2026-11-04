@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { getGetCartQueryKey } from '@/api/generated/cart-controller/cart-controller';
 import type { OrderDetailItemResponse, OrderDetailResponse } from '@/api/generated/model';
-import { getGetDetailQueryKey, getGetMyListQueryKey, useGetDetail } from '@/api/generated/order-controller/order-controller';
-import { getGetByOrderQueryKey, getPreviewQueryKey, usePayOrder, usePreview } from '@/api/generated/payment-controller/payment-controller';
+import { getGetDetailQueryKey, getGetMyListQueryKey, getPreviewQueryKey, useGetDetail, usePayOrder, usePreview } from '@/api/generated/order-controller/order-controller';
+import { getGetByOrderQueryKey } from '@/api/generated/payment-controller/payment-controller';
 import {
     getGetMyWalletQueryKey,
     getGetMyWalletTransactionsQueryKey,

@@ -29,6 +29,8 @@ import type {
   RsDataListOrderSummaryResponse,
   RsDataOrderCreateResponse,
   RsDataOrderDetailResponse,
+  RsDataOrderPaymentPreviewResponse,
+  RsDataPaymentResult,
   RsDataVoid
 } from '../model';
 
@@ -134,6 +136,79 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getCreatePersonalMutationOptions(options), queryClient);
+    }
+    export const getPayOrderUrl = (orderId: number,) => {
+
+
+
+
+  return `/api/orders/${orderId}/payment`
+}
+
+/**
+ * @summary 개인 주문 예치금 결제
+ */
+export const payOrder = async (orderId: number, options?: Parameters<typeof http>[1]): Promise<RsDataPaymentResult> => {
+
+  return http<RsDataPaymentResult>(getPayOrderUrl(orderId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getPayOrderMutationKey = () => ['payOrder'] as const;
+
+export const getPayOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof payOrder>>, TError,PayOrderMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof payOrder>>, TError,PayOrderMutationVariables, TContext> => {
+
+const mutationKey = getPayOrderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof payOrder>>, PayOrderMutationVariables> = (props) => {
+          const {orderId} = props ?? {};
+
+          return  payOrder(orderId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PayOrderMutationResult = NonNullable<Awaited<ReturnType<typeof payOrder>>>
+
+    export type PayOrderMutationError = unknown
+    export type PayOrderMutationVariables = {orderId: number}
+
+    /**
+ * @summary 개인 주문 예치금 결제
+ */
+export const usePayOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof payOrder>>, TError,PayOrderMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof payOrder>>,
+        TError,
+        PayOrderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPayOrderMutationOptions(options), queryClient);
     }
     export const getCancelUrl = (id: number,) => {
 
@@ -283,7 +358,107 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getCreateIndividualGroupMutationOptions(options), queryClient);
     }
-    export const getGetDetailUrl = (id: number,) => {
+    export const getPreviewUrl = (orderId: number,) => {
+
+
+
+
+  return `/api/orders/${orderId}/payment-preview`
+}
+
+/**
+ * @summary 개인 주문 결제 미리보기 (금액·결제 가능 여부·예치금 잔액)
+ */
+export const preview = async (orderId: number, options?: Parameters<typeof http>[1]): Promise<RsDataOrderPaymentPreviewResponse> => {
+
+  return http<RsDataOrderPaymentPreviewResponse>(getPreviewUrl(orderId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getPreviewQueryKey = (orderId: number,) => {
+    return [
+    `/api/orders/${orderId}/payment-preview`
+    ] as const;
+    }
+
+
+export const getPreviewQueryOptions = <TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPreviewQueryKey(orderId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof preview>>> = ({ signal }) => preview(orderId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: orderId !== null && orderId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PreviewQueryResult = NonNullable<Awaited<ReturnType<typeof preview>>>
+export type PreviewQueryError = unknown
+
+
+export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(
+ orderId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof preview>>,
+          TError,
+          Awaited<ReturnType<typeof preview>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(
+ orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof preview>>,
+          TError,
+          Awaited<ReturnType<typeof preview>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(
+ orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 개인 주문 결제 미리보기 (금액·결제 가능 여부·예치금 잔액)
+ */
+
+export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(
+ orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPreviewQueryOptions(orderId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getGetDetailUrl = (id: number,) => {
 
 
 
