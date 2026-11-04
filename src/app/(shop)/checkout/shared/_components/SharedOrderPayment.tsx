@@ -6,14 +6,12 @@ import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useProfile } from '@/api/generated/member-controller/member-controller';
 import type { MemberProfileResponse, ParticipantResponse, SharedGroupOrderDetailResponse, TeamDeliveryAddress } from '@/api/generated/model';
-import {
-    getGetBySharedGroupOrderQueryKey,
-    usePaySharedGroupOrder,
-} from '@/api/generated/payment-controller/payment-controller';
+import { getGetBySharedGroupOrderQueryKey } from '@/api/generated/payment-controller/payment-controller';
 import {
     getGetDetail3QueryKey,
     getGetMyList3QueryKey,
     useGetDetail3,
+    usePaySharedGroupOrder,
 } from '@/api/generated/shared-group-order-controller/shared-group-order-controller';
 import {
     getGetMyWalletQueryKey,
@@ -99,7 +97,7 @@ function SharedPayment({ orderId, order }: { orderId: number; order: SharedGroup
 
     const submit = () => {
         pay.mutate({
-            sharedGroupOrderId: orderId,
+            id: orderId,
             data: needsAddress ? { teamDeliveryAddress: trimAddress(current) } : undefined,
         });
     };
@@ -395,6 +393,6 @@ function payErrorMessage(error: unknown): string {
     const code = error instanceof ApiError ? error.resultCode : undefined;
     if (code?.endsWith('WALLET_INSUFFICIENT_BALANCE')) return '예치금이 부족합니다. 충전한 뒤 다시 결제해주세요.';
     if (code?.endsWith('ORDER_TEAM_ADDRESS_REQUIRED')) return '만든 사람은 팀 배송지를 입력해야 결제할 수 있습니다.';
-    if (code?.endsWith('PAYMENT_ORDER_NOT_PAYABLE')) return '결제할 수 없는 상태입니다. 결제 기한이 지났거나 이미 처리된 공동 주문입니다.';
+    if (code?.endsWith('ORDER_NOT_PAYABLE')) return '결제할 수 없는 상태입니다. 결제 기한이 지났거나 이미 처리된 공동 주문입니다.';
     return errorMessage(error, '결제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
 }

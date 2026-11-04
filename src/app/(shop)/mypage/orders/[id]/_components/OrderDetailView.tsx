@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getGetDashboardQueryKey } from '@/api/generated/individual-group-purchase-controller/individual-group-purchase-controller';
 import type { OrderDetailResponse, RsDataOrderDetailResponse } from '@/api/generated/model';
 import { getGetDetailQueryKey, getGetMyListQueryKey, useCancel, useGetDetail } from '@/api/generated/order-controller/order-controller';
-import { getPreviewQueryKey } from '@/api/generated/payment-controller/payment-controller';
+import { getPreviewQueryKey } from '@/api/generated/order-controller/order-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { formatDateTime, parseKst } from '@/lib/format';

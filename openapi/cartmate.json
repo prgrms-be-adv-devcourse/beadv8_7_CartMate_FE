@@ -544,135 +544,6 @@
         }
       }
     },
-    "/api/payments/shared-group-orders/{sharedGroupOrderId}": {
-      "get": {
-        "tags": [
-          "payment-controller"
-        ],
-        "operationId": "getBySharedGroupOrder",
-        "parameters": [
-          {
-            "name": "sharedGroupOrderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/RsDataPaymentResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "payment-controller"
-        ],
-        "operationId": "paySharedGroupOrder",
-        "parameters": [
-          {
-            "name": "sharedGroupOrderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SharedGroupPaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/RsDataPaymentResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/payments/orders/{orderId}": {
-      "get": {
-        "tags": [
-          "payment-controller"
-        ],
-        "operationId": "getByOrder",
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/RsDataPaymentResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "payment-controller"
-        ],
-        "operationId": "payOrder",
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/RsDataPaymentResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/orders": {
       "post": {
         "tags": [
@@ -696,6 +567,38 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataOrderCreateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderId}/payment": {
+      "post": {
+        "tags": [
+          "order-controller"
+        ],
+        "summary": "개인 주문 예치금 결제",
+        "operationId": "payOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResult"
                 }
               }
             }
@@ -1220,6 +1123,47 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/group-orders/shared/{id}/payment": {
+      "post": {
+        "tags": [
+          "shared-group-order-controller"
+        ],
+        "summary": "공동 주문 분담금 예치금 결제",
+        "operationId": "paySharedGroupOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SharedGroupPaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResult"
                 }
               }
             }
@@ -2867,11 +2811,76 @@
         }
       }
     },
-    "/api/payments/orders/{orderId}/preview": {
+    "/api/payments/shared-group-orders/{sharedGroupOrderId}": {
       "get": {
         "tags": [
           "payment-controller"
         ],
+        "summary": "공동 주문 분담금 결제 내역",
+        "operationId": "getBySharedGroupOrder",
+        "parameters": [
+          {
+            "name": "sharedGroupOrderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/orders/{orderId}": {
+      "get": {
+        "tags": [
+          "payment-controller"
+        ],
+        "summary": "개인 주문 결제 내역",
+        "operationId": "getByOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPaymentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderId}/payment-preview": {
+      "get": {
+        "tags": [
+          "order-controller"
+        ],
+        "summary": "개인 주문 결제 미리보기 (금액·결제 가능 여부·예치금 잔액)",
         "operationId": "preview",
         "parameters": [
           {
@@ -2890,7 +2899,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/RsDataPaymentPreviewResponse"
+                  "$ref": "#/components/schemas/RsDataOrderPaymentPreviewResponse"
                 }
               }
             }
@@ -4716,91 +4725,6 @@
           }
         }
       },
-      "SharedGroupPaymentRequest": {
-        "type": "object",
-        "properties": {
-          "teamDeliveryAddress": {
-            "$ref": "#/components/schemas/TeamDeliveryAddress"
-          }
-        }
-      },
-      "TeamDeliveryAddress": {
-        "type": "object",
-        "properties": {
-          "receiverName": {
-            "type": "string"
-          },
-          "receiverPhone": {
-            "type": "string"
-          },
-          "zipCode": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "addressDetail": {
-            "type": "string"
-          }
-        }
-      },
-      "PaymentResponse": {
-        "type": "object",
-        "properties": {
-          "paymentId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "orderId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "amount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "refundedAmount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "refundableAmount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "type": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "paidAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "canceledAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "RsDataPaymentResponse": {
-        "type": "object",
-        "properties": {
-          "resultCode": {
-            "type": "string"
-          },
-          "msg": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/PaymentResponse"
-          },
-          "statusCode": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
       "DeliveryAddressRequest": {
         "type": "object",
         "properties": {
@@ -4889,6 +4813,66 @@
           },
           "data": {
             "$ref": "#/components/schemas/OrderCreateResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaymentResult": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refundedAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refundableAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "canceledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RsDataPaymentResult": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PaymentResult"
           },
           "statusCode": {
             "type": "integer",
@@ -5470,6 +5454,34 @@
           "productId"
         ]
       },
+      "SharedGroupPaymentRequest": {
+        "type": "object",
+        "properties": {
+          "teamDeliveryAddress": {
+            "$ref": "#/components/schemas/TeamDeliveryAddress"
+          }
+        }
+      },
+      "TeamDeliveryAddress": {
+        "type": "object",
+        "properties": {
+          "receiverName": {
+            "type": "string"
+          },
+          "receiverPhone": {
+            "type": "string"
+          },
+          "zipCode": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "addressDetail": {
+            "type": "string"
+          }
+        }
+      },
       "DeliveryClaimCreateItemRequest": {
         "type": "object",
         "properties": {
@@ -5826,6 +5838,63 @@
         "required": [
           "amount"
         ]
+      },
+      "PaymentResponse": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refundedAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refundableAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "canceledAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataPaymentResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PaymentResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "AdminSuspendRequest": {
         "type": "object",
@@ -7385,7 +7454,7 @@
           }
         }
       },
-      "PaymentPreviewResponse": {
+      "OrderPaymentPreviewResponse": {
         "type": "object",
         "properties": {
           "orderId": {
@@ -7411,11 +7480,11 @@
             "type": "boolean"
           },
           "existingPayment": {
-            "$ref": "#/components/schemas/PaymentResponse"
+            "$ref": "#/components/schemas/PaymentResult"
           }
         }
       },
-      "RsDataPaymentPreviewResponse": {
+      "RsDataOrderPaymentPreviewResponse": {
         "type": "object",
         "properties": {
           "resultCode": {
@@ -7425,7 +7494,7 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/PaymentPreviewResponse"
+            "$ref": "#/components/schemas/OrderPaymentPreviewResponse"
           },
           "statusCode": {
             "type": "integer",

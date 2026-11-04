@@ -4,14 +4,14 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { PaymentResponse } from './paymentResponse';
+import type { PaymentResult } from './paymentResult';
 
-export interface PaymentPreviewResponse {
+export interface OrderPaymentPreviewResponse {
   orderId?: number;
   amount?: number;
   payable?: boolean;
   walletBalance?: number;
   balanceAfter?: number;
   sufficient?: boolean;
-  existingPayment?: PaymentResponse;
+  existingPayment?: PaymentResult;
 }

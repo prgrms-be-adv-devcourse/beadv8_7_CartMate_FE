@@ -4,11 +4,11 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { PaymentPreviewResponse } from './paymentPreviewResponse';
+import type { PaymentResult } from './paymentResult';
 
-export interface RsDataPaymentPreviewResponse {
+export interface RsDataPaymentResult {
   resultCode?: string;
   msg?: string;
-  data?: PaymentPreviewResponse;
+  data?: PaymentResult;
   statusCode?: number;
 }
