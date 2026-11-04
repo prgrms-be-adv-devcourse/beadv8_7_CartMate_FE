@@ -10,6 +10,7 @@ import { ApiError, errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import { toProductOption } from '@/lib/salesPost';
+import { SellerTrustPanel, toSellerTrust } from '../../../_components/SellerTrust';
 import ProductActions from './ProductActions';
 import ProductOptions from './ProductOptions';
 
@@ -114,6 +115,7 @@ function DetailContent({ post }: { post: SelectSalesPostResponse }) {
                             onQuantityChange={setQuantity}
                         />
                     )}
+                    <SellerTrustPanel sellerId={post.sellerId} fallback={toSellerTrust(post.sellerTrustLevel, post.sellerTrustScore)} />
                     <ProductActions postId={post.id ?? 0} productId={currentId} quantity={quantity} onSale={onSale} />
                 </div>
             </div>

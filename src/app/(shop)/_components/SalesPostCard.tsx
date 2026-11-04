@@ -3,8 +3,9 @@ import Link from 'next/link';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice, type SalesPostCardModel } from '@/lib/salesPost';
+import { SellerTrustBadge, type SellerTrust } from './SellerTrust';
 
-export default function SalesPostCard({ post }: { post: SalesPostCardModel }) {
+export default function SalesPostCard({ post, trust }: { post: SalesPostCardModel; trust?: SellerTrust | null }) {
     return (
         <article className="border border-outline-variant rounded bg-surface-container-lowest hover:border-primary transition-colors">
             <Link href={ROUTES.product(post.id)} className="flex flex-col h-full p-space-sm">
@@ -18,6 +19,11 @@ export default function SalesPostCard({ post }: { post: SalesPostCardModel }) {
                 <div className="flex flex-col gap-1 flex-1">
                     {post.productName && <span className="font-caption text-caption text-outline line-clamp-1">{post.productName}</span>}
                     <h3 className="font-headline-sm text-headline-sm text-on-surface line-clamp-2">{post.title}</h3>
+                    {trust && (
+                        <div className="pt-0.5">
+                            <SellerTrustBadge trust={trust} />
+                        </div>
+                    )}
                     <div className="mt-auto pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
                         <span className="font-caption text-caption text-outline">
                             {post.productCount > 1 ? `상품 ${post.productCount}종` : '판매가'}
