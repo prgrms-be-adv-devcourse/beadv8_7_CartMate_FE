@@ -14,6 +14,7 @@ const ROLE_LABEL: Record<string, string> = { BUYER: '구매자', SELLER: '판매
 const STATUS_LABEL: Record<string, { text: string; className: string }> = {
     ACTIVE: { text: '정상', className: 'text-on-surface-variant' },
     SUSPENDED: { text: '정지', className: 'text-error font-semibold' },
+    WITHDRAWAL_PENDING: { text: '탈퇴 대기', className: 'text-error' },
     WITHDRAWN: { text: '탈퇴', className: 'text-outline' },
 };
 

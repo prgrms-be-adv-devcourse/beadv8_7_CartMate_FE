@@ -11,5 +11,6 @@ export type AdminMemberSearchRequestStatus = typeof AdminMemberSearchRequestStat
 export const AdminMemberSearchRequestStatus = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
+  WITHDRAWAL_PENDING: 'WITHDRAWAL_PENDING',
   WITHDRAWN: 'WITHDRAWN',
 } as const;

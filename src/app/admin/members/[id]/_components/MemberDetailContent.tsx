@@ -26,7 +26,7 @@ export type AdminMemberDetail = {
     phone: string;
     birthDate: string;
     role: 'BUYER' | 'SELLER' | 'ADMIN';
-    status: 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
+    status: 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWAL_PENDING' | 'WITHDRAWN';
     joinedAt: string;
     walletBalance: number;
     activeGroupCount: number;
@@ -41,7 +41,7 @@ export const REASON_LABEL: Record<Suspension['reasonType'], string> = {
     ABUSE: '욕설·비방',
     OTHER: '기타',
 };
-const STATUS_LABEL: Record<AdminMemberDetail['status'], string> = { ACTIVE: '정상 회원', SUSPENDED: '정지 회원', WITHDRAWN: '탈퇴 회원' };
+const STATUS_LABEL: Record<AdminMemberDetail['status'], string> = { ACTIVE: '정상 회원', SUSPENDED: '정지 회원', WITHDRAWAL_PENDING: '탈퇴 대기 회원', WITHDRAWN: '탈퇴 회원' };
 
 export const memberCode = (id: number | string) => `M-${String(id).padStart(5, '0')}`;
 

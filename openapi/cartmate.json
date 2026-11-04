@@ -764,6 +764,75 @@
         }
       }
     },
+    "/api/members/me/withdrawal": {
+      "get": {
+        "tags": [
+          "member-withdrawal-controller"
+        ],
+        "summary": "탈퇴 가능 여부 (막는 이유, 대기 중이면 확정 예정일)",
+        "operationId": "checkWithdrawal",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWithdrawalCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "member-withdrawal-controller"
+        ],
+        "summary": "탈퇴 신청 (비밀번호 확인, 30일 유예)",
+        "operationId": "requestWithdrawal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWithdrawalCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "member-withdrawal-controller"
+        ],
+        "summary": "탈퇴 취소 (대기 중일 때만)",
+        "operationId": "cancelWithdrawal",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWithdrawalCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/members/me/seller": {
       "get": {
         "tags": [
@@ -2676,6 +2745,37 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataSettlementInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sellers/{sellerId}/trust": {
+      "get": {
+        "tags": [
+          "seller-trust-controller"
+        ],
+        "operationId": "getSellerTrust",
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataSellerTrustResponse"
                 }
               }
             }
@@ -4855,6 +4955,76 @@
           "items"
         ]
       },
+      "WithdrawalRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "RsDataWithdrawalCheckResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WithdrawalCheckResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WithdrawalBlocker": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "WithdrawalCheckResponse": {
+        "type": "object",
+        "properties": {
+          "canWithdraw": {
+            "type": "boolean"
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WithdrawalBlocker"
+            }
+          },
+          "status": {
+            "type": "string"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "SellerRegisterRequest": {
         "type": "object",
         "properties": {
@@ -6793,6 +6963,46 @@
           }
         }
       },
+      "RsDataSellerTrustResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SellerTrustResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SellerTrustResponse": {
+        "type": "object",
+        "properties": {
+          "sellerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "LOW",
+              "NORMAL",
+              "HIGH"
+            ]
+          }
+        }
+      },
       "SelectSalesPostRequest": {
         "type": "object",
         "properties": {
@@ -6971,6 +7181,19 @@
           "sellerId": {
             "type": "integer",
             "format": "int64"
+          },
+          "sellerTrustScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sellerTrustLevel": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "LOW",
+              "NORMAL",
+              "HIGH"
+            ]
           },
           "title": {
             "type": "string"
@@ -9186,6 +9409,7 @@
             "enum": [
               "ACTIVE",
               "SUSPENDED",
+              "WITHDRAWAL_PENDING",
               "WITHDRAWN"
             ]
           },

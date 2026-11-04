@@ -5,11 +5,14 @@
  * OpenAPI spec version: v0
  */
 import type { SelectSalesPostProduct } from './selectSalesPostProduct';
+import type { SelectSalesPostResponseSellerTrustLevel } from './selectSalesPostResponseSellerTrustLevel';
 import type { SelectSalesPostResponseStatus } from './selectSalesPostResponseStatus';
 
 export interface SelectSalesPostResponse {
   id?: number;
   sellerId?: number;
+  sellerTrustScore?: number;
+  sellerTrustLevel?: SelectSalesPostResponseSellerTrustLevel;
   title?: string;
   content?: string;
   viewCount?: number;
