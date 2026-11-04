@@ -12,7 +12,7 @@ export type Member = {
     email: string;
     nickname: string;
     role: '일반' | '판매자' | '관리자';
-    status: '정상' | '정지' | '탈퇴';
+    status: '정상' | '정지' | '탈퇴 대기' | '탈퇴';
     joinedAt: string;
 };
 
@@ -36,6 +36,7 @@ const ROLE_CLASS: Record<Member['role'], string> = {
 const STATUS_CLASS: Record<Member['status'], string> = {
     정상: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface-container-high text-on-surface-variant border border-outline-variant',
     정지: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-primary text-on-primary border border-primary',
+    '탈퇴 대기': 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface text-error border border-error/40',
     탈퇴: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface text-outline border border-outline-variant line-through',
 };
 

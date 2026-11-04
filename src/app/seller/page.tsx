@@ -2,14 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
+import PendingSettlementCard from './_components/PendingSettlementCard';
+import { ClaimPendingCard, DeliveryRequestCard } from './_components/RequestCountCards';
 
 export const metadata: Metadata = { title: '판매자 대시보드 | TEAMBUY' };
-
-const SUMMARY_CARDS = [
-    { label: '배송 요청 건수', icon: 'local_shipping', value: '12', unit: '건', note: '전일 대비 동일', status: '진행률 100%' },
-    { label: '교환·환불 대기 건수', icon: 'sync_alt', value: '3', unit: '건', note: '신규 접수 1건 포함', status: '조치 필요' },
-    { label: '이번 정산 예정 금액', icon: 'payments', value: '2,450,000', unit: '원', note: '정산 예정일: 10월 25일', status: '확정 완료' },
-];
 
 const RECENT_ORDERS = [
     { id: 'ORD-20241024-001', product: '프로페셔널 축구공 세트 (20개입)', team: 'FC서울동호회 (20개)', amount: '650,000원', status: '배송준비중', done: false },
@@ -41,22 +37,10 @@ export default function SellerDashboardPage() {
                 </div>
             </div>
             <div className="grid grid-cols-3 gap-space-lg mb-space-xl">
-                {SUMMARY_CARDS.map((card) => (
-                    <div key={card.label} className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/40 flex flex-col justify-between relative overflow-hidden group hover:border-outline transition-all">
-                        <div className="flex items-center justify-between mb-space-md">
-                            <span className="text-label-md text-on-surface-variant">{card.label}</span>
-                            <Icon name={card.icon} className="text-on-surface-variant" />
-                        </div>
-                        <div className="flex items-baseline gap-space-sm">
-                            <span className="text-display-xl font-display-xl text-on-surface">{card.value}</span>
-                            <span className="text-body-sm text-on-surface-variant">{card.unit}</span>
-                        </div>
-                        <div className="mt-space-md pt-space-md border-t border-outline-variant/20 flex items-center justify-between text-caption text-on-surface-variant">
-                            <span>{card.note}</span>
-                            <span className="text-on-surface font-label-sm">{card.status}</span>
-                        </div>
-                    </div>
-                ))}
+                {/* 배송 요청 건수와 교환·환불 대기 건수는 BE 의 목록 조회 건수, 정산 예정 금액과 정산 예정일은 정산 정보를 조회한다 */}
+                <DeliveryRequestCard />
+                <ClaimPendingCard />
+                <PendingSettlementCard />
             </div>
             <div className="grid grid-cols-3 gap-space-lg">
                 <div className="col-span-2 bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/40 flex flex-col">

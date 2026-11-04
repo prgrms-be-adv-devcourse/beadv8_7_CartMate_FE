@@ -119,19 +119,3 @@ export function AmountSummary({ purchase }: { purchase: Detail }) {
         </div>
     );
 }
-
-// BE가 아직 지원하지 않거나 다른 작업 범위인 기능 버튼
-export function ComingSoonButton({ icon, label, className }: { icon: string; label: string; className?: string }) {
-    return (
-        <button
-            className={`h-11 px-space-md rounded bg-surface-container text-on-surface-variant font-label-md text-label-md flex items-center justify-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-60 ${className ?? ''}`}
-            type="button"
-            disabled
-            title="준비 중인 기능입니다."
-        >
-            <Icon name={icon} className="text-[18px]" />
-            <span>{label}</span>
-            <span className="font-caption text-caption">(준비 중)</span>
-        </button>
-    );
-}

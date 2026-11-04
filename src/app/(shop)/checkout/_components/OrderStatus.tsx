@@ -11,17 +11,19 @@ import {
     getGetMyWalletTransactionsQueryKey,
     useGetMyWallet,
 } from '@/api/generated/wallet-controller/wallet-controller';
-import { ApiError, errorMessage } from '@/api/http';
+import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { formatDateTime } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
 import Notice from './Notice';
+import WalletPaymentSummary, { payErrorMessage } from './WalletPaymentSummary';
 
 const CANCEL_REASON_LABEL: Record<string, string> = {
     BUYER_CANCELED: '주문을 취소했습니다.',
     PAYMENT_EXPIRED: '결제 기한이 지나 자동으로 취소되었습니다.',
     OUT_OF_STOCK: '재고가 부족해 취소되었습니다.',
+    SALES_STOPPED: '판매자가 판매를 중지해 주문이 취소되었습니다.',
 };
 
 // 접수된 주문(?order=주문id)을 상태별로 보여 준다. 결제 대기면 예치금 결제, 결제 완료면 결제 결과 화면이 된다.
@@ -79,8 +81,8 @@ function OrderPayment({ orderId, order }: { orderId: number; order: OrderDetailR
     // 결제는 성공했는데 주문을 다시 받아도 아직 결제 완료로 보이지 않는 경우(재조회 실패 등) 버튼이 멈춰 보이지 않게 안내한다.
     const detailFetching = useIsFetching({ queryKey: getGetDetailQueryKey(orderId) }) > 0;
     const paidButNotShown = pay.isSuccess && !detailFetching;
-    const canPay = info?.payable === true && info.sufficient === true && !busy;
-    const shortage = info ? (info.amount ?? 0) - (info.walletBalance ?? 0) : 0;
+    // 잔액 충분 여부는 안내(WalletPaymentSummary)와 같은 기준으로 판단한다.
+    const canPay = info?.payable === true && (info.walletBalance ?? 0) >= (info.amount ?? 0) && !busy;
 
     return (
         <Card>
@@ -103,32 +105,7 @@ function OrderPayment({ orderId, order }: { orderId: number; order: OrderDetailR
                     </div>
                 ) : (
                     <>
-                        <dl className="grid grid-cols-[1fr_auto] gap-y-space-xs font-body-sm text-body-sm">
-                            <dt className="text-on-surface-variant">결제 금액</dt>
-                            <dd className="text-on-surface font-semibold text-right">{formatPrice(info.amount ?? 0)}</dd>
-                            <dt className="text-on-surface-variant">보유 예치금</dt>
-                            <dd className="text-on-surface text-right">{formatPrice(info.walletBalance ?? 0)}</dd>
-                            {info.sufficient && (
-                                <>
-                                    <dt className="text-on-surface-variant">결제 후 잔액</dt>
-                                    <dd className="text-on-surface text-right">{formatPrice(info.balanceAfter ?? 0)}</dd>
-                                </>
-                            )}
-                        </dl>
-                        {!info.payable ? (
-                            <p className="p-space-xs bg-error-container text-on-error-container font-caption text-caption text-center" role="status">
-                                결제 기한이 지나 결제할 수 없습니다. 주문은 곧 자동으로 취소됩니다.
-                            </p>
-                        ) : (
-                            !info.sufficient && (
-                                <div className="p-space-xs bg-error-container text-on-error-container font-caption text-caption flex flex-wrap items-center justify-center gap-x-space-sm" role="status">
-                                    <span>예치금이 {formatPrice(shortage)} 부족합니다.</span>
-                                    <Link className="underline font-semibold" href={ROUTES.depositCharge}>
-                                        예치금 충전하기
-                                    </Link>
-                                </div>
-                            )
-                        )}
+                        <WalletPaymentSummary amount={info.amount ?? 0} walletBalance={info.walletBalance ?? 0} payable={info.payable === true} />
                     </>
                 )}
             </section>
@@ -166,16 +143,6 @@ function OrderPayment({ orderId, order }: { orderId: number; order: OrderDetailR
             </div>
         </Card>
     );
-}
-
-// BE 메시지를 그대로 쓰되, 사용자가 다음에 할 일을 알 수 있도록 몇 가지는 바꿔 말한다.
-function payErrorMessage(error: unknown): string {
-    const code = error instanceof ApiError ? error.resultCode : undefined;
-    if (code?.endsWith('WALLET_INSUFFICIENT_BALANCE')) return '예치금이 부족합니다. 충전한 뒤 다시 결제해주세요.';
-    if (code?.endsWith('PAYMENT_ORDER_NOT_PAYABLE') || code?.endsWith('ORDER_PAYMENT_EXPIRED')) {
-        return '결제 기한이 지났거나 이미 처리된 주문이라 결제할 수 없습니다.';
-    }
-    return errorMessage(error, '결제하지 못했습니다. 잠시 후 다시 시도해주세요.');
 }
 
 function OrderPaid({ order }: { order: OrderDetailResponse }) {
@@ -221,15 +188,12 @@ function OrderPaid({ order }: { order: OrderDetailResponse }) {
                 </p>
             )}
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                {/* 주문 내역 화면은 MY-1에서 연결한다 */}
-                <button
-                    className="flex-1 h-11 border border-outline-variant font-label-md text-label-md disabled:opacity-50 disabled:cursor-not-allowed"
-                    type="button"
-                    disabled
-                    title="주문 내역은 준비 중입니다"
+                <Link
+                    className="flex-1 h-11 border border-outline-variant font-label-md text-label-md flex items-center justify-center hover:bg-surface-container"
+                    href={order.id !== undefined ? ROUTES.order(order.id) : ROUTES.orders}
                 >
-                    주문 내역 보기 (준비 중)
-                </button>
+                    주문 내역 보기
+                </Link>
                 <Link className="flex-1 h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90" href={ROUTES.home}>
                     쇼핑 계속하기
                 </Link>
@@ -255,6 +219,16 @@ function OrderCanceled({ order }: { order: OrderDetailResponse }) {
             </OrderSummary>
             {order.cancelReason && (
                 <p className="font-body-sm text-body-sm text-secondary">{CANCEL_REASON_LABEL[order.cancelReason] ?? '취소된 주문입니다.'}</p>
+            )}
+            {/* 결제한 뒤 취소된 주문이면 환불 안내 (결제 전 취소는 나간 돈이 없음) */}
+            {order.paidAt && (
+                <div className="p-space-sm bg-surface-container-low border border-outline-variant font-body-sm text-body-sm flex items-center gap-space-xs">
+                    <Icon name="undo" className="text-[18px] text-primary" />
+                    결제 금액 {formatPrice(order.totalAmount ?? 0)}은 예치금으로 환불되었습니다.
+                    <Link className="ml-auto underline font-semibold text-primary" href={ROUTES.depositHistory}>
+                        예치금 내역
+                    </Link>
+                </div>
             )}
             <div className="flex flex-col sm:flex-row gap-space-sm">
                 <Link className="flex-1 h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90" href={ROUTES.cart}>

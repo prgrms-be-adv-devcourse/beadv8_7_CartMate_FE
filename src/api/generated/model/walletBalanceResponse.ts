@@ -8,4 +8,5 @@
 export interface WalletBalanceResponse {
   walletId?: number;
   balance?: number;
+  heldBalance?: number;
 }

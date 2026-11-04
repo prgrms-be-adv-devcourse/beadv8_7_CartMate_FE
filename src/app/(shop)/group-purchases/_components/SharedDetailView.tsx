@@ -6,12 +6,13 @@ import { useCurrentUser } from '@/lib/auth';
 import { formatDateTime } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
-import { inviteUrl, itemPermissions, memberAmount, myAmount, statusBadgeClass, statusLabel } from '../_lib/sharedGroupPurchase';
-import SharedPayLink from '../../checkout/shared/_components/SharedPayLink';
-import CopyLinkButton from './CopyLinkButton';
+import { useState } from 'react';
+import { itemPermissions, managePermissions, memberAmount, statusBadgeClass, statusLabel } from '../_lib/sharedGroupPurchase';
+import { useSharedPurchaseActions } from '../_lib/useSharedPurchaseActions';
 import SharedDetailGate, { type SharedDetailContext } from './SharedDetailGate';
 import SharedItemRow from './SharedItemRow';
-import { AmountSummary, ComingSoonButton, DeadlineBox, DetailSkeleton, ParticipantProgress, StateBanner } from './SharedStatusParts';
+import SharedManagePanel, { actionErrorMessage } from './SharedManagePanel';
+import { AmountSummary, DeadlineBox, DetailSkeleton, ParticipantProgress, StateBanner } from './SharedStatusParts';
 
 // 공동물품(N빵) 공동구매 상세 · 현황판. 참여자만 볼 수 있다.
 export default function SharedDetailView() {
@@ -26,7 +27,16 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
     const editableNow = purchase.editable === true && !deadlinePassed;
     const totalQuantity = items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
     const unavailableCount = items.filter((item) => item.purchasable === false).length;
-    const isActive = purchase.status === 'OPEN' || purchase.status === 'FROZEN';
+    // 내보낼 참여자가 있을 때만 관리 열을 둔다(만든 사람은 내보낼 수 없음)
+    const canKick = managePermissions(purchase, deadlinePassed).canKick && members.some((member) => !member.creator);
+    const actions = useSharedPurchaseActions(id);
+    const { kick } = actions;
+    const [kickError, setKickError] = useState<string | null>(null);
+    const kickMember = (memberId: number, nickname: string) => {
+        if (!window.confirm(`'${nickname}' 님을 공동구매에서 내보낼까요?\n그 사람이 담은 상품은 그대로 남고, 다시 참여하려면 초대 링크가 필요합니다.`)) return;
+        setKickError(null);
+        kick.mutate({ id, targetMemberId: memberId }, { onError: (e) => setKickError(actionErrorMessage(e, '내보내지 못했습니다.')) });
+    };
     const chips = [
         { label: '담긴 상품', value: `${items.length}종`, warn: false },
         { label: '총 수량', value: `${totalQuantity}개`, warn: false },
@@ -146,6 +156,7 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
                                 <th className="py-3 px-4">참여자</th>
                                 <th className="py-3 px-4 text-center">참여 일시</th>
                                 <th className="py-3 px-4 text-right">예상 결제액</th>
+                                {canKick && <th className="py-3 px-4 text-center w-28">관리</th>}
                             </tr>
                         </thead>
                         <tbody className="font-body-sm text-body-sm divide-y divide-surface-container">
@@ -167,59 +178,39 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
                                         <td className="py-3.5 px-4 text-right font-label-md text-label-md text-primary">
                                             {formatPrice(memberAmount(purchase, member.creator))}
                                         </td>
+                                        {canKick && (
+                                            <td className="py-3.5 px-4 text-center">
+                                                {!member.creator && member.memberId !== undefined && (
+                                                    <button
+                                                        className="h-8 px-space-sm rounded border border-outline-variant text-error font-label-sm text-label-sm hover:bg-error-container/40 disabled:opacity-60"
+                                                        type="button"
+                                                        disabled={kick.isPending || actions.close.isPending || actions.close.isSuccess}
+                                                        onClick={() => kickMember(member.memberId as number, member.nickname ?? '참여자')}
+                                                        aria-label={`${member.nickname ?? '참여자'} 내보내기`}
+                                                    >
+                                                        내보내기
+                                                    </button>
+                                                )}
+                                            </td>
+                                        )}
                                     </tr>
                                 );
                             })}
                         </tbody>
                     </table>
                 </div>
+                {kickError && (
+                    <p className="mt-space-sm p-space-sm rounded bg-error-container text-on-error-container font-body-sm text-body-sm" role="alert">
+                        {kickError}
+                    </p>
+                )}
                 <div className="pt-space-md flex items-start gap-1 text-secondary font-caption text-caption">
                     <Icon name="info" className="text-[16px]" />
                     <span>예상 결제액은 지금 담긴 상품 기준이며, 마감 시점의 인원과 품목으로 최종 확정됩니다.</span>
                 </div>
             </section>
 
-            {/* 초대 · 관리 */}
-            {isActive && (
-                <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
-                    <h2 className="font-headline-sm text-headline-sm text-primary">{purchase.viewerIsCreator ? '공동구매 관리' : '참여 관리'}</h2>
-                    <div className="flex flex-wrap gap-space-sm">
-                        {editableNow && purchase.inviteCode && (
-                            <CopyLinkButton
-                                url={inviteUrl(window.location.origin, id, purchase.inviteCode)}
-                                label="초대 링크 복사"
-                                icon="link"
-                                className="h-11 px-space-md rounded bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1.5 hover:opacity-90"
-                                copiedClassName="opacity-90"
-                            />
-                        )}
-                        {purchase.viewerIsCreator ? (
-                            <>
-                                <ComingSoonButton icon="lock_clock" label="지금 마감하기" />
-                                <ComingSoonButton icon="group_add" label="최대 인원 늘리기" />
-                                <ComingSoonButton icon="cancel" label="공동구매 취소" />
-                            </>
-                        ) : (
-                            <ComingSoonButton icon="logout" label="공동구매 나가기" />
-                        )}
-                    </div>
-                </section>
-            )}
-            {purchase.status === 'CLOSED' && (
-                <section className="w-full max-w-[520px] mx-auto bg-surface-container-lowest rounded-xl p-space-xl shadow-md flex flex-col gap-space-md">
-                    <div className="flex items-center justify-between">
-                        <span className="font-body-md text-body-md text-secondary">결제할 내 몫 금액</span>
-                        <span className="font-headline-sm text-headline-sm text-primary font-bold">{formatPrice(myAmount(purchase))}</span>
-                    </div>
-                    <SharedPayLink sharedGroupPurchaseId={id} className="w-full" />
-                </section>
-            )}
-            {/* 다시 만들기(복제)는 마감·취소된 공동구매를 만든 사람만 할 수 있다 */}
-            {(purchase.status === 'CLOSED' || purchase.status === 'CANCELED') && purchase.viewerIsCreator && (
-                <div className="flex justify-center">
-                    <ComingSoonButton icon="content_copy" label="같은 구성으로 다시 만들기" />
-                </div>
-            )}
+            <SharedManagePanel id={id} purchase={purchase} deadlinePassed={deadlinePassed} actions={actions} />
         </div>
     );
 }

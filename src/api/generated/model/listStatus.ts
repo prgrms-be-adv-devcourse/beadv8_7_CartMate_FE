@@ -11,5 +11,6 @@ export type ListStatus = typeof ListStatus[keyof typeof ListStatus];
 export const ListStatus = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
+  WITHDRAWAL_PENDING: 'WITHDRAWAL_PENDING',
   WITHDRAWN: 'WITHDRAWN',
 } as const;

@@ -1,4 +1,5 @@
 import type { SharedGroupPurchaseDetailResponse, SharedGroupPurchaseSummaryResponseStatus } from '@/api/generated/model';
+import { ApiError } from '@/api/http';
 import { ROUTES } from '@/lib/routes';
 
 type Status = SharedGroupPurchaseSummaryResponseStatus;
@@ -62,3 +63,30 @@ export function remainingText(ms: number): string {
 }
 
 export const MAX_QUANTITY = 999;
+
+// BE 참여 인원 범위(SharedGroupPurchase.MIN/MAX_PARTICIPANTS)
+export const MAX_PARTICIPANTS = 100;
+
+// BE 초대 코드 형식(SharedGroupPurchaseJoinRequest). 형식이 틀리면 BE가 RsData가 아닌 400을 주므로 먼저 거른다.
+export const INVITE_CODE_PATTERN = /^[a-z0-9]{12}$/;
+
+// BE 오류 코드 확인. resultCode는 "409-CART_SHARED_FULL"처럼 HTTP 상태가 앞에 붙는다.
+export function hasErrorCode(error: unknown, code: string): boolean {
+    return error instanceof ApiError && error.resultCode?.endsWith(code) === true;
+}
+
+// 참여자 관리(나가기·강퇴·인원 증가)는 수정 기간 동안만 된다. 마감·취소는 만든 사람만,
+// 마감은 수정 기간 또는 마감 보류(FROZEN) 중, 취소는 진행 중(OPEN·FROZEN)이면 언제든 된다.
+export function managePermissions(purchase: Detail, deadlinePassed: boolean) {
+    const editable = purchase.editable === true && !deadlinePassed;
+    const creator = purchase.viewerIsCreator === true;
+    const active = purchase.status === 'OPEN' || purchase.status === 'FROZEN';
+    return {
+        canLeave: editable && !creator,
+        canKick: editable && creator,
+        canIncreaseMax: editable && creator && (purchase.maxParticipants ?? MAX_PARTICIPANTS) < MAX_PARTICIPANTS,
+        canClose: creator && (editable || purchase.status === 'FROZEN'),
+        canCancel: creator && active,
+        canDuplicate: creator && (purchase.status === 'CLOSED' || purchase.status === 'CANCELED'),
+    };
+}

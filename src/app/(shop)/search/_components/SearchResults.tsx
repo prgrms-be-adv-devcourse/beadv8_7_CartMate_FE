@@ -6,8 +6,8 @@ import { useSelectSalesPostAll } from '@/api/generated/sales-post-controller/sal
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
-import { toSalesPostCard } from '@/lib/salesPost';
 import SalesPostCard, { SalesPostCardSkeleton } from '../../_components/SalesPostCard';
+import { toSalesPostCardWithTrust } from '../../_components/SellerTrust';
 import { SearchFilters, SearchSortBar } from './SearchFilters';
 
 const PAGE_SIZE = 12;
@@ -42,7 +42,7 @@ export default function SearchResults() {
 
     const query = useSelectSalesPostAll({ title: keyword || undefined, page: page - 1, size: PAGE_SIZE });
     const result = query.data?.data;
-    const cards = (result?.content ?? []).map(toSalesPostCard).filter((card) => card !== null);
+    const cards = (result?.content ?? []).map(toSalesPostCardWithTrust).filter((item) => item !== null);
     const totalPages = result?.totalPages ?? 0;
 
     return (
@@ -91,8 +91,8 @@ export default function SearchResults() {
                     ) : (
                         <>
                             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-gutter w-full">
-                                {cards.map((card) => (
-                                    <SalesPostCard key={card.id} post={card} />
+                                {cards.map(({ card, trust }) => (
+                                    <SalesPostCard key={card.id} post={card} trust={trust} />
                                 ))}
                             </div>
                             {totalPages > 1 && <Pagination keyword={keyword} page={page} totalPages={totalPages} />}

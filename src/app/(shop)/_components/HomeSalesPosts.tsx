@@ -5,8 +5,8 @@ import { useSelectSalesPostAll } from '@/api/generated/sales-post-controller/sal
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
-import { toSalesPostCard } from '@/lib/salesPost';
 import SalesPostCard, { SalesPostCardSkeleton } from './SalesPostCard';
+import { toSalesPostCardWithTrust } from './SellerTrust';
 
 const HOME_PAGE_SIZE = 8;
 
@@ -22,7 +22,7 @@ const SORT_TABS = [
 export default function HomeSalesPosts() {
     const query = useSelectSalesPostAll({ page: 0, size: HOME_PAGE_SIZE });
     const page = query.data?.data;
-    const cards = (page?.content ?? []).map(toSalesPostCard).filter((card) => card !== null);
+    const cards = (page?.content ?? []).map(toSalesPostCardWithTrust).filter((item) => item !== null);
 
     return (
         <section className="flex flex-col gap-space-lg">
@@ -86,8 +86,8 @@ export default function HomeSalesPosts() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-                    {cards.map((card) => (
-                        <SalesPostCard key={card.id} post={card} />
+                    {cards.map(({ card, trust }) => (
+                        <SalesPostCard key={card.id} post={card} trust={trust} />
                     ))}
                 </div>
             )}

@@ -11,6 +11,40 @@
     }
   ],
   "paths": {
+    "/api/products/{postId}/restore": {
+      "put": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "restoreProducts",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreProductsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/members/me/addresses/{addressId}": {
       "put": {
         "tags": [
@@ -61,6 +95,108 @@
         "parameters": [
           {
             "name": "addressId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/notices/{id}": {
+      "get": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "관리자 공지사항 상세 (조회수 증가 없음)",
+        "operationId": "getAdminNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataNoticeDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "공지사항 수정",
+        "operationId": "updateNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoticeSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataNoticeDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "공지사항 삭제",
+        "operationId": "deleteNotice",
+        "parameters": [
+          {
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
@@ -621,6 +757,75 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataOrderCreateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/members/me/withdrawal": {
+      "get": {
+        "tags": [
+          "member-withdrawal-controller"
+        ],
+        "summary": "탈퇴 가능 여부 (막는 이유, 대기 중이면 확정 예정일)",
+        "operationId": "checkWithdrawal",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWithdrawalCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "member-withdrawal-controller"
+        ],
+        "summary": "탈퇴 신청 (비밀번호 확인, 30일 유예)",
+        "operationId": "requestWithdrawal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWithdrawalCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "member-withdrawal-controller"
+        ],
+        "summary": "탈퇴 취소 (대기 중일 때만)",
+        "operationId": "cancelWithdrawal",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWithdrawalCheckResponse"
                 }
               }
             }
@@ -1311,6 +1516,90 @@
         }
       }
     },
+    "/api/admin/sales-posts/{postId}/suspend": {
+      "post": {
+        "tags": [
+          "admin-sales-post-controller"
+        ],
+        "summary": "판매글 관리자 숨김",
+        "operationId": "suspendSalesPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesPostSanctionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/sales-posts/{postId}/resume": {
+      "post": {
+        "tags": [
+          "admin-sales-post-controller"
+        ],
+        "summary": "판매글 숨김 해제",
+        "operationId": "resumeSalesPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesPostSanctionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/payments/{paymentId}/refunds": {
       "post": {
         "tags": [
@@ -1345,6 +1634,100 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataPaymentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/notices": {
+      "get": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "관리자 공지사항 목록",
+        "operationId": "getAdminNotices",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NOTICE",
+                "GUIDE",
+                "EVENT",
+                "URGENT"
+              ]
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPageResponseNoticeSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "admin-notice-controller"
+        ],
+        "summary": "공지사항 등록",
+        "operationId": "createNotice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoticeSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataNoticeDetailResponse"
                 }
               }
             }
@@ -1450,6 +1833,123 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/sales-posts/sellers/{sellerId}/posts/{postId}/resume": {
+      "patch": {
+        "tags": [
+          "sales-post-controller"
+        ],
+        "summary": "판매자 판매 재개",
+        "operationId": "resumeSalesPostBySeller",
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sales-posts/sellers/{sellerId}/posts/{postId}/pause": {
+      "patch": {
+        "tags": [
+          "sales-post-controller"
+        ],
+        "summary": "판매자 판매 중지",
+        "operationId": "pauseSalesPost",
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{postId}/status": {
+      "patch": {
+        "tags": [
+          "product-controller"
+        ],
+        "summary": "판매글 단위 상품 판매 상태 변경 (내부 호출)",
+        "operationId": "changeProductStatusByPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductStatusChangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -1655,6 +2155,56 @@
         }
       }
     },
+    "/api/group-purchases/shared/{id}/items/{itemId}/quantity/adjust": {
+      "patch": {
+        "tags": [
+          "shared-group-purchase-controller"
+        ],
+        "operationId": "adjustItemQuantity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SharedGroupPurchaseItemQuantityAdjustRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataSharedGroupPurchaseItemQuantityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/group-purchases/shared/{id}/items/{itemId}/option": {
       "patch": {
         "tags": [
@@ -1849,6 +2399,47 @@
         }
       }
     },
+    "/api/claims/{claimId}/reject": {
+      "patch": {
+        "tags": [
+          "claim-controller"
+        ],
+        "operationId": "rejectClaim",
+        "parameters": [
+          {
+            "name": "claimId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryClaimRejectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataSellerClaimResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/claims/{claimId}/complete": {
       "patch": {
         "tags": [
@@ -2031,6 +2622,26 @@
         }
       }
     },
+    "/api/wallets/me/transactions/summary": {
+      "get": {
+        "tags": [
+          "wallet-controller"
+        ],
+        "operationId": "getMyWalletTransactionSummary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataWalletTransactionSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settlements": {
       "get": {
         "tags": [
@@ -2141,6 +2752,37 @@
         }
       }
     },
+    "/api/sellers/{sellerId}/trust": {
+      "get": {
+        "tags": [
+          "seller-trust-controller"
+        ],
+        "operationId": "getSellerTrust",
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataSellerTrustResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sales-posts/detail/{postId}": {
       "get": {
         "tags": [
@@ -2168,6 +2810,59 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/products/{postId}": {
+      "get": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "selectProductsByPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataListSelectProductResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "deleteProductByPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -2247,6 +2942,103 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RsDataListOrderSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notices": {
+      "get": {
+        "tags": [
+          "notice-controller"
+        ],
+        "summary": "공지사항 목록 (고정 먼저, 최신순)",
+        "operationId": "getNotices",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NOTICE",
+                "GUIDE",
+                "EVENT",
+                "URGENT"
+              ]
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPageResponseNoticeSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notices/{id}": {
+      "get": {
+        "tags": [
+          "notice-controller"
+        ],
+        "summary": "공지사항 상세 (조회수 증가)",
+        "operationId": "getNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataNoticeDetailResponse"
                 }
               }
             }
@@ -2859,6 +3651,126 @@
         }
       }
     },
+    "/api/admin/sales-posts": {
+      "get": {
+        "tags": [
+          "admin-sales-post-controller"
+        ],
+        "summary": "관리자 판매글 목록",
+        "operationId": "getAdminSalesPosts",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ON_SALE",
+                "PAUSED",
+                "SUSPENDED",
+                "CLOSED",
+                "DELETED",
+                "PENDING"
+              ]
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataPageResponseAdminSalesPostSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/sales-posts/{postId}": {
+      "get": {
+        "tags": [
+          "admin-sales-post-controller"
+        ],
+        "summary": "관리자 판매글 상세",
+        "operationId": "getAdminSalesPostDetail",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataAdminSalesPostDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/sales-posts/counts": {
+      "get": {
+        "tags": [
+          "admin-sales-post-controller"
+        ],
+        "summary": "관리자 판매글 상태별 개수",
+        "operationId": "getAdminSalesPostCounts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataAdminSalesPostCountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/members": {
       "get": {
         "tags": [
@@ -2940,6 +3852,27 @@
         }
       }
     },
+    "/api/admin/dashboard": {
+      "get": {
+        "tags": [
+          "admin-dashboard-controller"
+        ],
+        "summary": "관리자 대시보드",
+        "operationId": "getAdminDashboard",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsDataAdminDashboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sales-posts/sellers/{sellerId}/posts/{postId}": {
       "delete": {
         "tags": [
@@ -2959,30 +3892,6 @@
           {
             "name": "postId",
             "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/products/{postId}": {
-      "delete": {
-        "tags": [
-          "product-controller"
-        ],
-        "operationId": "deleteProductByPost",
-        "parameters": [
-          {
-            "name": "postId",
-            "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
@@ -3184,6 +4093,78 @@
   },
   "components": {
     "schemas": {
+      "RestoreProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "basePrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productImageList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestoreProductImage"
+            }
+          },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestoreProductOption"
+            }
+          }
+        }
+      },
+      "RestoreProductImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "imageSeq": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RestoreProductOption": {
+        "type": "object",
+        "properties": {
+          "productTypeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productOptionId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RestoreProductsRequest": {
+        "type": "object",
+        "properties": {
+          "productList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestoreProduct"
+            }
+          }
+        }
+      },
       "MemberAddressRequest": {
         "type": "object",
         "properties": {
@@ -3269,6 +4250,95 @@
           },
           "data": {
             "$ref": "#/components/schemas/MemberAddressResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NoticeSaveRequest": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "NOTICE",
+              "GUIDE",
+              "EVENT",
+              "URGENT"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          },
+          "pinned": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "category",
+          "content",
+          "title"
+        ]
+      },
+      "NoticeDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "NOTICE",
+              "GUIDE",
+              "EVENT",
+              "URGENT"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "viewCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataNoticeDetailResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/NoticeDetailResponse"
           },
           "statusCode": {
             "type": "integer",
@@ -3383,6 +4453,10 @@
             "format": "int64"
           },
           "balance": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "heldBalance": {
             "type": "integer",
             "format": "int64"
           }
@@ -3880,6 +4954,76 @@
           "individualGroupPurchaseId",
           "items"
         ]
+      },
+      "WithdrawalRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "RsDataWithdrawalCheckResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WithdrawalCheckResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WithdrawalBlocker": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "WithdrawalCheckResponse": {
+        "type": "object",
+        "properties": {
+          "canWithdraw": {
+            "type": "boolean"
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WithdrawalBlocker"
+            }
+          },
+          "status": {
+            "type": "string"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       },
       "SellerRegisterRequest": {
         "type": "object",
@@ -4439,6 +5583,9 @@
           "detail": {
             "type": "string"
           },
+          "rejectReason": {
+            "type": "string"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -4649,6 +5796,19 @@
           "password"
         ]
       },
+      "SalesPostSanctionRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
       "PaymentRefundRequest": {
         "type": "object",
         "properties": {
@@ -4856,9 +6016,6 @@
           "content": {
             "type": "string"
           },
-          "status": {
-            "type": "string"
-          },
           "productList": {
             "type": "array",
             "items": {
@@ -4936,6 +6093,27 @@
             }
           }
         }
+      },
+      "ProductStatusChangeRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE",
+              "PENDING"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
       },
       "UpdateProfileRequest": {
         "type": "object",
@@ -5056,6 +6234,48 @@
           }
         }
       },
+      "SharedGroupPurchaseItemQuantityAdjustRequest": {
+        "type": "object",
+        "properties": {
+          "delta": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 998,
+            "minimum": -998
+          }
+        }
+      },
+      "RsDataSharedGroupPurchaseItemQuantityResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SharedGroupPurchaseItemQuantityResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SharedGroupPurchaseItemQuantityResponse": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "SharedGroupPurchaseItemOptionUpdateRequest": {
         "type": "object",
         "properties": {
@@ -5164,6 +6384,19 @@
           "trackingNumber"
         ]
       },
+      "DeliveryClaimRejectRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
       "RsDataSellerClaimResponse": {
         "type": "object",
         "properties": {
@@ -5218,6 +6451,9 @@
             ]
           },
           "detail": {
+            "type": "string"
+          },
+          "rejectReason": {
             "type": "string"
           },
           "status": {
@@ -5410,6 +6646,37 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "RsDataWalletTransactionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WalletTransactionSummaryResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WalletTransactionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "totalCharged": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaid": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -5696,6 +6963,46 @@
           }
         }
       },
+      "RsDataSellerTrustResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SellerTrustResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SellerTrustResponse": {
+        "type": "object",
+        "properties": {
+          "sellerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "LOW",
+              "NORMAL",
+              "HIGH"
+            ]
+          }
+        }
+      },
       "SelectSalesPostRequest": {
         "type": "object",
         "properties": {
@@ -5875,6 +7182,19 @@
             "type": "integer",
             "format": "int64"
           },
+          "sellerTrustScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sellerTrustLevel": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "LOW",
+              "NORMAL",
+              "HIGH"
+            ]
+          },
           "title": {
             "type": "string"
           },
@@ -5927,6 +7247,141 @@
           "statusCode": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "RsDataListSelectProductResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectProductResponse"
+            }
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SelectProductImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "s3key": {
+            "type": "string"
+          },
+          "imageSeq": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE",
+              "PENDING"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SelectProductOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productTypeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productOptionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SelectProductResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "salesPostId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "basePrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "ACTIVE",
+              "INACTIVE",
+              "PENDING"
+            ]
+          },
+          "productImageList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectProductImage"
+            }
+          },
+          "productOptionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectProductOption"
+            }
           }
         }
       },
@@ -6067,7 +7522,8 @@
             "enum": [
               "BUYER_CANCELED",
               "PAYMENT_EXPIRED",
-              "OUT_OF_STOCK"
+              "OUT_OF_STOCK",
+              "SALES_STOPPED"
             ]
           },
           "totalAmount": {
@@ -6179,6 +7635,83 @@
             "items": {
               "$ref": "#/components/schemas/OrderSummaryResponse"
             }
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NoticeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "NOTICE",
+              "GUIDE",
+              "EVENT",
+              "URGENT"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "viewCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageResponseNoticeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NoticeSummaryResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RsDataPageResponseNoticeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseNoticeSummaryResponse"
           },
           "statusCode": {
             "type": "integer",
@@ -6900,7 +8433,8 @@
             "enum": [
               "DEADLINE_EXPIRED",
               "OUT_OF_STOCK",
-              "CREATOR_CANCELED"
+              "CREATOR_CANCELED",
+              "SALES_STOPPED"
             ]
           },
           "creator": {
@@ -7027,6 +8561,16 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "purchaseTitle": {
+            "type": "string"
+          },
+          "firstProductName": {
+            "type": "string"
+          },
+          "itemCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -7594,6 +9138,263 @@
           }
         }
       },
+      "AdminSalesPostSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "sellerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sellerName": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "minPrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "PENDING"
+            ]
+          },
+          "viewCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageResponseAdminSalesPostSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminSalesPostSummaryResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RsDataPageResponseAdminSalesPostSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseAdminSalesPostSummaryResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminSalesPostDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "sellerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sellerName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ON_SALE",
+              "PAUSED",
+              "SUSPENDED",
+              "CLOSED",
+              "DELETED",
+              "PENDING"
+            ]
+          },
+          "viewCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminSalesPostProduct"
+            }
+          },
+          "sanctions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminSalesPostSanction"
+            }
+          }
+        }
+      },
+      "AdminSalesPostProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "basePrice": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "optionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AdminSalesPostSanction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "adminId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "SUSPEND",
+              "RESUME"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataAdminSalesPostDetailResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminSalesPostDetailResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminSalesPostCountResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "onSale": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pausedBySeller": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "suspendedByAdmin": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RsDataAdminSalesPostCountResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminSalesPostCountResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "AdminMemberSearchRequest": {
         "type": "object",
         "properties": {
@@ -7608,6 +9409,7 @@
             "enum": [
               "ACTIVE",
               "SUSPENDED",
+              "WITHDRAWAL_PENDING",
               "WITHDRAWN"
             ]
           },
@@ -7804,6 +9606,116 @@
           },
           "adminNickname": {
             "type": "string"
+          }
+        }
+      },
+      "AdminDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "$ref": "#/components/schemas/AdminMemberStats"
+          },
+          "payments": {
+            "$ref": "#/components/schemas/AdminPaymentStats"
+          },
+          "recentMembers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminRecentMember"
+            }
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AdminMemberStats": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todaySignups": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "buyers": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sellers": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "suspended": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminPaymentStats": {
+        "type": "object",
+        "properties": {
+          "todayPaidCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayPaidAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayRefundCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayRefundAmount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminRecentMember": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RsDataAdminDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminDashboardResponse"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       }

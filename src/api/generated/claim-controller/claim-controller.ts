@@ -25,6 +25,7 @@ import type {
 
 import type {
   DeliveryClaimCreateRequest,
+  DeliveryClaimRejectRequest,
   GetMyClaimsParams,
   GetSellerClaimsParams,
   RsDataDeliveryClaimResponse,
@@ -135,6 +136,88 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getCreateClaimMutationOptions(options), queryClient);
+    }
+    export const getRejectClaimUrl = (claimId: number,) => {
+
+
+
+
+  return `/api/claims/${claimId}/reject`
+}
+
+export const rejectClaim = async (claimId: number,
+    deliveryClaimRejectRequest: DeliveryClaimRejectRequest, options?: Parameters<typeof http>[1]): Promise<RsDataSellerClaimResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return http<RsDataSellerClaimResponse>(getRejectClaimUrl(claimId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(deliveryClaimRejectRequest)
+  }
+);}
+
+
+
+
+
+export const getRejectClaimMutationKey = () => ['rejectClaim'] as const;
+
+export const getRejectClaimMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rejectClaim>>, TError,RejectClaimMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof rejectClaim>>, TError,RejectClaimMutationVariables, TContext> => {
+
+const mutationKey = getRejectClaimMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof rejectClaim>>, RejectClaimMutationVariables> = (props) => {
+          const {claimId,data} = props ?? {};
+
+          return  rejectClaim(claimId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RejectClaimMutationResult = NonNullable<Awaited<ReturnType<typeof rejectClaim>>>
+    export type RejectClaimMutationBody = DeliveryClaimRejectRequest
+    export type RejectClaimMutationError = unknown
+    export type RejectClaimMutationVariables = {claimId: number;data: DeliveryClaimRejectRequest}
+
+    export const useRejectClaim = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rejectClaim>>, TError,RejectClaimMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof rejectClaim>>,
+        TError,
+        RejectClaimMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRejectClaimMutationOptions(options), queryClient);
     }
     export const getCompleteClaimUrl = (claimId: number,) => {
 
