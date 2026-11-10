@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import CartView from './_components/CartView';
+import CartMatchBanner from './_components/CartMatchBanner';
 
 export const metadata: Metadata = { title: '장바구니 | TEAMBUY' };
 
@@ -17,6 +18,7 @@ export default function CartPage() {
                         <span>03 결제 완료</span>
                     </div>
                 </div>
+                <CartMatchBanner />
                 <CartView />
             </div>
         </div>
