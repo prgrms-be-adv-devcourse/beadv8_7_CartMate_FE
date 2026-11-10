@@ -3,14 +3,17 @@
 #
 #   npm run seed:local
 #
-# 필요: 로컬 MySQL(cartmate DB), 실행 중인 BE(기본 http://localhost:8985), mysql·curl
+# 필요: 로컬 MySQL(cartmate DB), 실행 중인 product 서비스(기본 http://localhost:8982), mysql·curl
+#   판매글 등록 API(/api/sales-posts)는 product 서비스에 있다. 주소는 API_URL > PRODUCT_SERVICE_URL > 기본값.
+#   회원 · 지갑 · 배송지 · 상품 행은 DB_NAME 한 DB에 직접 넣으므로, BE 서비스들이 같은 DB(사용자 로컬 기본: cartmate)를
+#   쓸 때만 맞다. 서비스별 DB(cartmate_<서비스>)로 띄웠다면 이 스크립트는 아직 맞지 않는다(FE 이슈 BASE-4#1).
 # 계정 비밀번호는 모두 test1234 (로컬 전용 테스트 값)
 #   test@naver.com        ADMIN
 #   buyer@example.test    BUYER
 #   seller@example.test   SELLER  (테스트 판매글의 판매자)
 set -euo pipefail
 
-API_URL="${API_URL:-http://localhost:8985}"
+API_URL="${API_URL:-${PRODUCT_SERVICE_URL:-http://localhost:8982}}"
 DB_NAME="${DB_NAME:-cartmate}"
 DB_USER="${DB_USER:-cartmate}"
 DB_PASSWORD="${DB_PASSWORD:-cartmate}"
