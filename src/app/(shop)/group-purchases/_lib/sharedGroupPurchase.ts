@@ -9,6 +9,7 @@ const STATUS_LABEL: Record<Status, string> = {
     FROZEN: '마감 보류',
     CLOSED: '마감',
     CANCELED: '취소',
+    ORDER_CREATED: '주문 생성',
 };
 
 const BADGE_BASE = 'inline-flex items-center px-2 py-0.5 rounded font-caption text-caption font-bold';

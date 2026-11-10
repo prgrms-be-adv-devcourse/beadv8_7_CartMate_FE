@@ -14,4 +14,7 @@ export interface OrderPaymentPreviewResponse {
   balanceAfter?: number;
   sufficient?: boolean;
   existingPayment?: PaymentResult;
+  orderAmount?: number;
+  discountAmount?: number;
+  memberCouponId?: number;
 }

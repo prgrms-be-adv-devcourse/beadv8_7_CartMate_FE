@@ -26,6 +26,9 @@ import type {
 import type {
   IndividualGroupOrderCreateRequest,
   OrderCreateRequest,
+  OrderPaymentRequest,
+  PreviewParams,
+  RsDataListCouponOption,
   RsDataListOrderSummaryResponse,
   RsDataOrderCreateResponse,
   RsDataOrderDetailResponse,
@@ -146,16 +149,31 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 }
 
 /**
- * @summary 개인 주문 예치금 결제
+ * @summary 개인 주문 예치금 결제 (쿠폰 선택)
  */
-export const payOrder = async (orderId: number, options?: Parameters<typeof http>[1]): Promise<RsDataPaymentResult> => {
+export const payOrder = async (orderId: number,
+    orderPaymentRequest?: OrderPaymentRequest, options?: Parameters<typeof http>[1]): Promise<RsDataPaymentResult> => {
 
-  return http<RsDataPaymentResult>(getPayOrderUrl(orderId),
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return http<RsDataPaymentResult>(getPayOrderUrl(orderId),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(orderPaymentRequest)
   }
 );}
 
@@ -180,9 +198,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof payOrder>>, PayOrderMutationVariables> = (props) => {
-          const {orderId} = props ?? {};
+          const {orderId,data} = props ?? {};
 
-          return  payOrder(orderId,requestOptions)
+          return  payOrder(orderId,data,requestOptions)
         }
 
 
@@ -193,12 +211,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PayOrderMutationResult = NonNullable<Awaited<ReturnType<typeof payOrder>>>
-
+    export type PayOrderMutationBody = OrderPaymentRequest | undefined
     export type PayOrderMutationError = unknown
-    export type PayOrderMutationVariables = {orderId: number}
+    export type PayOrderMutationVariables = {orderId: number;data?: OrderPaymentRequest}
 
     /**
- * @summary 개인 주문 예치금 결제
+ * @summary 개인 주문 예치금 결제 (쿠폰 선택)
  */
 export const usePayOrder = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof payOrder>>, TError,PayOrderMutationVariables, TContext>, request?: SecondParameter<typeof http>}
@@ -358,20 +376,29 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getCreateIndividualGroupMutationOptions(options), queryClient);
     }
-    export const getPreviewUrl = (orderId: number,) => {
+    export const getPreviewUrl = (orderId: number,
+    params?: PreviewParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/orders/${orderId}/payment-preview`
+  return stringifiedParams.length > 0 ? `/api/orders/${orderId}/payment-preview?${stringifiedParams}` : `/api/orders/${orderId}/payment-preview`
 }
 
 /**
- * @summary 개인 주문 결제 미리보기 (금액·결제 가능 여부·예치금 잔액)
+ * @summary 개인 주문 결제 미리보기 (금액·쿠폰 할인·결제 가능 여부·예치금 잔액)
  */
-export const preview = async (orderId: number, options?: Parameters<typeof http>[1]): Promise<RsDataOrderPaymentPreviewResponse> => {
+export const preview = async (orderId: number,
+    params?: PreviewParams, options?: Parameters<typeof http>[1]): Promise<RsDataOrderPaymentPreviewResponse> => {
 
-  return http<RsDataOrderPaymentPreviewResponse>(getPreviewUrl(orderId),
+  return http<RsDataOrderPaymentPreviewResponse>(getPreviewUrl(orderId,params),
   {
     ...options,
     method: 'GET'
@@ -384,23 +411,25 @@ export const preview = async (orderId: number, options?: Parameters<typeof http>
 
 
 
-export const getPreviewQueryKey = (orderId: number,) => {
+export const getPreviewQueryKey = (orderId: number,
+    params?: PreviewParams,) => {
     return [
-    `/api/orders/${orderId}/payment-preview`
+    `/api/orders/${orderId}/payment-preview`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getPreviewQueryOptions = <TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+export const getPreviewQueryOptions = <TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(orderId: number,
+    params?: PreviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getPreviewQueryKey(orderId);
+  const queryKey =  queryOptions?.queryKey ?? getPreviewQueryKey(orderId,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof preview>>> = ({ signal }) => preview(orderId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof preview>>> = ({ signal }) => preview(orderId,params, { signal, ...requestOptions });
 
 
 
@@ -414,7 +443,8 @@ export type PreviewQueryError = unknown
 
 
 export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(
- orderId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>> & Pick<
+ orderId: number,
+    params: undefined |  PreviewParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof preview>>,
           TError,
@@ -424,7 +454,8 @@ export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError =
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(
- orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>> & Pick<
+ orderId: number,
+    params?: PreviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof preview>>,
           TError,
@@ -434,19 +465,121 @@ export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError =
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(
- orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ orderId: number,
+    params?: PreviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 개인 주문 결제 미리보기 (금액·결제 가능 여부·예치금 잔액)
+ * @summary 개인 주문 결제 미리보기 (금액·쿠폰 할인·결제 가능 여부·예치금 잔액)
  */
 
 export function usePreview<TData = Awaited<ReturnType<typeof preview>>, TError = unknown>(
- orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ orderId: number,
+    params?: PreviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof preview>>, TError, TData>>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getPreviewQueryOptions(orderId,options)
+  const queryOptions = getPreviewQueryOptions(orderId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getGetOrderCouponOptionsUrl = (orderId: number,) => {
+
+
+
+
+  return `/api/orders/${orderId}/coupons`
+}
+
+/**
+ * @summary 결제 화면 쿠폰 목록 (쓸 수 있는 쿠폰과 예상 할인, 못 쓰는 쿠폰은 이유)
+ */
+export const getOrderCouponOptions = async (orderId: number, options?: Parameters<typeof http>[1]): Promise<RsDataListCouponOption> => {
+
+  return http<RsDataListCouponOption>(getGetOrderCouponOptionsUrl(orderId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetOrderCouponOptionsQueryKey = (orderId: number,) => {
+    return [
+    `/api/orders/${orderId}/coupons`
+    ] as const;
+    }
+
+
+export const getGetOrderCouponOptionsQueryOptions = <TData = Awaited<ReturnType<typeof getOrderCouponOptions>>, TError = unknown>(orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderCouponOptions>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOrderCouponOptionsQueryKey(orderId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOrderCouponOptions>>> = ({ signal }) => getOrderCouponOptions(orderId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: orderId !== null && orderId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOrderCouponOptions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOrderCouponOptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getOrderCouponOptions>>>
+export type GetOrderCouponOptionsQueryError = unknown
+
+
+export function useGetOrderCouponOptions<TData = Awaited<ReturnType<typeof getOrderCouponOptions>>, TError = unknown>(
+ orderId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderCouponOptions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getOrderCouponOptions>>,
+          TError,
+          Awaited<ReturnType<typeof getOrderCouponOptions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetOrderCouponOptions<TData = Awaited<ReturnType<typeof getOrderCouponOptions>>, TError = unknown>(
+ orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderCouponOptions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getOrderCouponOptions>>,
+          TError,
+          Awaited<ReturnType<typeof getOrderCouponOptions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetOrderCouponOptions<TData = Awaited<ReturnType<typeof getOrderCouponOptions>>, TError = unknown>(
+ orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderCouponOptions>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 결제 화면 쿠폰 목록 (쓸 수 있는 쿠폰과 예상 할인, 못 쓰는 쿠폰은 이유)
+ */
+
+export function useGetOrderCouponOptions<TData = Awaited<ReturnType<typeof getOrderCouponOptions>>, TError = unknown>(
+ orderId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderCouponOptions>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetOrderCouponOptionsQueryOptions(orderId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

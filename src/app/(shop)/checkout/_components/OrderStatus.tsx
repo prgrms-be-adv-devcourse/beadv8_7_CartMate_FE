@@ -43,7 +43,7 @@ export default function OrderStatus({ orderId }: { orderId: number }) {
 function OrderPayment({ orderId, order }: { orderId: number; order: OrderDetailResponse }) {
     const queryClient = useQueryClient();
     // 잔액은 다른 탭에서 바뀔 수 있어 화면에 들어올 때마다 새로 받는다.
-    const preview = usePreview(orderId, { query: { staleTime: 0 } });
+    const preview = usePreview(orderId, undefined, { query: { staleTime: 0 } });
     const info = preview.data?.data;
 
     const refreshOrder = () =>

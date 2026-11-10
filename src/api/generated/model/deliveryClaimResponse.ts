@@ -7,6 +7,7 @@
 import type { DeliveryClaimItemResponse } from './deliveryClaimItemResponse';
 import type { DeliveryClaimResponseClaimType } from './deliveryClaimResponseClaimType';
 import type { DeliveryClaimResponseReason } from './deliveryClaimResponseReason';
+import type { DeliveryClaimResponseRefundStatus } from './deliveryClaimResponseRefundStatus';
 import type { DeliveryClaimResponseStatus } from './deliveryClaimResponseStatus';
 
 export interface DeliveryClaimResponse {
@@ -17,6 +18,7 @@ export interface DeliveryClaimResponse {
   detail?: string;
   rejectReason?: string;
   status?: DeliveryClaimResponseStatus;
+  refundStatus?: DeliveryClaimResponseRefundStatus;
   createdAt?: string;
   items?: DeliveryClaimItemResponse[];
 }

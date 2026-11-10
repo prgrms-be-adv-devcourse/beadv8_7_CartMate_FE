@@ -5,7 +5,7 @@
  * OpenAPI spec version: v0
  */
 
-export type DeleteSalesPostParams = {
-sellerId: number;
-postId: number;
+export type GetAdminCouponsParams = {
+page?: number;
+size?: number;
 };
