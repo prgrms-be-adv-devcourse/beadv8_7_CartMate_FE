@@ -9,7 +9,7 @@ import {
     useOpenGroupPurchase,
 } from '@/api/generated/admin-cart-demand-controller/admin-cart-demand-controller';
 import type { DemandCandidateResponse, GetCandidatesParams } from '@/api/generated/model';
-import { errorMessage } from '@/api/http';
+import { ApiError, errorMessage } from '@/api/http';
 import { ROUTES } from '@/lib/routes';
 import { parseKst } from '@/lib/format';
 
@@ -66,7 +66,12 @@ export default function DemandCandidates() {
         mutation: {
             onSuccess: () => {
                 setSelected(null);
-                void queryClient.invalidateQueries({ queryKey: getGetCandidatesQueryKey() });
+            },
+            onSettled: async (_data, error) => {
+                if (error && !(error instanceof ApiError && error.status === 409)) return;
+                const queryKey = getGetCandidatesQueryKey();
+                await queryClient.cancelQueries({ queryKey });
+                void queryClient.invalidateQueries({ queryKey });
             },
         },
     });
@@ -76,7 +81,12 @@ export default function DemandCandidates() {
         event.preventDefault();
         const error = filtersError(draftFilters);
         setFilterError(error);
-        if (!error) setFilters({ ...draftFilters });
+        if (error) return;
+        if (FILTER_FIELDS.every(({ key }) => draftFilters[key] === filters[key])) {
+            void candidates.refetch();
+        } else {
+            setFilters({ ...draftFilters });
+        }
     };
 
     const selectCandidate = (candidate: DemandCandidateResponse) => {
