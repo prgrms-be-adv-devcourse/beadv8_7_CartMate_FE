@@ -2,17 +2,18 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+    getGetCandidatesQueryKey,
+    useGetCandidates,
+    useOpenGroupPurchase,
+} from '@/api/generated/admin-cart-demand-controller/admin-cart-demand-controller';
+import type { DemandCandidateResponse, GetCandidatesParams } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
 import { ROUTES } from '@/lib/routes';
 import { parseKst } from '@/lib/format';
-import {
-    getDemandCandidates,
-    openDemandGroupPurchase,
-    type DemandCandidate,
-    type DemandFilters,
-    type OpenDemandResult,
-} from '../_lib/demandApi';
+
+type DemandFilters = Required<GetCandidatesParams>;
 
 const DEFAULT_FILTERS: DemandFilters = {
     minExactMembers: 3,
@@ -44,33 +45,32 @@ function filtersError(filters: DemandFilters): string | null {
 }
 
 export default function DemandCandidates() {
+    const queryClient = useQueryClient();
     const [draftFilters, setDraftFilters] = useState<DemandFilters>(DEFAULT_FILTERS);
     const [filters, setFilters] = useState<DemandFilters>(DEFAULT_FILTERS);
     const [filterError, setFilterError] = useState<string | null>(null);
-    const [selected, setSelected] = useState<DemandCandidate | null>(null);
+    const [selected, setSelected] = useState<DemandCandidateResponse | null>(null);
     const [title, setTitle] = useState('');
     const [deadlineAt, setDeadlineAt] = useState('');
     const [formError, setFormError] = useState<string | null>(null);
-    const [created, setCreated] = useState<OpenDemandResult | null>(null);
     const titleInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (selected) titleInputRef.current?.focus();
     }, [selected]);
 
-    const candidates = useQuery({
-        queryKey: ['admin', 'cart-demands', filters],
-        queryFn: () => getDemandCandidates(filters),
-        staleTime: 0,
+    const candidates = useGetCandidates(filters, {
+        query: { select: (response) => response.data ?? [], staleTime: 0 },
     });
-    const open = useMutation({
-        mutationFn: openDemandGroupPurchase,
-        onSuccess: (result) => {
-            setCreated(result);
-            setSelected(null);
-            void candidates.refetch();
+    const open = useOpenGroupPurchase({
+        mutation: {
+            onSuccess: () => {
+                setSelected(null);
+                void queryClient.invalidateQueries({ queryKey: getGetCandidatesQueryKey() });
+            },
         },
     });
+    const created = open.data?.data;
 
     const applyFilters = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -79,18 +79,17 @@ export default function DemandCandidates() {
         if (!error) setFilters({ ...draftFilters });
     };
 
-    const selectCandidate = (candidate: DemandCandidate) => {
+    const selectCandidate = (candidate: DemandCandidateResponse) => {
         setSelected(candidate);
         setTitle(`${candidate.productName ?? `상품 #${candidate.productId}`} 공동구매`.slice(0, 50));
         setDeadlineAt('');
         setFormError(null);
-        setCreated(null);
         open.reset();
     };
 
     const submitOpen = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (!selected || open.isPending) return;
+        if (selected?.productId == null || open.isPending) return;
         const trimmedTitle = title.trim();
         if (!trimmedTitle || trimmedTitle.length > 50) {
             setFormError('제목을 1~50자로 입력해 주세요.');
@@ -105,7 +104,10 @@ export default function DemandCandidates() {
             }
         }
         setFormError(null);
-        open.mutate({ productId: selected.productId, title: trimmedTitle, deadlineAt: deadlineAt || undefined });
+        open.mutate({
+            productId: selected.productId,
+            data: { title: trimmedTitle, deadlineAt: deadlineAt || undefined },
+        });
     };
 
     return (
@@ -142,13 +144,17 @@ export default function DemandCandidates() {
                 </div>
             </form>
 
-            {created && (
+            {open.isSuccess && (
                 <div className="border border-primary bg-surface-container-lowest rounded p-space-lg flex flex-col gap-space-xs" role="status">
-                    <p className="font-label-md text-label-md text-on-surface">공동구매 #{created.id}이 개설되었습니다.</p>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">초대 코드: <code>{created.inviteCode}</code></p>
-                    <Link className="font-label-sm text-label-sm text-primary underline" href={ROUTES.groupPurchaseIndividualInvite(created.inviteCode)}>
-                        초대 페이지 보기
-                    </Link>
+                    <p className="font-label-md text-label-md text-on-surface">공동구매가 개설되었습니다.{created?.id != null && ` (번호 #${created.id})`}</p>
+                    {created?.inviteCode && (
+                        <>
+                            <p className="font-body-sm text-body-sm text-on-surface-variant">초대 코드: <code>{created.inviteCode}</code></p>
+                            <Link className="font-label-sm text-label-sm text-primary underline" href={ROUTES.groupPurchaseIndividualInvite(created.inviteCode)}>
+                                초대 페이지 보기
+                            </Link>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -183,13 +189,13 @@ export default function DemandCandidates() {
                                     <div><dt className="font-caption text-caption text-outline">유사 상품</dt><dd className="font-label-md text-label-md text-on-surface">{candidate.similarMemberCount}명</dd></div>
                                     <div><dt className="font-caption text-caption text-outline">전체</dt><dd className="font-label-md text-label-md text-on-surface">{candidate.totalMemberCount}명</dd></div>
                                 </dl>
-                                {candidate.similarProducts.length > 0 && (
+                                {!!candidate.similarProducts?.length && (
                                     <p className="font-body-sm text-body-sm text-on-surface-variant">함께 집계된 유사 상품 {candidate.similarProducts.length}개</p>
                                 )}
                                 <button
                                     className="h-10 px-space-lg bg-primary text-on-primary rounded font-label-md text-label-md disabled:opacity-50 disabled:cursor-not-allowed"
                                     type="button"
-                                    disabled={!candidate.purchasable || candidate.openGroupPurchaseId != null || open.isPending}
+                                    disabled={candidate.productId == null || !candidate.purchasable || candidate.openGroupPurchaseId != null || open.isPending}
                                     onClick={() => selectCandidate(candidate)}
                                 >
                                     공동구매 개설
