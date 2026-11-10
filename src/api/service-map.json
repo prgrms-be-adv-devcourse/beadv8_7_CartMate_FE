@@ -1,0 +1,30 @@
+{
+  "member": {
+    "port": 8981,
+    "prefixes": ["/api/auth", "/api/members", "/api/admin/members", "/api/admin/dashboard"]
+  },
+  "product": {
+    "port": 8982,
+    "prefixes": [
+      "/api/products",
+      "/api/sales-posts",
+      "/api/coupons",
+      "/api/admin/products",
+      "/api/admin/sales-posts",
+      "/api/admin/coupons",
+      "/api/admin/paybacks"
+    ]
+  },
+  "payment": {
+    "port": 8983,
+    "prefixes": ["/api/payments", "/api/wallets", "/api/settlements", "/api/admin/payments"]
+  },
+  "etc": {
+    "port": 8984,
+    "prefixes": ["/api/notices", "/api/claims", "/api/deliveries", "/api/sellers", "/api/admin/notices"]
+  },
+  "order": {
+    "port": 8986,
+    "prefixes": ["/api/carts", "/api/orders", "/api/group-purchases", "/api/group-orders", "/api/admin/carts"]
+  }
+}
