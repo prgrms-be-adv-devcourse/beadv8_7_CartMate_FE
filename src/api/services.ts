@@ -4,6 +4,10 @@
 //
 // 주소 우선순위: <서비스>_SERVICE_URL(예: ORDER_SERVICE_URL) > API_BASE_URL > http://localhost:<기본 포트>
 // 게이트웨이가 생기면 API_BASE_URL 하나만 주면 모든 요청이 그 주소로 간다.
+//
+// 주의(배포): rewrites는 `next build` 때 이 값들로 굳어 routes-manifest에 들어가고, serverBaseUrl은 실행 중인 서버의
+// process.env를 읽는다. 빌드 단계와 실행 단계에 같은 주소 환경변수를 줘야 브라우저 요청과 서버(RSC) 요청이 같은 곳으로 간다.
+// (`next dev`는 시작할 때 읽으므로 값을 바꾸면 다시 띄운다.)
 // ai-service(8987)는 외부 API가 없어 표에 넣지 않았다.
 import services from './service-map.json';
 
@@ -33,11 +37,13 @@ export function serviceForPath(path: string): ServiceName | undefined {
     return best?.name;
 }
 
-// 서버(RSC)에서 부를 때 붙일 BE 주소. 표에 없는 경로는 API_BASE_URL(게이트웨이)로, 그것도 없으면 member로 보낸다.
+// 서버(RSC)에서 부를 때 붙일 BE 주소. 표에 없는 경로는 브라우저(rewrites)와 똑같이 API_BASE_URL(게이트웨이)로만 보내고,
+// 그것도 없으면 바로 오류를 낸다(브라우저는 Next 404).
 export function serverBaseUrl(path: string, env: Env = process.env): string {
     const name = serviceForPath(path);
     if (name) return serviceUrl(name, env);
-    return env.API_BASE_URL ?? serviceUrl('member', env);
+    if (env.API_BASE_URL) return env.API_BASE_URL;
+    throw new Error(`BE 서비스 표(service-map.json)에 없는 경로입니다: ${path}`);
 }
 
 // next.config rewrites. 긴 접두어를 앞에 둬서 겹치는 접두어가 생겨도 구체적인 규칙이 먼저 걸리게 한다.
