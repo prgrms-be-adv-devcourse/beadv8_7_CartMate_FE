@@ -1,23 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
 import { useGetCart } from '@/api/generated/cart-controller/cart-controller';
+import { useGetMyMatches, getGetMyMatchesQueryKey } from '@/api/generated/cart-match-controller/cart-match-controller';
+import type { CartMatchResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
 import { formatDateTime } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
-import { getCartMatches } from '../_lib/cartMatches';
 
 export default function CartMatchBanner() {
     const cart = useGetCart();
     const productIds = [...new Set((cart.data?.data?.items ?? [])
         .map((item) => item.productId)
         .filter((id): id is number => typeof id === 'number'))].sort((a, b) => a - b);
-    const matches = useQuery({
-        queryKey: ['cart-matches', productIds],
-        queryFn: getCartMatches,
-        staleTime: 0,
-        enabled: cart.isSuccess && productIds.length > 0,
+    const matches = useGetMyMatches({
+        query: {
+            queryKey: [...getGetMyMatchesQueryKey(), productIds],
+            staleTime: 0,
+            enabled: cart.isSuccess && productIds.length > 0,
+        },
     });
 
     if (!cart.isSuccess || productIds.length === 0) return null;
@@ -32,7 +33,11 @@ export default function CartMatchBanner() {
         );
     }
 
-    if (matches.data.length === 0) return null;
+    const results = (matches.data?.data ?? []).filter((match): match is CartMatchResponse & { inviteCode: string; deadlineAt: string } =>
+        match.individualGroupPurchaseId != null && match.productId != null &&
+        Boolean(match.inviteCode && match.deadlineAt && match.title && match.matchType),
+    );
+    if (results.length === 0) return null;
 
     return (
         <section className="mb-space-lg border border-primary bg-surface-container-lowest rounded p-space-lg flex flex-col gap-space-md" aria-labelledby="cart-matches-title">
@@ -41,7 +46,7 @@ export default function CartMatchBanner() {
                 <p className="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">상품을 확인하고 초대 페이지에서 참여할 수 있습니다.</p>
             </div>
             <ul className="flex flex-col gap-space-sm">
-                {matches.data.map((match) => (
+                {results.map((match) => (
                     <li key={`${match.individualGroupPurchaseId}-${match.productId}`} className="border border-outline-variant rounded p-space-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-space-md">
                         <div className="flex flex-col gap-space-xs">
                             <div className="flex items-center gap-space-xs">
