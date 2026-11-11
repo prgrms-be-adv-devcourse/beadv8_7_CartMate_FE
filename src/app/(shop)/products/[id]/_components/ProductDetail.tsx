@@ -13,6 +13,7 @@ import { toProductOption } from '@/lib/salesPost';
 import { SellerTrustPanel, toSellerTrust } from '../../../_components/SellerTrust';
 import ProductActions from './ProductActions';
 import ProductOptions from './ProductOptions';
+import ProductPaybackConditions from './ProductPaybackConditions';
 
 // 상품 상세 = BE 판매글 상세(/api/sales-posts/detail). URL의 id 는 판매글 id 다.
 export default function ProductDetail() {
@@ -111,6 +112,7 @@ function DetailContent({ post }: { post: SelectSalesPostResponse }) {
                             onQuantityChange={setQuantity}
                         />
                     )}
+                    {currentId !== null && <ProductPaybackConditions key={currentId} productId={currentId} />}
                     <SellerTrustPanel sellerId={post.sellerId} fallback={toSellerTrust(post.sellerTrustLevel, post.sellerTrustScore)} />
                     <ProductActions postId={post.id ?? 0} productId={currentId} quantity={quantity} onSale={onSale} />
                 </div>
