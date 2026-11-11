@@ -16,6 +16,7 @@ import Icon from '@/components/ui/Icon';
 import { formatDateTime } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { statusOf, won } from '../../_components/postStatus';
+import AdminPaybackConditionEditor from './AdminPaybackConditionEditor';
 
 const HIDE_REASONS = [
     '부적절한 상품 (체육시설/용품 규격 미달)',
@@ -37,6 +38,7 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
     const [memo, setMemo] = useState('');
     const [confirm, setConfirm] = useState<Mode | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [paybackProductId, setPaybackProductId] = useState<number | null>(null);
 
     const refresh = () => {
         void queryClient.invalidateQueries({ queryKey: getGetAdminSalesPostDetailQueryKey(postId) });
@@ -118,7 +120,8 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                         <h2 className="font-headline-sm text-headline-sm font-bold mb-space-md">상품 {post.products?.length ?? 0}개</h2>
                         <div className="flex flex-col divide-y divide-surface-container">
                             {(post.products ?? []).map((p) => (
-                                <div key={p.id} className="py-space-sm flex items-center gap-space-md">
+                                <div key={p.id} className="py-space-sm flex flex-col gap-space-sm">
+                                    <div className="flex items-center gap-space-md">
                                     {p.imageUrls?.[0] ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={p.imageUrls[0]} alt="" className="w-16 h-16 object-cover rounded border border-outline-variant" />
@@ -132,6 +135,20 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                                         <div className="font-caption text-caption text-outline">상품 #{p.id} · 옵션 {p.optionCount ?? 0}개 · 이미지 {p.imageUrls?.length ?? 0}장</div>
                                     </div>
                                     <div className="font-label-md text-label-md">{won(p.basePrice)}</div>
+                                    {typeof p.id === 'number' && p.id > 0 && (
+                                        <button
+                                            type="button"
+                                            className="h-9 px-space-sm border border-outline-variant rounded font-label-sm text-label-sm hover:bg-surface-container"
+                                            aria-expanded={paybackProductId === p.id}
+                                            onClick={() => setPaybackProductId(paybackProductId === p.id ? null : p.id ?? null)}
+                                        >
+                                            페이백 조건 관리
+                                        </button>
+                                    )}
+                                    </div>
+                                    {paybackProductId === p.id && typeof p.id === 'number' && (
+                                        <AdminPaybackConditionEditor key={p.id} productId={p.id} productName={p.name ?? `상품 #${p.id}`} />
+                                    )}
                                 </div>
                             ))}
                         </div>
