@@ -74,10 +74,9 @@ export default function RecentTransactions() {
                                             {tx.orderId != null && <div className="font-caption text-caption text-secondary">주문 #{tx.orderId}</div>}
                                         </td>
                                         <td className={`py-space-md px-space-md text-right font-mono font-bold ${info.amountClassName}`}>
-                                            {info.sign}
-                                            {(tx.amount ?? 0).toLocaleString('ko-KR')}원
+                                            {tx.amount == null ? '-' : `${info.sign}${tx.amount.toLocaleString('ko-KR')}원`}
                                         </td>
-                                        <td className="py-space-md px-space-md text-right font-mono font-bold text-on-surface">{(tx.balanceAfter ?? 0).toLocaleString('ko-KR')}원</td>
+                                        <td className="py-space-md px-space-md text-right font-mono font-bold text-on-surface">{tx.balanceAfter == null ? '-' : `${tx.balanceAfter.toLocaleString('ko-KR')}원`}</td>
                                     </tr>
                                 );
                             })}

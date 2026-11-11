@@ -37,7 +37,7 @@ export default function TransactionList() {
     const query = useGetMyWalletTransactions({ page: page - 1, size: PAGE_SIZE });
     const result = query.data?.data;
     const rows = result?.content ?? [];
-    const totalElements = result?.totalElements ?? 0;
+    const totalElements = query.isSuccess ? result?.totalElements : undefined;
     const totalPages = result?.totalPages ?? 0;
     const from = rows.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
     const to = (page - 1) * PAGE_SIZE + rows.length;
@@ -59,7 +59,7 @@ export default function TransactionList() {
             {/* Table Utility Bar */}
             <div className="flex items-center justify-between pb-space-sm mb-space-xs">
                 <div className="font-body-sm text-body-sm text-on-surface">
-                    총 <span className="font-bold text-primary">{totalElements}</span>건의 거래 내역
+                    {totalElements === undefined ? (query.isError ? '거래 건수를 불러오지 못했습니다.' : '거래 건수 확인 중') : <>총 <span className="font-bold text-primary">{totalElements}</span>건의 거래 내역</>}
                 </div>
                 <span className="font-caption text-caption text-on-surface-variant">페이지당 {PAGE_SIZE}건</span>
             </div>
@@ -77,7 +77,7 @@ export default function TransactionList() {
                     </div>
                 ) : rows.length === 0 ? (
                     <div className="py-space-xl px-space-lg text-center font-body-md text-body-md text-on-surface-variant">
-                        {totalElements > 0 ? (
+                        {(totalElements ?? 0) > 0 ? (
                             <>
                                 이 페이지에는 거래 내역이 없습니다.{' '}
                                 <button className="text-primary font-label-sm underline" type="button" onClick={() => goPage(1)}>
@@ -121,11 +121,10 @@ export default function TransactionList() {
                                             </div>
                                         </td>
                                         <td className={`py-space-md px-space-md text-right font-label-md text-label-md whitespace-nowrap font-bold ${info.amountClassName}`}>
-                                            {info.sign}
-                                            {(tx.amount ?? 0).toLocaleString('ko-KR')}원
+                                            {tx.amount == null ? '-' : `${info.sign}${tx.amount.toLocaleString('ko-KR')}원`}
                                         </td>
                                         <td className="py-space-md px-space-md text-right whitespace-nowrap">
-                                            <div className="font-label-md text-label-md text-primary font-bold">{(tx.balanceAfter ?? 0).toLocaleString('ko-KR')}원</div>
+                                            <div className="font-label-md text-label-md text-primary font-bold">{tx.balanceAfter == null ? '-' : `${tx.balanceAfter.toLocaleString('ko-KR')}원`}</div>
                                         </td>
                                     </tr>
                                 );
@@ -138,7 +137,7 @@ export default function TransactionList() {
             {/* 4. Pagination Navigation Bar */}
             <div className="flex items-center justify-between pt-space-lg mt-space-md">
                 <div className="font-caption text-caption text-outline">
-                    표시 중: {from} - {to} (총 {totalElements} 항목)
+                    {totalElements === undefined ? (query.isError ? '표시 범위를 확인할 수 없습니다.' : '표시 범위 확인 중') : `표시 중: ${from} - ${to} (총 ${totalElements} 항목)`}
                 </div>
                 <div className="flex items-center gap-1">
                     <button
