@@ -165,6 +165,11 @@ export default function DemandCandidates() {
                             </Link>
                         </>
                     )}
+                    {created?.id != null && (
+                        <Link className="font-label-sm text-label-sm text-primary underline" href={ROUTES.adminIndividualGroupPurchaseDashboard(created.id)}>
+                            관리자 현황판 보기
+                        </Link>
+                    )}
                 </div>
             )}
 
@@ -191,7 +196,11 @@ export default function DemandCandidates() {
                                         <p className="font-caption text-caption text-outline mt-space-xs">상품 #{candidate.productId}</p>
                                     </div>
                                     <span className="font-label-sm text-label-sm text-on-surface-variant">
-                                        {candidate.openGroupPurchaseId != null ? `개설된 공구 #${candidate.openGroupPurchaseId}` : candidate.purchasable ? '개설 가능' : '개설 불가'}
+                                        {candidate.openGroupPurchaseId != null ? (
+                                            <Link className="text-primary underline" href={ROUTES.adminIndividualGroupPurchaseDashboard(candidate.openGroupPurchaseId)}>
+                                                개설된 공구 #{candidate.openGroupPurchaseId} 현황
+                                            </Link>
+                                        ) : candidate.purchasable ? '개설 가능' : '개설 불가'}
                                     </span>
                                 </div>
                                 <dl className="grid grid-cols-3 gap-space-sm text-center bg-surface-container-low p-space-md rounded">
