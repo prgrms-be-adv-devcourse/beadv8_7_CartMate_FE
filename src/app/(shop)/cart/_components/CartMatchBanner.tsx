@@ -21,8 +21,8 @@ export default function CartMatchBanner() {
         },
     });
 
-    if (!cart.isSuccess || productIds.length === 0) return null;
-    if (matches.isPending) return null;
+    if (!cart.isSuccess || cart.isFetching || productIds.length === 0) return null;
+    if (matches.isPending || matches.isFetching) return null;
 
     if (matches.isError) {
         return (
