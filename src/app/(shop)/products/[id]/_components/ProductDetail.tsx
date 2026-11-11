@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import type { SelectSalesPostResponse } from '@/api/generated/model';
@@ -75,11 +75,7 @@ function DetailContent({ post }: { post: SelectSalesPostResponse }) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-xl items-start pb-space-xl">
                 <div className="flex flex-col gap-space-md">
                     <div className="relative w-full aspect-square bg-surface-container-low border border-outline-variant flex items-center justify-center overflow-hidden">
-                        {mainImage ? (
-                            <Image src={mainImage} alt={post.title ?? ''} fill unoptimized className="object-contain" />
-                        ) : (
-                            <Icon name="image" className="text-outline text-[48px]" />
-                        )}
+                        <ProductImage src={mainImage} alt={post.title ?? ''} className="object-contain" iconClassName="text-[48px]" />
                     </div>
                     {images.length > 1 && (
                         <div className="grid grid-cols-4 gap-space-sm">
@@ -91,7 +87,7 @@ function DetailContent({ post }: { post: SelectSalesPostResponse }) {
                                     aria-label={`이미지 ${i + 1}`}
                                     onClick={() => setImageIndex(i)}
                                 >
-                                    <Image src={url} alt="" fill unoptimized className="object-cover" />
+                                    <ProductImage src={url} alt="" className="object-cover" />
                                 </button>
                             ))}
                         </div>

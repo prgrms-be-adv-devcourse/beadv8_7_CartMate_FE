@@ -1,6 +1,5 @@
-import Image from 'next/image';
 import Link from 'next/link';
-import Icon from '@/components/ui/Icon';
+import ProductImage from '@/components/ui/ProductImage';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice, type SalesPostCardModel } from '@/lib/salesPost';
 import { SellerTrustBadge, type SellerTrust } from './SellerTrust';
@@ -10,11 +9,7 @@ export default function SalesPostCard({ post, trust }: { post: SalesPostCardMode
         <article className="border border-outline-variant rounded bg-surface-container-lowest hover:border-primary transition-colors">
             <Link href={ROUTES.product(post.id)} className="flex flex-col h-full p-space-sm">
                 <div className="relative w-full aspect-square bg-surface-container-high border border-outline-variant rounded-sm flex items-center justify-center overflow-hidden mb-space-sm">
-                    {post.imageUrl ? (
-                        <Image src={post.imageUrl} alt={post.title} fill unoptimized className="object-cover" />
-                    ) : (
-                        <Icon name="image" className="text-outline text-[32px]" />
-                    )}
+                    <ProductImage src={post.imageUrl} alt={post.title} className="object-cover" />
                 </div>
                 <div className="flex flex-col gap-1 flex-1">
                     {post.productName && <span className="font-caption text-caption text-outline line-clamp-1">{post.productName}</span>}
