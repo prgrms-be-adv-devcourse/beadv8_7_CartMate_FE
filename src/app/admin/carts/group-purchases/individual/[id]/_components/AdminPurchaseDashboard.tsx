@@ -43,13 +43,14 @@ export default function AdminPurchaseDashboard({ id }: { id: string }) {
 
     const data = dashboard.data.data;
     const isOpen = data.status === 'OPEN';
+    const statusLabel = !isOpen ? '마감됨' : data.open ? '진행 중' : '마감 기한 경과 · 종료 처리 전';
     return (
         <div className="flex flex-col gap-space-lg">
             <section className="bg-surface-container-lowest border border-outline-variant rounded p-space-lg flex flex-col gap-space-md">
                 <div className="flex flex-wrap items-start justify-between gap-space-md">
                     <div>
                         <h2 className="font-headline-md text-headline-md text-on-surface">{data.title ?? `공동구매 #${purchaseId}`}</h2>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">번호 #{purchaseId} · {isOpen ? '진행 중' : '마감됨'}</p>
+                        <p className="font-body-sm text-body-sm text-on-surface-variant">번호 #{purchaseId} · {statusLabel}</p>
                         <p className="font-body-sm text-body-sm text-on-surface-variant">마감 예정 {formatDateTime(data.deadlineAt)}</p>
                         {data.closedAt && <p className="font-body-sm text-body-sm text-on-surface-variant">실제 마감 {formatDateTime(data.closedAt)}</p>}
                     </div>
