@@ -57,6 +57,9 @@ export function apiRewrites(env: Env = process.env) {
             destination: `${base}${prefix}/:path*`,
         }));
 
+    // 상품 이미지 경로는 API 접두어 밖에 있으므로 별도로 product-service에 전달한다.
+    rules.push({ source: '/images/:path*', destination: `${serviceUrl('product', env)}/images/:path*` });
+
     // 게이트웨이 주소가 있으면 표에 없는 /api/*도 넘긴다.
     if (env.API_BASE_URL) {
         rules.push({ source: '/api/:path*', destination: `${env.API_BASE_URL}/api/:path*` });
