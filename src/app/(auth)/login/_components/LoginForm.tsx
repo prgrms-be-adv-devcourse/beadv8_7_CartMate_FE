@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useLogin } from '@/api/generated/auth-controller/auth-controller';
+import { useLoginWithMfa, useResendLoginMfa, useVerifyLoginMfa, type MfaChallenge } from '@/api/loginMfa';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { SKIP_AUTH_EXPIRED, reloadTo } from '@/lib/auth';
@@ -24,7 +24,9 @@ function nextPath(): string {
 
 export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
-    const login = useLogin({ mutation: { meta: SKIP_AUTH_EXPIRED } });
+    // 비밀번호는 맞았고 이메일 인증번호를 기다리는 중이면 채워진다 (이때는 아직 로그인 토큰이 없다)
+    const [challenge, setChallenge] = useState<MfaChallenge | null>(null);
+    const login = useLoginWithMfa(SKIP_AUTH_EXPIRED);
     const {
         register,
         handleSubmit,
@@ -35,13 +37,21 @@ export default function LoginForm() {
     });
 
     const onSubmit = (values: LoginValues) => {
-        login.mutate(
-            { data: values },
-            {
-                onSuccess: () => reloadTo(nextPath()),
+        login.mutate(values, {
+            onSuccess: (res) => {
+                if (res.data?.mfaRequired && res.data.mfa) {
+                    setChallenge(res.data.mfa);
+                    return;
+                }
+            reloadTo(nextPath());
             },
-        );
+        
+        });
     };
+
+    if (challenge) {
+        return <MfaStep challenge={challenge} onBack={() => setChallenge(null)} />;
+    }
 
     return (
         <form className="flex flex-col gap-4.5" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -116,6 +126,113 @@ export default function LoginForm() {
                 <span>{login.isPending ? '로그인 중...' : '로그인'}</span>
                 <Icon name="arrow_forward" className="text-[16px]" />
             </button>
+        </form>
+    );
+}
+// 로그인 2차 인증: 메일로 받은 6자리 + "이 기기 30일 기억"
+function MfaStep({ challenge, onBack }: { challenge: MfaChallenge; onBack: () => void }) {
+    const [code, setCode] = useState('');
+    const [trustDevice, setTrustDevice] = useState(false);
+    const [notice, setNotice] = useState<string | null>(null);
+    const verify = useVerifyLoginMfa(SKIP_AUTH_EXPIRED);
+    const resend = useResendLoginMfa();
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!/^\d{6}$/.test(code.trim())) return;
+        setNotice(null);
+        verify.mutate(
+            { challengeId: challenge.challengeId, code: code.trim(), trustDevice },
+            { onSuccess: () => reloadTo(nextPath()) },
+        );
+    };
+
+    const handleResend = () => {
+        setNotice(null);
+        resend.mutate(challenge.challengeId, {
+            onSuccess: () => {
+                setCode('');
+                setNotice('인증번호를 다시 보냈습니다. 이전 번호는 더 이상 쓸 수 없습니다.');
+            },
+        });
+    };
+
+    const error = verify.isError ? errorMessage(verify.error) : resend.isError ? errorMessage(resend.error) : null;
+    // 시간이 지났거나 시도를 다 쓴 경우: 처음(비밀번호)부터 다시
+    const mustRestart = verify.isError && /다시 로그인/.test(errorMessage(verify.error));
+
+    return (
+        <form className="flex flex-col gap-4.5" onSubmit={submit} noValidate>
+            <div className="flex flex-col gap-1">
+               <p className="font-body-md text-body-md text-on-surface font-semibold">이메일 인증</p>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">
+                    {challenge.maskedEmail}(으)로 보낸 인증번호 6자리를 입력해 주세요.
+                </p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <input
+                    className={INPUT_CLASS}
+                    id="mfa-code"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="인증번호 6자리"
+                    aria-label="로그인 인증번호"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                    autoFocus
+                />
+                <p className="font-caption text-caption text-outline">
+                    {Math.round(challenge.expiresInSeconds / 60)}분 안에 입력해 주세요. 메일이 오지 않으면 스팸함을 확인하거나 1분 뒤 재발송해 주세요.
+                </p>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                    className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-0 cursor-pointer accent-on-surface"
+                    type="checkbox"
+                    checked={trustDevice}
+                    onChange={(e) => setTrustDevice(e.target.checked)}
+                />
+                <span className="font-body-sm text-body-sm text-on-surface-variant">이 기기 30일 동안 기억하기</span>
+            </label>
+            <p className="font-caption text-caption text-outline -mt-3">PC방 등 여러 사람이 쓰는 기기에서는 체크하지 마세요.</p>
+            {notice && <p className="font-caption text-caption text-on-surface">{notice}</p>}
+            {error && (
+                <p className="font-caption text-caption text-error" role="alert">
+                    {error}
+                </p>
+            )}
+            {mustRestart ? (
+                <button
+                    className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg"
+                    type="button"
+                    onClick={onBack}
+                >
+                    다시 로그인
+                </button>
+            ) : (
+                <button
+                    className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60"
+                    type="submit"
+                    disabled={verify.isPending || code.trim().length !== 6}
+                >
+                    <span>{verify.isPending ? '확인 중...' : '인증하고 로그인'}</span>
+                    <Icon name="arrow_forward" className="text-[16px]" />
+                </button>
+            )}
+            <div className="flex items-center justify-between">
+                <button
+                    className="font-label-sm text-label-sm text-outline hover:text-on-surface hover:underline"
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resend.isPending}
+                >
+                    {resend.isPending ? '보내는 중...' : '인증번호 재발송'}
+                </button>
+                <button className="font-label-sm text-label-sm text-outline hover:text-on-surface hover:underline" type="button" onClick={onBack}>
+                    다른 계정으로 로그인
+                </button>
+            </div>
         </form>
     );
 }
