@@ -3,7 +3,6 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
-import HistoryFilter from './_components/HistoryFilter';
 import SummaryBar from './_components/SummaryBar';
 import TransactionList from './_components/TransactionList';
 
@@ -35,25 +34,15 @@ export default function DepositHistoryPage() {
                         <Icon name="chevron_right" className="text-[14px]" />
                         <span className="text-on-surface font-semibold">거래 내역</span>
                     </div>
-                    <div className="font-caption text-caption px-space-xs py-0.5 bg-surface-container border border-outline-variant text-on-surface-variant">
-                        VIEWPORT: DESKTOP · REF: WF-TRX-004
-                    </div>
                 </div>
 
                 {/* Primary Header & Section Indicator */}
                 <div className="flex items-end justify-between mb-space-xl">
                     <div>
-                        <div className="font-caption text-caption uppercase tracking-wider text-outline mb-space-xs">[ESCROW LEDGER ARCHIVE]</div>
                         <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">예치금 거래 내역</h1>
-                    </div>
-                    <div className="flex items-center gap-space-sm font-caption text-caption text-on-surface-variant bg-surface-container px-space-md py-space-xs border border-outline-variant">
-                        <Icon name="sync" className="text-[16px]" />
-                        <span>실시간 정산 기준 (최근 갱신: 2024-11-25 18:00)</span>
+                        <p className="font-body-sm text-body-sm text-secondary mt-1">전체 거래를 최신순으로 보여 줍니다.</p>
                     </div>
                 </div>
-
-                {/* 1. Transaction Type Filter & Date Range Filter Section */}
-                <HistoryFilter />
 
                 {/* 2. Transaction Summary Metric Bar */}
                 <Suspense>

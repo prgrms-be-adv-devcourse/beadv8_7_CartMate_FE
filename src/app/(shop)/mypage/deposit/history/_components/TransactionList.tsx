@@ -56,25 +56,12 @@ export default function TransactionList() {
 
     return (
         <>
-            {/* Table Utility Bar (Count & Export) */}
+            {/* Table Utility Bar */}
             <div className="flex items-center justify-between pb-space-sm mb-space-xs">
                 <div className="font-body-sm text-body-sm text-on-surface">
                     총 <span className="font-bold text-primary">{totalElements}</span>건의 거래 내역
                 </div>
-                <div className="flex items-center gap-space-sm">
-                    <button
-                        className="h-8 px-space-sm bg-surface-container-lowest border border-outline-variant font-caption text-caption text-on-surface flex items-center gap-1 hover:border-primary"
-                        type="button"
-                    >
-                        <Icon name="file_download" className="text-[16px]" />
-                        엑셀 다운로드 (.CSV)
-                    </button>
-                    <select className="h-8 px-space-xs bg-surface-container-lowest border border-outline-variant font-caption text-caption text-on-surface outline-none">
-                        <option>20개씩 보기</option>
-                        <option>50개씩 보기</option>
-                        <option>100개씩 보기</option>
-                    </select>
-                </div>
+                <span className="font-caption text-caption text-on-surface-variant">페이지당 {PAGE_SIZE}건</span>
             </div>
 
             {/* 3. Complete Data Table Structure */}
@@ -110,7 +97,6 @@ export default function TransactionList() {
                                 <th className="py-space-md px-space-md">거래 내용 / 주문 번호</th>
                                 <th className="py-space-md px-space-md w-44 text-right whitespace-nowrap">거래 금액</th>
                                 <th className="py-space-md px-space-md w-48 text-right whitespace-nowrap">거래 후 잔액</th>
-                                <th className="py-space-md px-space-md w-28 text-center whitespace-nowrap">영수증 / 증빙</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-outline-variant">
@@ -140,12 +126,6 @@ export default function TransactionList() {
                                         </td>
                                         <td className="py-space-md px-space-md text-right whitespace-nowrap">
                                             <div className="font-label-md text-label-md text-primary font-bold">{(tx.balanceAfter ?? 0).toLocaleString('ko-KR')}원</div>
-                                        </td>
-                                        <td className="py-space-md px-space-md text-center whitespace-nowrap">
-                                            {/* 영수증 API 는 아직 없다. */}
-                                            <button className="h-7 px-space-sm bg-surface-container-lowest border border-outline-variant font-caption text-caption text-on-surface hover:border-primary" type="button">
-                                                영수증
-                                            </button>
                                         </td>
                                     </tr>
                                 );
