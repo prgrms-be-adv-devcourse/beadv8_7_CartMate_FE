@@ -2,6 +2,7 @@
 export const ROUTES = {
     home: '/',
     login: '/login',
+    otpSetup: '/otp-setup', // 관리자 OTP 등록 (관리자 화면 밖: 등록 전엔 관리자 API 403)
     signup: '/signup',
     search: '/search',
     product: (id: string | number = 1) => `/products/${id}`,

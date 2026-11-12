@@ -7,13 +7,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { Button } from '@astryxdesign/core/Button';
 import {
-    checkEmail,
     checkNickname,
     useSendPhoneCode,
     useSignup,
     useVerifyPhoneCode,
 } from '@/api/generated/auth-controller/auth-controller';
-import { errorMessage } from '@/api/http';
+import { useSendEmailCode, useVerifyEmailCode } from '@/api/emailVerification';
+import { ApiError, errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { formatPhone } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
@@ -28,6 +28,7 @@ const DEFAULT_VALUES: SignupInput = {
     nickname: '',
     phone: '',
     code: '',
+    emailCode: '',
     birth: '',
     terms: TERMS.map(() => false),
     verifiedEmail: '',
@@ -46,6 +47,7 @@ function FieldError({ message }: { message?: string }) {
 export default function SignupForm() {
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
+    const [emailCodeSentTo, setEmailCodeSentTo] = useState('');
 
     const {
         register,
@@ -62,7 +64,8 @@ export default function SignupForm() {
         defaultValues: DEFAULT_VALUES,
     });
 
-    const emailCheck = useMutation({ mutationFn: (email: string) => checkEmail({ email }) });
+    const sendEmail = useSendEmailCode();
+    const verifyEmail = useVerifyEmailCode();
     const nicknameCheck = useMutation({ mutationFn: (nickname: string) => checkNickname({ nickname }) });
     const sendCode = useSendPhoneCode();
     const verifyCode = useVerifyPhoneCode();
@@ -75,6 +78,7 @@ export default function SignupForm() {
         });
 
     const emailVerified = verifiedEmail !== '' && verifiedEmail === email.trim();
+    const emailCodeSent = emailCodeSentTo !== '' && emailCodeSentTo === email.trim();
     const nicknameVerified = verifiedNickname !== '' && verifiedNickname === nickname.trim();
     const phoneVerified = verifiedPhone !== '' && verifiedPhone === phone;
     const codeSent = sendCode.isSuccess && sendCode.variables.data.phone === phone;
@@ -91,9 +95,9 @@ export default function SignupForm() {
     };
 
     const handleCheck = (
-        name: 'email' | 'nickname',
-        mutation: typeof emailCheck,
-        verifiedName: 'verifiedEmail' | 'verifiedNickname',
+        name: 'nickname',
+        mutation: typeof nicknameCheck,
+        verifiedName: 'verifiedNickname',
         duplicateMessage: string,
     ) => {
         const value = parseField(name);
@@ -116,6 +120,42 @@ export default function SignupForm() {
                 if (!isStale()) setError(name, { message: errorMessage(error) });
             },
         });
+    };
+
+    // 이메일 인증번호 발송. 이미 가입된 이메일이면 BE가 409로 알려 준다 (중복확인을 겸한다)
+    const handleSendEmailCode = () => {
+        const value = parseField('email');
+        if (value === null) return;
+        sendEmail.mutate(value, {
+            onSuccess: () => {
+                if (getValues('email').trim() !== value) return;
+                setEmailCodeSentTo(value);
+                setValue('emailCode', '');
+                clearErrors(['email', 'emailCode']);
+            },
+            onError: (error) => {
+                if (getValues('email').trim() === value) setError('email', { message: errorMessage(error) });
+            },
+        });
+    };
+
+    const handleVerifyEmailCode = () => {
+        const value = email.trim();
+        const code = getValues('emailCode').trim();
+        if (!code) {
+            setError('emailCode', { message: '인증번호를 입력해주세요.' });
+            return;
+        }
+        verifyEmail.mutate(
+            { email: value, code },
+            {
+                onSuccess: () => {
+                    setValue('verifiedEmail', value);
+                    clearErrors(['email', 'emailCode']);
+                },
+                onError: (error) => setError('emailCode', { message: errorMessage(error) }),
+            },
+        );
     };
 
     const handleSendCode = () => {
@@ -168,6 +208,12 @@ export default function SignupForm() {
                     alert('회원가입이 완료되었습니다. 로그인해 주세요.');
                     router.replace(ROUTES.login);
                 },
+                onError: (error) => {
+                    if (error instanceof ApiError && error.resultCode === 'MEMBER_EMAIL_NOT_VERIFIED') {
+                        setValue('verifiedEmail', '');
+                        setError('emailCode', { message: '이메일 인증이 만료되었습니다. 인증번호를 다시 받아주세요.' });
+                    }
+                },
             },
         );
     };
@@ -179,14 +225,14 @@ export default function SignupForm() {
     };
 
     return (
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form className="flex flex-col gap-5" method="post" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="flex flex-col gap-1.5">
                 <label className="font-body-sm text-body-sm text-on-surface flex items-center justify-between" htmlFor="reg-email">
                     <span>
                         이메일 <span className="text-error">*</span>
                     </span>
                     {emailVerified ? (
-                        <span className="font-caption text-caption text-on-surface font-semibold">사용 가능한 이메일입니다</span>
+                        <span className="font-caption text-caption text-on-surface font-semibold">이메일 인증이 완료되었습니다</span>
                     ) : (
                         <span className="font-caption text-caption text-on-surface-variant">아이디로 사용됩니다</span>
                     )}
@@ -200,15 +246,43 @@ export default function SignupForm() {
                         {...register('email')}
                     />
                     <Button
-                        label={emailVerified ? '확인완료' : emailCheck.isPending ? '확인 중...' : '중복확인'}
+                        label={emailVerified ? '인증완료' : sendEmail.isPending ? '발송 중...' : emailCodeSent ? '재발송' : '인증번호 발송'}
                         variant="secondary"
                         size="lg"
-                        onClick={() => handleCheck('email', emailCheck, 'verifiedEmail', '이미 사용 중인 이메일입니다.')}
-                        isDisabled={emailVerified || emailCheck.isPending}
-                        isLoading={emailCheck.isPending}
+                        onClick={handleSendEmailCode}
+                        isDisabled={emailVerified || sendEmail.isPending}
+                        isLoading={sendEmail.isPending}
                     />
                 </div>
                 <FieldError message={errors.email?.message} />
+                {emailCodeSent && !emailVerified && (
+                    <div className="flex flex-col gap-1.5 pt-1">
+                        <div className="flex gap-2">
+                            <input
+                                className={`flex-1 ${INPUT_CLASS}`}
+                                id="reg-email-code"
+                                inputMode="numeric"
+                                maxLength={6}
+                                placeholder="메일로 받은 인증번호 6자리"
+                                type="text"
+                                aria-label="이메일 인증번호"
+                                {...register('emailCode')}
+                            />
+                            <Button
+                                label={verifyEmail.isPending ? '확인 중...' : '인증확인'}
+                                variant="secondary"
+                                size="lg"
+                                onClick={handleVerifyEmailCode}
+                                isDisabled={verifyEmail.isPending}
+                                isLoading={verifyEmail.isPending}
+                            />
+                        </div>
+                        <p className="font-caption text-caption text-on-surface-variant">
+                            인증번호는 5분간 유효합니다. 메일이 오지 않으면 스팸함을 확인하거나 1분 뒤 재발송해 주세요.
+                        </p>
+                        <FieldError message={errors.emailCode?.message} />
+                    </div>
+                )}
             </div>
             <div className="flex flex-col gap-1.5">
                 <label className="font-body-sm text-body-sm text-on-surface" htmlFor="reg-password">

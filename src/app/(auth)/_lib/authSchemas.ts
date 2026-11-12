@@ -19,6 +19,7 @@ export const signupFields = {
         .min(1, '휴대폰 번호를 입력해주세요.')
         .regex(/^010-\d{4}-\d{4}$/, '010-0000-0000 형식으로 입력해주세요.'),
     code: z.string(),
+    emailCode: z.string(),
     // YYYYMMDD 로 입력받아 BE 형식(YYYY-MM-DD)으로 바꿔 보낸다.
     birth: z
         .string()
@@ -26,7 +27,7 @@ export const signupFields = {
         .refine(isPastDate, '올바른 생년월일 8자리를 입력해주세요.')
         .transform((v) => `${v.slice(0, 4)}-${v.slice(4, 6)}-${v.slice(6, 8)}`),
     terms: z.array(z.boolean()).refine((all) => all.every(Boolean), '필수 약관에 모두 동의해주세요.'),
-    // 중복확인·인증을 통과한 값. 입력값과 다르면 다시 확인해야 한다.
+    // 인증·중복확인을 통과한 값. 입력값과 다르면 다시 확인해야 한다. (이메일은 인증번호 확인까지 통과한 값)
     verifiedEmail: z.string(),
     verifiedNickname: z.string(),
     verifiedPhone: z.string(),
@@ -42,7 +43,7 @@ export const signupSchema = z
         message: '비밀번호가 일치하지 않습니다.',
         ...always,
     })
-    .refine((v) => v.verifiedEmail === v.email, { path: ['email'], message: '이메일 중복확인을 해주세요.', ...always })
+    .refine((v) => v.verifiedEmail === v.email, { path: ['email'], message: '이메일 인증을 완료해주세요.', ...always })
     .refine((v) => v.verifiedNickname === v.nickname, { path: ['nickname'], message: '닉네임 중복확인을 해주세요.', ...always })
     .refine((v) => v.verifiedPhone === v.phone, { path: ['phone'], message: '휴대폰 인증을 완료해주세요.', ...always });
 

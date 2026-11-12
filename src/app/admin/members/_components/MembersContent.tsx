@@ -122,7 +122,8 @@ export default function MembersContent() {
     }, []);
 
     useEffect(() => {
-        load(applied, page, pageSize);
+        const timer = window.setTimeout(() => void load(applied, page, pageSize), 0);
+        return () => window.clearTimeout(timer);
     }, [applied, page, pageSize, load]);
 
     // 선택 일괄 정지·해제

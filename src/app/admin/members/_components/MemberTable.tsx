@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Badge, Button, Card, Text } from '@astryxdesign/core';
@@ -46,26 +46,24 @@ export default function MemberTable({
     const [selected, setSelected] = useState<string[]>([]);
     const [processing, setProcessing] = useState(false);
 
-    // 목록이 바뀌면(검색, 페이지 이동) 선택 초기화
-    useEffect(() => {
-        setSelected([]);
-    }, [members]);
-
-    const allChecked = selected.length > 0 && selected.length === members.length;
-    const indeterminate = selected.length > 0 && selected.length < members.length;
+    // 페이지가 바뀐 직후에도 현재 목록에 있는 선택만 작업 대상으로 취급한다.
+    const memberIds = new Set(members.map((member) => member.id));
+    const selectedOnPage = selected.filter((id) => memberIds.has(id));
+    const allChecked = selectedOnPage.length > 0 && selectedOnPage.length === members.length;
+    const indeterminate = selectedOnPage.length > 0 && selectedOnPage.length < members.length;
 
     const toggleAll = (checked: boolean) => setSelected(checked ? members.map((m) => m.id) : []);
     const toggleOne = (id: string, checked: boolean) =>
         setSelected((prev) => (checked ? [...prev, id] : prev.filter((item) => item !== id)));
 
     const runBulk = async (action: 'SUSPEND' | 'ACTIVATE') => {
-        if (selected.length === 0) {
+        if (selectedOnPage.length === 0) {
             alert('회원을 먼저 선택해주세요.');
             return;
         }
         setProcessing(true);
         try {
-            await onBulkAction(action, selected);
+            await onBulkAction(action, selectedOnPage);
         } finally {
             setProcessing(false);
         }
@@ -97,7 +95,7 @@ export default function MemberTable({
                         </label>
                         <span className="text-outline">|</span>
                         <span className="font-caption text-caption text-on-surface-variant">
-                            선택된 항목: <span className="font-label-sm text-label-sm text-primary">{selected.length}</span>건
+                            선택된 항목: <span className="font-label-sm text-label-sm text-primary">{selectedOnPage.length}</span>건
                         </span>
                     </div>
                     <div className="flex items-center gap-space-xs">
@@ -132,7 +130,7 @@ export default function MemberTable({
                                         <input
                                             className="w-4 h-4 rounded border-outline accent-primary cursor-pointer"
                                             type="checkbox"
-                                            checked={selected.includes(member.id)}
+                                            checked={selectedOnPage.includes(member.id)}
                                             onChange={(e) => toggleOne(member.id, e.target.checked)}
                                         />
                                     </td>
@@ -165,7 +163,7 @@ export default function MemberTable({
 
             {/* 하단: 총 인원, 페이지 이동, 페이지당 개수 */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-space-md py-space-xs">
-                <Text color="secondary">총 <span className="font-semibold text-primary">{totalElements.toLocaleString('ko-KR')}</span>명 (선택 {selected.length}명)</Text>
+                <Text color="secondary">총 <span className="font-semibold text-primary">{totalElements.toLocaleString('ko-KR')}</span>명 (선택 {selectedOnPage.length}명)</Text>
 
                 <nav aria-label="페이지 이동" className="flex items-center gap-1">
                     <button className={PAGE_BUTTON} type="button" disabled={page === 0} onClick={() => onPageChange(page - 1)}>
