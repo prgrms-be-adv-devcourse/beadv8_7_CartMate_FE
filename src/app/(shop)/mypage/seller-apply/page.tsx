@@ -9,7 +9,6 @@ export const metadata: Metadata = {
 export default function SellerApplyPage() {
     return (
         <MyPageShell
-            eyebrow="MY PAGE / SELLER"
             title="판매자 등록"
             description="판매자 정보와 정산 계좌를 확인한 뒤 판매 활동을 시작합니다."
         >

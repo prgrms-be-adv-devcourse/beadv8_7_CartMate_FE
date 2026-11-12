@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Badge, Button, Card, EmptyState } from '@astryxdesign/core';
-import MyPageSidebar from '@/components/layout/MyPageSidebar';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 
@@ -10,9 +9,7 @@ export const metadata: Metadata = {
 
 export default function DepositChargePage() {
     return (
-        <main className="max-w-[1200px] mx-auto px-gutter py-space-xl grid grid-cols-1 gap-gutter lg:grid-cols-12">
-            <MyPageSidebar />
-            <section className="flex min-w-0 w-full items-center justify-center lg:col-span-9">
+        <section className="flex min-w-0 w-full items-center justify-center">
                 <Card padding={5} className="w-full max-w-[640px]">
                     <div className="mb-space-md flex justify-center">
                         <Badge label="충전 기능 비공개" variant="neutral" />
@@ -24,7 +21,6 @@ export default function DepositChargePage() {
                         actions={<Button label="예치금 관리로 돌아가기" href={ROUTES.deposit} variant="primary" />}
                     />
                 </Card>
-            </section>
-        </main>
+        </section>
     );
 }

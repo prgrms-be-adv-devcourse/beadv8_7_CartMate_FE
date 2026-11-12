@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import Link from 'next/link';
 import { Card, Heading, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
-import { ROUTES } from '@/lib/routes';
+import MyPageShell from '@/components/layout/MyPageShell';
 import SummaryBar from './_components/SummaryBar';
 import TransactionList from './_components/TransactionList';
 
@@ -20,28 +19,8 @@ const GUIDELINES = [
 
 export default function DepositHistoryPage() {
     return (
-        <main className="max-w-[1200px] mx-auto px-gutter py-space-xl">
-            <div className="flex flex-col w-full">
-                <div className="flex items-center justify-between pb-space-md mb-space-lg border-b border-outline-variant">
-                    <nav aria-label="예치금 위치" className="flex flex-wrap items-center gap-space-sm font-caption text-caption text-on-surface-variant">
-                        <Link className="hover:text-on-surface" href={ROUTES.myPage}>
-                            마이페이지
-                        </Link>
-                        <Icon name="chevron_right" className="text-[14px]" />
-                        <Link className="hover:text-on-surface" href={ROUTES.deposit}>
-                            예치금 관리
-                        </Link>
-                        <Icon name="chevron_right" className="text-[14px]" />
-                        <span className="text-on-surface font-semibold">거래 내역</span>
-                    </nav>
-                </div>
-
-                <header className="mb-space-xl">
-                    <Text type="supporting" color="accent">WALLET HISTORY</Text>
-                    <Heading level={1} className="mt-1">예치금 거래 내역</Heading>
-                    <Text as="p" color="secondary" className="mt-2">전체 거래를 최신순으로 보여 줍니다.</Text>
-                </header>
-
+        <MyPageShell title="예치금 거래 내역" description="전체 거래를 최신순으로 보여 줍니다.">
+            <div className="flex flex-col">
                 <Suspense>
                     <SummaryBar />
                 </Suspense>
@@ -66,6 +45,6 @@ export default function DepositHistoryPage() {
                     </ul>
                 </Card>
             </div>
-        </main>
+        </MyPageShell>
     );
 }

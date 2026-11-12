@@ -10,7 +10,7 @@ import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { Heading } from '@astryxdesign/core/Heading';
 import { Text } from '@astryxdesign/core/Text';
 import Icon from '@/components/ui/Icon';
-import MyPageSidebar from '@/components/layout/MyPageSidebar';
+import MyPageShell from '@/components/layout/MyPageShell';
 import { apiFetch, ApiError } from '@/lib/api';
 import { ROUTES } from '@/lib/routes';
 import {
@@ -99,7 +99,7 @@ export default function MyPageContent() {
 
     if (loading || !member) {
         return (
-            <div className="max-w-[1200px] mx-auto w-full px-gutter py-space-xl">
+            <div>
                 <div className="h-8 w-64 rounded bg-surface-container animate-pulse mb-space-xl" />
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {[0, 1, 2].map((i) => (
@@ -150,28 +150,20 @@ export default function MyPageContent() {
     ];
 
     return (
-        <div className="flex w-full flex-col">
-            <div className="mx-auto w-full max-w-[1200px] px-gutter py-8 sm:py-12">
-                {/* 인사말 */}
-                <div className="mb-8 flex flex-col justify-between gap-4 border-b border-outline-variant pb-6 md:flex-row md:items-end">
-                    <div className="flex flex-col gap-2">
-                        <Text type="supporting" color="accent">MY ACCOUNT</Text>
-                        <Heading level={1}>{member.nickname} 회원님, 반갑습니다.</Heading>
-                        <Text color="secondary">{member.email}</Text>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
+        <MyPageShell
+            title={`${member.nickname} 회원님, 반갑습니다.`}
+            description={member.email}
+            headerActions={
+                <>
                         {member.role === 'SELLER' && (
                             <Button label="판매자 센터" variant="secondary" href={ROUTES.seller} icon={<Icon name="storefront" className="text-[18px]" />} />
                         )}
                         <Button label="공동구매 개설" variant="primary" href={ROUTES.groupPurchaseNew} icon={<Icon name="add" className="text-[18px]" />} />
                         <Button label="회원정보 수정" variant="secondary" href={ROUTES.profile} icon={<Icon name="settings" className="text-[18px]" />} />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-                    <MyPageSidebar />
-
-                    <div className="flex min-w-0 flex-col gap-6 lg:col-span-9">
+                </>
+            }
+        >
+                    <div className="flex min-w-0 flex-col gap-6">
                         {/* 요약 카드 */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             {metricCards.map((card) => (
@@ -197,7 +189,7 @@ export default function MyPageContent() {
                         </div>
 
                         {/* 참여 중인 공동구매 */}
-                        <Card padding={4}>
+                        <Card>
                             <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-outline-variant pb-4">
                                 <div>
                                     <Heading level={2}>참여 중인 공동구매</Heading>
@@ -254,7 +246,7 @@ export default function MyPageContent() {
                         </Card>
 
                         {/* 최근 주문 */}
-                        <Card padding={4}>
+                        <Card>
                             <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-outline-variant pb-4">
                                 <div>
                                     <Heading level={2}>최근 주문</Heading>
@@ -304,8 +296,6 @@ export default function MyPageContent() {
                             )}
                         </Card>
                     </div>
-                </div>
-            </div>
-        </div>
+        </MyPageShell>
     );
 }

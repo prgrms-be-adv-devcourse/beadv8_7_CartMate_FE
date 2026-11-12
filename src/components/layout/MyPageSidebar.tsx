@@ -12,10 +12,10 @@ const MENU = [
     { label: '판매자 등록', href: ROUTES.sellerApply },
 ];
 
-// 마이페이지 좌측 메뉴 (col-span-3 영역에 배치)
+// 마이페이지 좌측 메뉴. mypage/layout.tsx 에서 한 번만 그린다.
 export default function MyPageSidebar() {
     return (
-        <aside className="flex min-w-0 flex-col gap-3 lg:col-span-3 lg:sticky lg:top-28">
+        <aside className="flex min-w-0 flex-col gap-3 lg:sticky lg:top-32">
             <Card padding={3}>
                 <div className="mb-2 px-2">
                     <Text type="supporting" weight="semibold" color="accent">내 계정</Text>
