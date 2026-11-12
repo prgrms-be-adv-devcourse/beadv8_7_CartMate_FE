@@ -44,20 +44,20 @@ export default function DepositBalanceCard() {
                 </div>
             </Card>
 
-            {/* Card 2: Available Amount (Primary Emphasis) */}
-            <Card variant="blue" padding={5} elevation="low" className="relative flex flex-col justify-between">
+            {/* Card 2: Available Amount — 강조는 테두리와 금액 색으로만 한다(배경을 칠하면 어두운 화면에서 글자가 묻힌다) */}
+            <Card padding={5} className="relative flex flex-col justify-between ring-2 ring-primary">
                 <div>
-                    <div className="flex items-center justify-between text-primary-fixed mb-space-md">
+                    <div className="flex items-center justify-between text-secondary mb-space-md">
                         <div className="flex items-center gap-space-xs">
                             <span className="font-caption text-caption tracking-wider uppercase">[사용 가능 금액]</span>
                             <Badge label="현재 잔액" variant="success" />
                         </div>
-                        <Icon name="lock_open" className="text-[20px] text-primary-fixed" />
+                        <Icon name="lock_open" className="text-[20px] text-primary" />
                     </div>
-                    <div className="font-display-xl text-display-xl font-bold tracking-tight mb-space-xs text-on-primary">
-                        {format(balance)} <span className="font-headline-sm text-headline-sm font-normal text-primary-fixed">원</span>
+                    <div className="font-headline-lg text-headline-lg font-bold text-primary tracking-tight mb-space-xs">
+                        {format(balance)} <span className="font-body-md text-body-md font-normal text-secondary">원</span>
                     </div>
-                    <p className="font-body-sm text-body-sm text-primary-fixed leading-relaxed">주문과 공동구매 결제에 바로 사용할 수 있는 예치금입니다.</p>
+                    <p className="font-body-sm text-body-sm text-secondary leading-relaxed">주문과 공동구매 결제에 바로 사용할 수 있는 예치금입니다.</p>
                 </div>
             </Card>
 
