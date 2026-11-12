@@ -72,7 +72,7 @@ export default function MyClaimsContent() {
             )}
 
             {/* 예치금 · 최근 환불 */}
-            <Card padding={3} className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-space-md" aria-label="예치금 환불 현황">
+            <Card padding={4} className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-space-md" aria-label="예치금 환불 현황">
                 <div className="flex flex-col gap-1 md:border-r md:border-surface-container md:pr-space-md">
                     <span className="font-caption text-caption text-outline">예치금 잔액</span>
                     <span data-testid="wallet-balance" className="font-headline-md text-headline-md text-on-surface font-bold">

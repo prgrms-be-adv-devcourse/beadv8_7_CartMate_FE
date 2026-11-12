@@ -123,8 +123,7 @@ export default function AdminNoticeManager() {
         <div className="flex flex-col gap-space-lg">
             <div className="flex flex-col items-start justify-between gap-space-md sm:flex-row sm:items-end">
                 <div>
-                    <Text type="supporting" color="accent" className="uppercase tracking-wider">ADMIN / NOTICES</Text>
-                    <Heading level={1} className="mt-1">공지사항 관리</Heading>
+                    <Heading level={1}>공지사항 관리</Heading>
                     <Text color="secondary" className="mt-2">
                         등록한 공지는 고객센터 공지사항에 바로 보입니다. 상단 고정한 공지는 목록 맨 위에 나옵니다.
                     </Text>

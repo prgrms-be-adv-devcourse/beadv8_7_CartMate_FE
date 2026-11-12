@@ -57,8 +57,7 @@ export default function AdminPostsContent() {
     return (
         <div className="flex flex-col gap-space-lg">
             <div>
-                <Text type="supporting" color="accent" className="uppercase tracking-wider">ADMIN / POSTS</Text>
-                <Heading level={1} className="mt-1">판매글 관리</Heading>
+                <Heading level={1}>판매글 관리</Heading>
                 <Text color="secondary" className="mt-2">
                     판매글을 숨기면 새 구매가 막히고, 발송 전 진행 중인 주문은 자동으로 취소·환불됩니다.
                 </Text>

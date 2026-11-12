@@ -231,7 +231,7 @@ export default function SellerApplyForm() {
         ];
 
         return (
-            <Card padding={4}>
+            <Card>
                 <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-lg mb-space-lg border-b border-outline-variant">
                     <div>
                         <Heading level={2}>판매자 정보</Heading>
@@ -279,7 +279,7 @@ export default function SellerApplyForm() {
     }[accountCheck];
 
     return (
-        <Card padding={4}>
+        <Card>
             <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-lg mb-space-lg border-b border-outline-variant">
                 <div>
                     <Heading level={2}>판매자 파트너 신청서</Heading>

@@ -239,7 +239,7 @@ export default function ProfileContent() {
     return (
         <div className="min-w-0 flex flex-col gap-space-xl">
             {/* 회원정보 수정 */}
-            <Card padding={4}>
+            <Card>
                 <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-md border-b border-surface-container mb-space-xl">
                     <div>
                         <Heading level={2}>회원정보 수정</Heading>

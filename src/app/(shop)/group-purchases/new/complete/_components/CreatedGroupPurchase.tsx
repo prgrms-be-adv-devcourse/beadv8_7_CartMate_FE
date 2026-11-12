@@ -74,7 +74,7 @@ function CreatedContent({ id, purchase, inviteCode }: ContentProps) {
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                             <span className={statusBadgeClass(purchase.status, purchase.editable)}>{statusLabel(purchase.status, purchase.editable)}</span>
-                            <span className="font-caption text-caption text-secondary">공동물품 (N빵)</span>
+                            <span className="font-caption text-caption text-secondary">공동물품</span>
                         </div>
                         <h2 className="font-headline-md text-headline-md text-primary font-bold break-all">{purchase.title}</h2>
                     </div>

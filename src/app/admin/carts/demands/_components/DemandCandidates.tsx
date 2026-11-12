@@ -124,8 +124,7 @@ export default function DemandCandidates() {
     return (
         <div className="flex flex-col gap-space-lg">
             <div>
-                <Text type="supporting" color="accent" className="uppercase tracking-wider">ADMIN / CART DEMANDS</Text>
-                <Heading level={1} className="mt-1">장바구니 수요 후보</Heading>
+                <Heading level={1}>장바구니 수요 후보</Heading>
                 <Text color="secondary" className="mt-2">
                     장바구니에 담긴 상품 수요를 확인하고 개인물품 공동구매를 개설합니다.
                 </Text>

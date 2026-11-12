@@ -528,7 +528,7 @@
   }
 
   .astryx-card {
-    --astryx-card-padding: var(--spacing-3);
+    --astryx-card-padding: var(--spacing-6);
   }
 
   .astryx-section {
