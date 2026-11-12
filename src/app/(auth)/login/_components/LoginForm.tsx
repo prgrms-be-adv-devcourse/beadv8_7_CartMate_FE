@@ -80,6 +80,8 @@ export default function LoginForm() {
                         {...register('password')}
                     />
                     <button
+                        aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                        aria-pressed={showPassword}
                         className="absolute right-3 text-outline hover:text-on-surface flex items-center justify-center"
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}

@@ -223,6 +223,8 @@ export default function SignupForm() {
                         {...register('password')}
                     />
                     <button
+                        aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                        aria-pressed={showPassword}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
