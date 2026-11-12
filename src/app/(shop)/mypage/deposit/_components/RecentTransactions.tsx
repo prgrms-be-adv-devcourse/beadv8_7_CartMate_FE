@@ -30,7 +30,7 @@ export default function RecentTransactions() {
     const rows = query.data?.data?.content ?? [];
 
     return (
-        <Card padding={4}>
+        <Card>
             <div className="flex items-center justify-between pb-space-md mb-space-md">
                 <div className="flex items-center gap-space-sm">
                     <Heading level={2}>최근 거래 내역</Heading>

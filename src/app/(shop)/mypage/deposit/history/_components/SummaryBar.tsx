@@ -19,7 +19,7 @@ export default function SummaryBar() {
     const held = wallet.data?.data?.heldBalance;
 
     return (
-        <Card padding={4} className="mb-space-lg">
+        <Card className="mb-space-lg">
             <div className="mb-space-md flex flex-wrap items-center justify-between gap-space-sm">
                 <Heading level={2}>전체 기간 요약</Heading>
                 <Badge label="전체 기간" variant="neutral" />

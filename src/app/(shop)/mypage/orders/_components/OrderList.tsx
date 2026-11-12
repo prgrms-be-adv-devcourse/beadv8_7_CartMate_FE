@@ -88,7 +88,7 @@ export default function OrderList() {
     return (
         <>
             {/* 구분 탭 · 기간 · 검색 */}
-            <Card padding={3} className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+            <Card padding={4} className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <div className="flex items-center gap-space-xs border-b md:border-b-0 border-outline-variant pb-space-sm md:pb-0" role="group" aria-label="주문 구분">
                     {TABS.map((item) => (
                         <button

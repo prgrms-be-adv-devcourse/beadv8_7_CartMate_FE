@@ -37,9 +37,9 @@ export default function HomePage() {
                     </div>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-1">
                         {['상품 비교', '팀원별 참여', '진행 상태 확인'].map((label, index) => (
-                            <div key={label} className="rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
+                            <div key={label} className="flex flex-col gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-5 py-4">
                                 <Text type="supporting" color="secondary">0{index + 1}</Text>
-                                <Text weight="semibold" className="mt-1">{label}</Text>
+                                <Text weight="semibold">{label}</Text>
                             </div>
                         ))}
                     </div>

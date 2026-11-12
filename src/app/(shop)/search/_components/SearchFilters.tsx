@@ -25,8 +25,8 @@ export function SearchFilters() {
                 </Card>
             </div>
             <div className="hidden lg:block">
-            <Card padding={4}>
-            <div className="flex items-center justify-between pb-space-sm border-b border-outline-variant">
+            <Card padding={4} className="flex flex-col gap-space-md">
+            <div className="flex items-center justify-between pb-space-md border-b border-outline-variant">
                 <div className="flex items-center gap-1 font-label-md text-label-md text-on-surface">
                     <Icon name="tune" className="text-[18px]" />
                     필터 옵션

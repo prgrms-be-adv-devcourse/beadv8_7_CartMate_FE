@@ -140,7 +140,7 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
     return (
         <form className="flex flex-col gap-space-xl" onSubmit={handleSubmit} noValidate>
             {/* 1. 대상 상품 */}
-            <Card padding={4} aria-labelledby="claim-items-title">
+            <Card aria-labelledby="claim-items-title">
                 <div className="flex flex-wrap items-center justify-between gap-space-sm mb-space-md pb-space-sm border-b border-surface-container">
                     <Heading id="claim-items-title" level={2}>
                         1. 교환 / 환불 대상 상품 선택
@@ -254,7 +254,7 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
             </Card>
 
             {/* 2. 유형 · 사유 */}
-            <Card padding={4} aria-labelledby="claim-form-title">
+            <Card aria-labelledby="claim-form-title">
                 <Heading id="claim-form-title" level={2} className="mb-space-md pb-space-sm border-b border-surface-container">
                     2. 접수 유형 및 사유 선택
                 </Heading>

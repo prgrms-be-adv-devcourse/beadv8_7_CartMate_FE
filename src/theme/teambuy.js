@@ -425,7 +425,7 @@ export const teambuyTheme = {
     },
     "card": {
       "base": {
-        "padding": "var(--spacing-3)"
+        "padding": "var(--spacing-6)"
       }
     },
     "section": {

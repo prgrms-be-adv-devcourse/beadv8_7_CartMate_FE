@@ -74,7 +74,7 @@ export default function WithdrawalSection() {
     const blockers = info?.blockers ?? [];
 
     return (
-        <Card padding={4} className="relative overflow-hidden">
+        <Card className="relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-error" />
             <div className="pb-space-md border-b border-surface-container mb-space-md">
                 <Heading level={3}>회원 탈퇴</Heading>

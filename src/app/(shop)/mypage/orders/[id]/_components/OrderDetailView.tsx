@@ -55,7 +55,7 @@ function OrderDetail({ order, orderId }: { order: OrderDetailResponse; orderId: 
     return (
         <div className="flex flex-col gap-space-lg">
             {/* 주문 머리 + 진행 단계 */}
-            <Card padding={3} className="flex flex-col gap-space-md">
+            <Card padding={4} className="flex flex-col gap-space-md">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
                     <div className="flex flex-wrap items-center gap-space-sm">
                         <Heading level={1}>주문 {order.orderNumber}</Heading>

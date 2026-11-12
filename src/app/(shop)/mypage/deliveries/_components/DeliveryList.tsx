@@ -96,7 +96,7 @@ function DeliveryRow({ row }: { row: DeliveryResponse }) {
     const orderLabel = row.orderNumber ?? (shared ? `공동 주문 #${row.orderId}` : `주문 #${row.orderId}`);
 
     return (
-        <Card padding={3} className="flex flex-col gap-3" data-delivery-id={row.deliveryId}>
+        <Card padding={4} className="flex flex-col gap-3" data-delivery-id={row.deliveryId}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
                 <div className="flex flex-wrap items-center gap-space-sm min-w-0">
                     <Badge label={status.label} variant={TONE_VARIANT[status.tone]} />

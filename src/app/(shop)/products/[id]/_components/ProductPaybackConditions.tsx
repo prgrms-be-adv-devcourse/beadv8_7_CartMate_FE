@@ -38,7 +38,7 @@ export default function ProductPaybackConditions({ productId }: { productId: num
 
     return (
         <section aria-label="페이백 조건">
-            <Card padding={4} variant="muted">
+            <Card variant="muted">
             <Heading level={2}>페이백 조건</Heading>
             {query.isPending ? (
                 <Text color="secondary" className="mt-3" role="status">조건을 불러오는 중입니다.</Text>
