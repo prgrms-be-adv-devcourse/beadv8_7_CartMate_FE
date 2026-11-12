@@ -169,6 +169,7 @@ export default function AdminNoticeManager() {
                     </div>
 
                     <input
+                        aria-label="공지 제목"
                         className="h-11 px-space-md border border-outline-variant rounded font-body-md text-body-md outline-none focus:border-primary"
                         placeholder="제목"
                         maxLength={200}
@@ -176,6 +177,7 @@ export default function AdminNoticeManager() {
                         onChange={(e) => setForm({ ...form, title: e.target.value })}
                     />
                     <textarea
+                        aria-label="공지 내용"
                         className="min-h-60 p-space-md border border-outline-variant rounded font-body-md text-body-md outline-none focus:border-primary"
                         placeholder="내용 (줄바꿈이 그대로 보입니다)"
                         maxLength={20000}
@@ -196,6 +198,7 @@ export default function AdminNoticeManager() {
             {/* 검색 */}
             <form onSubmit={onSearch} className="flex justify-end gap-space-xs">
                 <input
+                    aria-label="공지 제목 검색"
                     className="h-9 min-w-0 flex-1 px-space-sm border border-outline-variant rounded bg-surface-container-lowest font-body-sm text-body-sm outline-none focus:border-primary sm:w-64 sm:flex-none"
                     placeholder="제목 검색"
                     value={keywordInput}

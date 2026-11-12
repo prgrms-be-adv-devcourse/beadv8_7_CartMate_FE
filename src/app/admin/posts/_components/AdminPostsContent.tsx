@@ -101,6 +101,7 @@ export default function AdminPostsContent() {
                 </div>
                 <form onSubmit={onSearch} className="flex gap-space-xs">
                     <input
+                        aria-label="판매글 제목 검색"
                         className="h-8 w-64 px-space-sm border border-outline-variant rounded bg-surface-container-lowest font-body-sm text-body-sm outline-none focus:border-primary"
                         placeholder="판매글 제목 검색"
                         value={keywordInput}

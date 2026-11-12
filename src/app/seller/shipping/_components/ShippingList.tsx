@@ -45,6 +45,7 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
     const queryClient = useQueryClient();
     const items = delivery.items ?? [];
     const address = [delivery.zipCode && `[${delivery.zipCode}]`, delivery.address, delivery.addressDetail].filter(Boolean).join(' ');
+    const orderLabel = delivery.orderNumber ?? `주문 ${delivery.orderId ?? '번호 없음'}`;
     // 이미 등록된 택배사가 고정 목록에 없어도 선택값으로 보이도록 목록에 더한다.
     const courierOptions = delivery.carrier && !COURIERS.includes(delivery.carrier) ? [...COURIERS, delivery.carrier] : COURIERS;
 
@@ -87,9 +88,6 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
 
     return (
         <tr className="hover:bg-surface-container-low transition-colors">
-            <td className="p-space-md text-center">
-                <input className="rounded border-outline-variant" type="checkbox" />
-            </td>
             <td className="p-space-md">
                 {/* 공유 공동구매 배송과 이전에 만든 배송은 주문번호가 없어 주문 ID 로 대신한다. */}
                 <div className="font-label-md text-primary">{delivery.orderNumber ?? `#${delivery.orderId ?? '-'}`}</div>
@@ -120,6 +118,7 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
                 <div className="flex flex-col gap-2">
                     <div className="flex gap-2">
                         <select
+                            aria-label={`${orderLabel} 택배사`}
                             className="w-28 bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm text-on-surface disabled:opacity-60"
                             value={carrier}
                             disabled={!editable || busy}
@@ -131,6 +130,7 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
                             ))}
                         </select>
                         <input
+                            aria-label={`${orderLabel} 송장번호`}
                             className="flex-1 bg-surface border border-outline-variant rounded px-2 py-1 text-body-sm text-on-surface disabled:opacity-60"
                             placeholder="송장번호 입력"
                             type="text"
@@ -207,9 +207,6 @@ export default function ShippingList() {
                         <Heading level={2}>주문 목록</Heading>
                         {result && <span className="text-caption bg-surface-container-high text-on-surface px-2 py-0.5 rounded-full">총 {totalElements}건</span>}
                     </div>
-                    <div className="text-body-sm text-on-surface-variant">
-                        선택된 항목 <span className="font-label-md text-on-surface">0건</span>
-                    </div>
                 </div>
                 {query.isPending ? (
                     <TableSkeleton />
@@ -233,9 +230,6 @@ export default function ShippingList() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-surface-container-low border-b border-surface-variant text-caption font-label-md text-on-surface-variant uppercase">
-                                    <th className="p-space-md w-10 text-center">
-                                        <input className="rounded border-outline-variant" type="checkbox" />
-                                    </th>
                                     <th className="p-space-md">주문번호 / 일시</th>
                                     <th className="p-space-md">상품명 / 옵션</th>
                                     <th className="p-space-md text-center">수량</th>
