@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Button, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import SidebarNav from '@/components/layout/SidebarNav';
 import { ROUTES } from '@/lib/routes';
@@ -14,23 +15,21 @@ const MENU = [
 
 export default function SellerSidebar() {
     return (
-        <aside className="fixed left-0 top-0 h-full w-64 bg-surface-container-low z-50 flex flex-col pt-space-xl pb-space-xl">
-            <Link href={ROUTES.seller} className="px-space-xl mb-space-xl text-headline-sm font-headline-sm text-primary">
-                판매자 센터
+        <aside className="fixed left-0 top-0 z-50 flex h-full w-64 flex-col border-r border-outline-variant/40 bg-surface px-space-md py-space-xl">
+            <Link href={ROUTES.seller} className="mb-space-xl px-space-md no-underline">
+                <Text type="supporting" color="accent">TEAMBUY</Text>
+                <Text weight="semibold" className="mt-1">판매자 센터</Text>
             </Link>
-            <nav className="flex-1 px-space-md space-y-space-xs">
+            <nav className="flex-1 space-y-space-xs" aria-label="판매자 메뉴">
                 <SidebarNav
                     items={MENU}
                     exactHref={ROUTES.seller}
-                    className="flex items-center px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"
-                    activeClassName="flex items-center px-space-md py-space-sm rounded-xl transition-all bg-primary-container text-on-primary-container font-label-md"
+                    className="flex items-center rounded-xl px-space-md py-space-sm text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+                    activeClassName="flex items-center rounded-xl bg-primary-container px-space-md py-space-sm font-label-md text-on-primary-container transition-colors"
                     iconClassName="mr-space-md"
                 />
             </nav>
-            <Link href={ROUTES.home} className="mx-space-md px-space-md py-space-sm flex items-center text-body-sm text-on-surface-variant hover:text-on-surface">
-                <Icon name="storefront" className="mr-space-md text-[18px]" />
-                쇼핑몰로 돌아가기
-            </Link>
+            <Button label="쇼핑몰로 돌아가기" href={ROUTES.home} variant="ghost" width="100%" icon={<Icon name="storefront" />} />
         </aside>
     );
 }
