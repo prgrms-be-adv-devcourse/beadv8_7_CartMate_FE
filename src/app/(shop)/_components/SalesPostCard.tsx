@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import ProductImage from '@/components/ui/ProductImage';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice, type SalesPostCardModel } from '@/lib/salesPost';
@@ -6,29 +9,31 @@ import { SellerTrustBadge, type SellerTrust } from './SellerTrust';
 
 export default function SalesPostCard({ post, trust }: { post: SalesPostCardModel; trust?: SellerTrust | null }) {
     return (
-        <article className="border border-outline-variant rounded bg-surface-container-lowest hover:border-primary transition-colors">
-            <Link href={ROUTES.product(post.id)} className="flex flex-col h-full p-space-sm">
-                <div className="relative w-full aspect-square bg-surface-container-high border border-outline-variant rounded-sm flex items-center justify-center overflow-hidden mb-space-sm">
+        <article className="h-full transition-transform duration-200 hover:-translate-y-1">
+            <Card padding={2} elevation="low" height="100%">
+            <Link href={ROUTES.product(post.id)} className="flex h-full flex-col rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                <div className="relative mb-3 flex aspect-square w-full items-center justify-center overflow-hidden rounded-md bg-surface-container-high">
                     <ProductImage src={post.imageUrl} alt={post.title} className="object-cover" />
                 </div>
-                <div className="flex flex-col gap-1 flex-1">
-                    {post.productName && <span className="font-caption text-caption text-outline line-clamp-1">{post.productName}</span>}
-                    <h3 className="font-headline-sm text-headline-sm text-on-surface line-clamp-2">{post.title}</h3>
+                <div className="flex flex-1 flex-col gap-1 px-1 pb-1">
+                    {post.productName && <Text type="supporting" color="secondary" maxLines={1}>{post.productName}</Text>}
+                    <Heading level={3} maxLines={2}>{post.title}</Heading>
                     {trust && (
                         <div className="pt-0.5">
                             <SellerTrustBadge trust={trust} />
                         </div>
                     )}
-                    <div className="mt-auto pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
-                        <span className="font-caption text-caption text-outline">
+                    <div className="mt-auto flex items-baseline justify-between border-t border-outline-variant pt-3">
+                        <Text type="supporting" color="secondary">
                             {post.productCount > 1 ? `상품 ${post.productCount}종` : '판매가'}
-                        </span>
-                        <span className="font-headline-sm text-headline-sm text-on-surface font-bold">
+                        </Text>
+                        <Text weight="bold" hasTabularNumbers>
                             {post.minPrice === null ? '가격 문의' : `${formatPrice(post.minPrice)}${post.productCount > 1 ? '~' : ''}`}
-                        </span>
+                        </Text>
                     </div>
                 </div>
             </Link>
+            </Card>
         </article>
     );
 }
@@ -36,8 +41,8 @@ export default function SalesPostCard({ post, trust }: { post: SalesPostCardMode
 // 목록을 불러오는 동안 카드 자리를 채운다.
 export function SalesPostCardSkeleton() {
     return (
-        <div className="border border-outline-variant rounded bg-surface-container-lowest p-space-sm flex flex-col gap-space-sm animate-pulse" aria-hidden>
-            <div className="w-full aspect-square bg-surface-container-high rounded-sm" />
+        <div className="flex flex-col gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-2 animate-pulse" aria-hidden>
+            <div className="w-full aspect-square bg-surface-container-high rounded-md" />
             <div className="h-3 w-1/2 bg-surface-container-high rounded" />
             <div className="h-4 w-full bg-surface-container-high rounded" />
             <div className="h-4 w-1/3 bg-surface-container-high rounded self-end" />

@@ -2,6 +2,9 @@
 
 import { useGetSellerTrust } from '@/api/generated/seller-trust-controller/seller-trust-controller';
 import type { SelectSalesPostResponse } from '@/api/generated/model';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Card } from '@astryxdesign/core/Card';
+import { Text } from '@astryxdesign/core/Text';
 import Icon from '@/components/ui/Icon';
 import { toSalesPostCard, type SalesPostCardModel } from '@/lib/salesPost';
 
@@ -31,29 +34,29 @@ export function toSalesPostCardWithTrust(post: SelectSalesPostResponse): { card:
     return card ? { card, trust: toSellerTrust(post.sellerTrustLevel, post.sellerTrustScore) } : null;
 }
 
-const STYLE: Record<SellerTrustLevel, { label: string; icon: string; className: string; description: string }> = {
+const STYLE: Record<SellerTrustLevel, { label: string; icon: string; variant: 'blue' | 'neutral' | 'warning' | 'info'; description: string }> = {
     HIGH: {
         label: '신뢰 높음',
         icon: 'verified',
-        className: 'bg-primary-container text-on-primary-container',
+        variant: 'blue',
         description: '판매자 귀책 클레임이 거의 없는 판매자입니다.',
     },
     NORMAL: {
         label: '신뢰 보통',
         icon: 'shield',
-        className: 'bg-secondary-container text-on-secondary-container',
+        variant: 'info',
         description: '판매자 귀책 클레임이 일부 있었던 판매자입니다.',
     },
     LOW: {
         label: '신뢰 낮음',
         icon: 'warning',
-        className: 'bg-error-container text-on-error-container',
+        variant: 'warning',
         description: '판매자 귀책 클레임(상품 불량 · 오배송) 비율이 높은 판매자입니다.',
     },
     NEW: {
         label: '신규 판매자',
         icon: 'fiber_new',
-        className: 'bg-surface-container-high text-on-surface-variant',
+        variant: 'neutral',
         description: '구매확정 거래가 5건 미만이라 아직 신뢰도를 매기지 않았습니다.',
     },
 };
@@ -62,13 +65,8 @@ const STYLE: Record<SellerTrustLevel, { label: string; icon: string; className: 
 export function SellerTrustBadge({ trust }: { trust: SellerTrust }) {
     const style = STYLE[trust.level];
     return (
-        <span
-            className={`inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded-sm font-caption text-caption font-semibold ${style.className}`}
-            title={style.description}
-        >
-            <Icon name={style.icon} className="text-[14px]" />
-            {style.label}
-            {trust.score !== null && <span className="font-normal">· {trust.score}점</span>}
+        <span title={style.description}>
+            <Badge variant={style.variant} icon={<Icon name={style.icon} />} label={`${style.label}${trust.score !== null ? ` · ${trust.score}점` : ''}`} />
         </span>
     );
 }
@@ -86,9 +84,10 @@ export function SellerTrustPanel({ sellerId, fallback }: { sellerId: number | un
 
     const style = STYLE[trust.level];
     return (
-        <section className="border border-outline-variant bg-surface-container-low p-space-md flex flex-col gap-space-xs" aria-label="판매자 신뢰도">
-            <div className="flex items-center justify-between gap-space-sm">
-                <span className="font-label-md text-label-md text-on-surface font-bold">판매자 신뢰도</span>
+        <section aria-label="판매자 신뢰도">
+            <Card padding={4}>
+            <div className="flex items-center justify-between gap-3">
+                <Text weight="semibold">판매자 신뢰도</Text>
                 <SellerTrustBadge trust={trust} />
             </div>
             {trust.score !== null && (
@@ -103,7 +102,8 @@ export function SellerTrustPanel({ sellerId, fallback }: { sellerId: number | un
                     <div className="h-full bg-primary" style={{ width: `${trust.score}%` }} />
                 </div>
             )}
-            <p className="font-caption text-caption text-secondary">{style.description}</p>
+            <Text type="supporting" color="secondary" className="mt-2">{style.description}</Text>
+            </Card>
         </section>
     );
 }

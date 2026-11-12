@@ -2,6 +2,10 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Button } from '@astryxdesign/core/Button';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import { useSelectSalesPostAll } from '@/api/generated/sales-post-controller/sales-post-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -46,12 +50,12 @@ export default function SearchResults() {
     const totalPages = result?.totalPages ?? 0;
 
     return (
-        <div className="flex flex-col w-full gap-space-lg">
-            <div className="flex flex-wrap items-baseline gap-space-sm pb-space-md border-b border-outline-variant">
-                <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+        <div className="flex w-full flex-col gap-7">
+            <div className="flex flex-wrap items-baseline gap-2 border-b border-outline-variant pb-5">
+                <Heading level={1}>
                     {keyword ? <>&quot;{keyword}&quot; 검색 결과</> : '전체 상품'}
-                </h1>
-                {result && <span className="font-label-md text-label-md text-on-surface-variant">(총 {result.totalElements ?? 0}개 상품)</span>}
+                </Heading>
+                {result && <Text type="supporting" color="secondary">총 {result.totalElements ?? 0}개 상품</Text>}
             </div>
 
             <div className="flex flex-col lg:flex-row gap-gutter w-full items-start">
@@ -65,26 +69,14 @@ export default function SearchResults() {
                             ))}
                         </div>
                     ) : query.isError ? (
-                        <div className="w-full bg-surface-container-low border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-sm text-center" role="alert">
-                            <p className="font-body-md text-body-md text-on-surface">{errorMessage(query.error, '검색 결과를 불러오지 못했습니다.')}</p>
-                            <button
-                                className="h-10 px-space-lg bg-surface-container-lowest border border-outline-variant font-label-md text-label-md text-on-surface rounded hover:bg-surface-container"
-                                type="button"
-                                onClick={() => query.refetch()}
-                            >
-                                다시 시도
-                            </button>
+                        <div className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-8 text-center" role="alert">
+                            <Text>{errorMessage(query.error, '검색 결과를 불러오지 못했습니다.')}</Text>
+                            <div className="mt-4"><Button label="다시 시도" onClick={() => query.refetch()} /></div>
                         </div>
                     ) : cards.length === 0 && (result?.totalElements ?? 0) > 0 ? (
                         // 상품은 있는데 마지막 페이지를 넘어선 경우 (예: ?page=999)
-                        <div className="w-full bg-surface-container-low border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-md text-center">
-                            <p className="font-body-md text-body-md text-on-surface">이 페이지에는 상품이 없습니다.</p>
-                            <Link
-                                className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded hover:opacity-90 flex items-center"
-                                href={searchHref(keyword, 1)}
-                            >
-                                첫 페이지로
-                            </Link>
+                        <div className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-8 text-center">
+                            <EmptyState title="이 페이지에는 상품이 없습니다" description="첫 페이지에서 검색 결과를 다시 확인해 주세요." actions={<Button label="첫 페이지로" href={searchHref(keyword, 1)} as={Link} variant="primary" />} />
                         </div>
                     ) : cards.length === 0 ? (
                         <EmptyResult keyword={keyword} />
@@ -143,16 +135,15 @@ function Pagination({ keyword, page, totalPages }: { keyword: string; page: numb
 
 function EmptyResult({ keyword }: { keyword: string }) {
     return (
-        <div className="w-full bg-surface-container-low border border-outline-variant rounded p-space-xl flex flex-col items-center justify-center text-center">
-            <div className="w-14 h-14 bg-surface-container-highest border border-outline-variant rounded flex items-center justify-center mb-space-md text-outline">
-                <Icon name="search_off" className="text-[32px]" />
-            </div>
-            <h2 className="font-headline-md text-headline-md text-on-surface mb-space-xs">
-                {keyword ? <>&quot;{keyword}&quot;에 대한 검색 결과가 없습니다.</> : '아직 등록된 판매 상품이 없습니다.'}
-            </h2>
+        <div className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-8 text-center">
+            <EmptyState
+                title={keyword ? `“${keyword}”에 대한 검색 결과가 없습니다` : '아직 등록된 판매 상품이 없습니다'}
+                description={keyword ? '철자를 확인하거나 더 짧고 일반적인 검색어를 입력해 보세요.' : '새 상품이 등록되면 이곳에서 확인할 수 있어요.'}
+                icon={<Icon name="search_off" className="text-[32px]" />}
+                actions={keyword ? <Button label="전체 상품 보기" href={ROUTES.search} as={Link} variant="primary" /> : undefined}
+            />
             {keyword && (
-                <>
-                    <div className="bg-surface-container-lowest border border-outline-variant p-space-md rounded text-left max-w-[440px] w-full my-space-lg flex flex-col gap-1.5 font-body-sm text-body-sm text-outline">
+                    <div className="mx-auto mt-6 flex w-full max-w-[440px] flex-col gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-4 text-left font-body-sm text-body-sm text-outline">
                         <div className="font-label-sm text-label-sm text-on-surface flex items-center gap-1 mb-1">
                             <Icon name="lightbulb" className="text-[16px]" />
                             검색 팁
@@ -164,14 +155,6 @@ function EmptyResult({ keyword }: { keyword: string }) {
                             </div>
                         ))}
                     </div>
-                    <Link
-                        className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded hover:opacity-90 flex items-center gap-1"
-                        href={ROUTES.search}
-                    >
-                        전체 상품 보기
-                        <Icon name="arrow_forward" className="text-[16px]" />
-                    </Link>
-                </>
             )}
         </div>
     );

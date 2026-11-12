@@ -3,6 +3,11 @@
 import type { PaybackConditionResponse } from '@/api/generated/model';
 import { useGetProductPaybackConditions } from '@/api/generated/payback-condition-controller/payback-condition-controller';
 import { errorMessage } from '@/api/http';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 
 const funderLabels = { ADMIN: '플랫폼 부담', SELLER: '판매자 부담' } as const;
 
@@ -32,46 +37,46 @@ export default function ProductPaybackConditions({ productId }: { productId: num
     const policy = ordered.find((condition) => condition.funder === 'ADMIN')?.overlapPolicy ?? 'BOTH';
 
     return (
-        <section className="border border-outline-variant bg-surface-container-low p-space-md flex flex-col gap-space-sm" aria-label="페이백 조건">
-            <h2 className="font-label-md text-label-md text-on-surface font-bold">페이백 조건</h2>
+        <section aria-label="페이백 조건">
+            <Card padding={4} variant="muted">
+            <Heading level={2}>페이백 조건</Heading>
             {query.isPending ? (
-                <p className="font-body-sm text-body-sm text-secondary" role="status">조건을 불러오는 중입니다.</p>
+                <Text color="secondary" className="mt-3" role="status">조건을 불러오는 중입니다.</Text>
             ) : query.isError || invalid ? (
-                <div className="flex flex-col items-start gap-space-xs" role="alert">
+                <div className="mt-3 flex flex-col items-start gap-3" role="alert">
                     <p className="font-body-sm text-body-sm text-error">
                         {invalid ? '페이백 조건을 표시할 수 없습니다.' : errorMessage(query.error, '페이백 조건을 불러오지 못했습니다.')}
                     </p>
-                    <button type="button" className="h-9 px-space-sm border border-outline-variant bg-surface-container-lowest font-label-sm text-label-sm hover:bg-surface-container" onClick={() => query.refetch()}>
-                        다시 시도
-                    </button>
+                    <Button label="다시 시도" size="sm" onClick={() => query.refetch()} />
                 </div>
             ) : ordered.length === 0 ? (
-                <p className="font-body-sm text-body-sm text-secondary">현재 설정된 페이백 조건이 없습니다.</p>
+                <Text color="secondary" className="mt-3">현재 설정된 페이백 조건이 없습니다.</Text>
             ) : (
                 <>
-                    <ul className="flex flex-col gap-space-xs">
+                    <ul className="mt-3 flex flex-col gap-2">
                         {ordered.map((condition) => (
-                            <li key={condition.funder} className="border border-outline-variant bg-surface-container-lowest p-space-sm">
-                                <span className="font-label-sm text-label-sm text-on-surface font-bold">{funderLabels[condition.funder!]}</span>
-                                <p className="font-body-sm text-body-sm text-on-surface mt-1">
+                            <li key={condition.funder} className="rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
+                                <Badge label={funderLabels[condition.funder!]} variant={condition.funder === 'ADMIN' ? 'blue' : 'teal'} />
+                                <Text className="mt-2">
                                     공동구매 내 해당 상품 구매확정 수량이 {condition.minQuantity!.toLocaleString('ko-KR')}개 이상이면,
                                     내 구매확정 수량 1개당 {condition.amountPerUnit!.toLocaleString('ko-KR')}원
-                                </p>
+                                </Text>
                             </li>
                         ))}
                     </ul>
                     {hasBoth && (
-                        <p className="font-body-sm text-body-sm text-secondary">
+                        <Text color="secondary" className="mt-3">
                             중복 조건: {policy in policyDescriptions
                                 ? policyDescriptions[policy]
                                 : '적용 방식은 현재 확인할 수 없습니다.'}
-                        </p>
+                        </Text>
                     )}
                 </>
             )}
-            <p className="font-caption text-caption text-secondary border-t border-outline-variant pt-space-xs">
+            <p className="mt-4 border-t border-outline-variant pt-3 font-caption text-caption text-secondary">
                 공동구매에 적용되는 조건은 상품이 처음 포함될 때 정해지며, 이후 변경한 조건과 다를 수 있습니다.
             </p>
+            </Card>
         </section>
     );
 }
