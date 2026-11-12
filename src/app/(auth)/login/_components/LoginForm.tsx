@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useLoginWithMfa, useResendLoginMfa, useVerifyLoginMfa, type MfaChallenge } from '@/api/loginMfa';
+import { useLoginWithMfa, useResendLoginMfa, useVerifyLoginMfa, type LoginResponse, type MfaChallenge } from '@/api/loginMfa';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { SKIP_AUTH_EXPIRED, reloadTo } from '@/lib/auth';
@@ -43,7 +43,7 @@ export default function LoginForm() {
                     setChallenge(res.data.mfa);
                     return;
                 }
-            reloadTo(nextPath());
+            afterLogin(res.data);
             },
         
         });
@@ -129,6 +129,24 @@ export default function LoginForm() {
         </form>
     );
 }
+
+// 로그인 완료 후 이동: OTP 미등록 관리자는 OTP 등록 화면, 백업 코드로 들어왔으면 남은 개수 안내
+function afterLogin(data: LoginResponse | null | undefined) {
+    if (data?.otpEnrollmentRequired) {
+        reloadTo(ROUTES.otpSetup);
+        return;
+    }
+    if (data?.remainingBackupCodes != null) {
+        window.alert(
+            `백업 코드로 로그인했습니다. 남은 백업 코드 ${data.remainingBackupCodes}개.\n` +
+                '휴대폰을 잃어버렸다면 운영 책임자에게 OTP 재등록을 요청해 주세요.',
+        );
+    }
+    reloadTo(nextPath());
+}
+
+const OTP_INPUT = /^(\d{6}|[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}-?[A-Za-z0-9]{4})$/;
+
 // 로그인 2차 인증: 메일로 받은 6자리 + "이 기기 30일 기억"
 function MfaStep({ challenge, onBack }: { challenge: MfaChallenge; onBack: () => void }) {
     const [code, setCode] = useState('');
@@ -137,13 +155,16 @@ function MfaStep({ challenge, onBack }: { challenge: MfaChallenge; onBack: () =>
     const verify = useVerifyLoginMfa(SKIP_AUTH_EXPIRED);
     const resend = useResendLoginMfa();
 
+    const isOtp = challenge.method === 'OTP';
+    const valid = isOtp ? OTP_INPUT.test(code.trim()) : /^\d{6}$/.test(code.trim());
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!/^\d{6}$/.test(code.trim())) return;
+        if (!valid) return;
         setNotice(null);
         verify.mutate(
-            { challengeId: challenge.challengeId, code: code.trim(), trustDevice },
-            { onSuccess: () => reloadTo(nextPath()) },
+            { challengeId: challenge.challengeId, code: code.trim(), trustDevice: isOtp ? false : trustDevice },
+            { onSuccess: (res) => afterLogin(res.data) },
         );
     };
 
@@ -164,29 +185,36 @@ function MfaStep({ challenge, onBack }: { challenge: MfaChallenge; onBack: () =>
     return (
         <form className="flex flex-col gap-4.5" onSubmit={submit} noValidate>
             <div className="flex flex-col gap-1">
-               <p className="font-body-md text-body-md text-on-surface font-semibold">이메일 인증</p>
+               <p className="font-body-md text-body-md text-on-surface font-semibold">{isOtp ? 'OTP 인증' : '이메일 인증'}</p>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
-                    {challenge.maskedEmail}(으)로 보낸 인증번호 6자리를 입력해 주세요.
+                    {isOtp
+                        ? 'OTP 앱의 6자리 코드를 입력해 주세요. 휴대폰을 잃어버렸다면 백업 코드를 입력하세요.'
+                        : `${challenge.maskedEmail}(으)로 보낸 인증번호 6자리를 입력해 주세요.`}
                 </p>
             </div>
             <div className="flex flex-col gap-1.5">
                 <input
                     className={INPUT_CLASS}
                     id="mfa-code"
-                    inputMode="numeric"
+                    inputMode={isOtp ? 'text' : 'numeric'}
                     autoComplete="one-time-code"
-                    maxLength={6}
-                    placeholder="인증번호 6자리"
+                    maxLength={isOtp ? 14 : 6}
+                    placeholder={isOtp ? 'OTP 6자리 또는 백업 코드' : '인증번호 6자리'}
                     aria-label="로그인 인증번호"
                     value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) =>
+                        setCode(isOtp ? e.target.value.replace(/[^A-Za-z0-9-]/g, '') : e.target.value.replace(/\D/g, ''))
+                    }
                     autoFocus
                 />
                 <p className="font-caption text-caption text-outline">
-                    {Math.round(challenge.expiresInSeconds / 60)}분 안에 입력해 주세요. 메일이 오지 않으면 스팸함을 확인하거나 1분 뒤 재발송해 주세요.
+                    {isOtp
+                        ? `${Math.round(challenge.expiresInSeconds / 60)}분 안에 입력해 주세요. 앱의 코드는 30초마다 바뀝니다.`
+                        : `${Math.round(challenge.expiresInSeconds / 60)}분 안에 입력해 주세요. 메일이 오지 않으면 스팸함을 확인하거나 1분 뒤 재발송해 주세요.`}
                 </p>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer select-none">
+            {!isOtp && (
+                <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                     className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-0 cursor-pointer accent-on-surface"
                     type="checkbox"
@@ -194,8 +222,11 @@ function MfaStep({ challenge, onBack }: { challenge: MfaChallenge; onBack: () =>
                     onChange={(e) => setTrustDevice(e.target.checked)}
                 />
                 <span className="font-body-sm text-body-sm text-on-surface-variant">이 기기 30일 동안 기억하기</span>
-            </label>
-            <p className="font-caption text-caption text-outline -mt-3">PC방 등 여러 사람이 쓰는 기기에서는 체크하지 마세요.</p>
+                </label>
+                )}
+            {!isOtp && (
+                <p className="font-caption text-caption text-outline -mt-3">PC방 등 여러 사람이 쓰는 기기에서는 체크하지 마세요.</p>
+            )}
             {notice && <p className="font-caption text-caption text-on-surface">{notice}</p>}
             {error && (
                 <p className="font-caption text-caption text-error" role="alert">
@@ -214,21 +245,25 @@ function MfaStep({ challenge, onBack }: { challenge: MfaChallenge; onBack: () =>
                 <button
                     className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60"
                     type="submit"
-                    disabled={verify.isPending || code.trim().length !== 6}
+                    disabled={verify.isPending || !valid}
                 >
                     <span>{verify.isPending ? '확인 중...' : '인증하고 로그인'}</span>
                     <Icon name="arrow_forward" className="text-[16px]" />
                 </button>
             )}
             <div className="flex items-center justify-between">
-                <button
-                    className="font-label-sm text-label-sm text-outline hover:text-on-surface hover:underline"
-                    type="button"
-                    onClick={handleResend}
-                    disabled={resend.isPending}
-                >
-                    {resend.isPending ? '보내는 중...' : '인증번호 재발송'}
-                </button>
+                {isOtp ? (
+                    <span />
+                ) : (
+                    <button
+                        className="font-label-sm text-label-sm text-outline hover:text-on-surface hover:underline"
+                        type="button"
+                        onClick={handleResend}
+                        disabled={resend.isPending}
+                    >
+                        {resend.isPending ? '보내는 중...' : '인증번호 재발송'}
+                    </button>
+                )}
                 <button className="font-label-sm text-label-sm text-outline hover:text-on-surface hover:underline" type="button" onClick={onBack}>
                     다른 계정으로 로그인
                 </button>

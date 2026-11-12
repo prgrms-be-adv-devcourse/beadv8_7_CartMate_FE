@@ -16,6 +16,9 @@ const RULES: readonly Rule[] = [
     { prefix: ROUTES.checkout },
     { prefix: ROUTES.groupPurchases },
     { prefix: ROUTES.inquiries },
+    { prefix: ROUTES.admin, roles: ['ADMIN'], deniedTo: ROUTES.home },
+    { prefix: ROUTES.otpSetup, roles: ['ADMIN'], deniedTo: ROUTES.home }, // 관리자 OTP 등록 (등록 전 세션도 역할은 ADMIN)
+    { prefix: ROUTES.seller, roles: ['SELLER', 'ADMIN'], deniedTo: ROUTES.sellerApply },
 ];
 
 function matches(pathname: string, prefix: string): boolean {
