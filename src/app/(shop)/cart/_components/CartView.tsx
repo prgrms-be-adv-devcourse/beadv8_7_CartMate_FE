@@ -4,6 +4,12 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import {
     clear,
     getGetCartQueryKey,
@@ -18,9 +24,6 @@ import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
 
 const MAX_QUANTITY = 999;
-
-const GRAY_BUTTON =
-    'h-9 px-space-md bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-highest transition-colors disabled:cursor-not-allowed disabled:opacity-50';
 
 type CartItem = CartItemResponse & { cartItemId: number };
 
@@ -90,30 +93,30 @@ export default function CartView() {
     // 목록을 한 번도 받지 못했을 때만 전체 에러 화면. 이미 목록이 있으면 갱신 실패는 위쪽 안내로만 알린다.
     if (cart.isError && !cart.data) {
         return (
-            <div className="bg-surface-container-low p-space-xl flex flex-col items-center gap-space-sm text-center" role="alert">
-                <p className="font-body-md text-body-md text-on-surface">{errorMessage(cart.error, '장바구니를 불러오지 못했습니다.')}</p>
-                <button className={GRAY_BUTTON} type="button" onClick={() => cart.refetch()}>
-                    다시 시도
-                </button>
-            </div>
+            <Card variant="muted" role="alert">
+                <EmptyState
+                    title={errorMessage(cart.error, '장바구니를 불러오지 못했습니다.')}
+                    description="잠시 후 다시 시도해 주세요."
+                    actions={<Button label="다시 시도" variant="secondary" onClick={() => cart.refetch()} />}
+                />
+            </Card>
         );
     }
     if (items.length === 0) {
         return (
-            <div className="bg-surface-container-low p-space-xl flex flex-col items-center gap-space-md text-center">
-                <Icon name="shopping_bag" className="text-outline text-[40px]" />
-                <p className="font-headline-sm text-headline-sm text-on-surface">장바구니가 비어 있습니다.</p>
-                <Link className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md flex items-center" href={ROUTES.search}>
-                    상품 보러 가기
-                </Link>
-            </div>
+            <EmptyState
+                title="장바구니가 비어 있습니다."
+                description="함께 구매할 상품을 찾아 장바구니에 담아 보세요."
+                icon={<Icon name="shopping_bag" className="text-[40px]" />}
+                actions={<Button label="상품 보러 가기" href={ROUTES.search} as={Link} variant="primary" />}
+            />
         );
     }
 
     return (
         <div className="flex flex-col lg:flex-row gap-gutter items-start">
             <div className="flex-1 w-full flex flex-col gap-space-lg">
-                <div className="flex flex-wrap items-center justify-between gap-space-sm p-space-md bg-surface-container-lowest">
+                <Card padding={3} className="flex flex-wrap items-center justify-between gap-3">
                     <label className="flex items-center gap-space-sm cursor-pointer select-none">
                         <input
                             checked={allSelected}
@@ -122,56 +125,54 @@ export default function CartView() {
                             type="checkbox"
                             disabled={purchasable.length === 0}
                         />
-                        <span className="font-label-md text-label-md text-on-surface">
+                        <Text weight="semibold">
                             전체 선택 ({selectedItems.length}/{purchasable.length}건)
-                        </span>
+                        </Text>
                     </label>
-                    <div className="flex items-center gap-space-sm">
-                        <button
-                            className={GRAY_BUTTON}
-                            type="button"
-                            disabled={busy || selectedItems.length === 0}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                            label="선택 삭제"
+                            size="sm"
+                            variant="secondary"
+                            isDisabled={busy || selectedItems.length === 0}
                             onClick={() => removeItems.mutate(selectedItems.map((item) => item.cartItemId))}
-                        >
-                            선택 삭제
-                        </button>
-                        <button
-                            className={GRAY_BUTTON}
-                            type="button"
-                            disabled={busy || unavailable.length === 0}
+                        />
+                        <Button
+                            label="구매 불가 일괄 삭제"
+                            size="sm"
+                            variant="secondary"
+                            isDisabled={busy || unavailable.length === 0}
                             onClick={() => removeItems.mutate(unavailable.map((item) => item.cartItemId))}
-                        >
-                            구매 불가 일괄 삭제
-                        </button>
-                        <button className={GRAY_BUTTON} type="button" disabled={busy} onClick={handleClear}>
-                            전체 비우기
-                        </button>
+                        />
+                        <Button label="전체 비우기" size="sm" variant="ghost" isDisabled={busy} onClick={handleClear} />
                     </div>
-                </div>
+                </Card>
                 {(actionError || cart.isError) && (
-                    <p className="font-body-sm text-body-sm text-error px-space-md" role="alert">
+                    <Text as="p" className="px-4 text-error" role="alert">
                         {actionError ?? '장바구니를 새로 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.'}
-                    </p>
+                    </Text>
                 )}
 
-                <section className="flex flex-col bg-surface-container-lowest divide-y divide-surface-container">
-                    {items.map((item) => (
-                        <CartRow
-                            key={item.cartItemId}
-                            item={item}
-                            checked={!unchecked.has(item.cartItemId)}
-                            disabled={busy}
-                            onToggle={() => toggleItem(item.cartItemId)}
-                            onRemove={() => removeItems.mutate([item.cartItemId])}
-                            onQuantity={(quantity) => changeQuantity.mutate({ cartItemId: item.cartItemId, data: { quantity } })}
-                        />
-                    ))}
-                </section>
+                <Card padding={0}>
+                    <section className="flex flex-col divide-y divide-outline-variant">
+                        {items.map((item) => (
+                            <CartRow
+                                key={item.cartItemId}
+                                item={item}
+                                checked={!unchecked.has(item.cartItemId)}
+                                disabled={busy}
+                                onToggle={() => toggleItem(item.cartItemId)}
+                                onRemove={() => removeItems.mutate([item.cartItemId])}
+                                onQuantity={(quantity) => changeQuantity.mutate({ cartItemId: item.cartItemId, data: { quantity } })}
+                            />
+                        ))}
+                    </section>
+                </Card>
             </div>
 
             <aside className="w-full lg:w-[360px] flex-shrink-0 lg:sticky lg:top-36 flex flex-col gap-space-md">
-                <div className="bg-surface-container-lowest p-space-lg flex flex-col">
-                    <h2 className="pb-space-md font-headline-md text-headline-md font-bold text-on-surface">결제 금액 요약</h2>
+                <Card className="flex flex-col">
+                    <Heading level={2}>결제 금액 요약</Heading>
                     <div className="py-space-md flex flex-col gap-space-sm">
                         <div className="flex items-center justify-between font-body-md text-body-md text-on-surface-variant">
                             <span>선택 상품 금액</span>
@@ -194,30 +195,30 @@ export default function CartView() {
                         <span className="font-display-xl text-display-xl font-bold text-primary tracking-tight">{formatPrice(itemsTotal)}</span>
                     </div>
                     {selectedItems.length > 0 && !busy ? (
-                        <Link
-                            className="w-full h-12 bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs hover:bg-inverse-surface transition-colors"
+                        <Button
+                            label={`주문하기 (${selectedItems.length}건)`}
+                            className="w-full"
                             href={`${ROUTES.checkout}?items=${selectedItems.map((item) => item.cartItemId).join(',')}`}
-                        >
-                            <span>주문하기 ({selectedItems.length}건)</span>
-                            <Icon name="arrow_forward" className="text-[18px]" />
-                        </Link>
+                            as={Link}
+                            variant="primary"
+                            size="lg"
+                            endContent={<Icon name="arrow_forward" className="text-[18px]" />}
+                        />
                     ) : (
-                        <button
-                            className="w-full h-12 bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs disabled:cursor-not-allowed disabled:opacity-50"
-                            type="button"
-                            disabled
-                        >
-                            <span>주문하기 ({selectedItems.length}건)</span>
-                            <Icon name="arrow_forward" className="text-[18px]" />
-                        </button>
+                        <Button
+                            label={`주문하기 (${selectedItems.length}건)`}
+                            className="w-full"
+                            variant="primary"
+                            size="lg"
+                            isDisabled
+                            endContent={<Icon name="arrow_forward" className="text-[18px]" />}
+                        />
                     )}
-                </div>
-                <div className="bg-surface-container p-space-md flex items-start gap-space-sm">
+                </Card>
+                <Card variant="muted" padding={3} className="flex items-start gap-2">
                     <Icon name="info" className="text-outline text-[20px] flex-shrink-0 mt-0.5" />
-                    <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-                        <span className="font-bold text-on-surface">공동구매 상품은 팀 전용 공유 장바구니에서 별도 관리됩니다.</span>
-                    </p>
-                </div>
+                    <Text as="p" type="supporting" color="secondary">공동구매 상품은 팀 전용 공유 장바구니에서 별도 관리됩니다.</Text>
+                </Card>
             </aside>
         </div>
     );
@@ -252,15 +253,11 @@ function CartRow({ item, checked, disabled, onToggle, onRemove, onQuantity }: Ro
                 <ProductThumb key={item.imageUrl} src={item.imageUrl} alt={name} />
                 <div className="flex flex-col flex-1 min-w-0">
                     {!canBuy && (
-                        <span className="self-start mb-1 font-caption text-caption px-2 py-0.5 bg-inverse-surface text-inverse-on-surface font-bold">
-                            현재 구매할 수 없는 상품입니다
-                        </span>
+                        <Badge label="현재 구매할 수 없는 상품입니다" variant="neutral" className="self-start mb-1" />
                     )}
-                    <h3 className={`font-headline-sm text-headline-sm truncate ${canBuy ? 'text-on-surface' : 'text-outline line-through'}`}>
-                        {item.productName}
-                    </h3>
-                    {item.optionName && <div className="font-body-sm text-body-sm text-on-surface-variant mt-1">옵션: {item.optionName}</div>}
-                    {item.price !== undefined && <div className="font-caption text-caption text-outline mt-0.5">단가: {formatPrice(item.price)}</div>}
+                    <Heading level={3} color={canBuy ? 'primary' : 'secondary'} hasStrikethrough={!canBuy} maxLines={1}>{item.productName}</Heading>
+                    {item.optionName && <Text type="supporting" color="secondary" className="mt-1">옵션: {item.optionName}</Text>}
+                    {item.price !== undefined && <Text type="supporting" color="secondary" className="mt-0.5">단가: {formatPrice(item.price)}</Text>}
                 </div>
             </div>
             <div className="flex md:flex-col items-end justify-between w-full md:w-auto md:min-w-[140px] pt-space-sm md:pt-0 gap-space-sm">

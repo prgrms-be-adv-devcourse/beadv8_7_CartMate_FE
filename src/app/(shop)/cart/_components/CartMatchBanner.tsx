@@ -1,6 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import { useGetCart } from '@/api/generated/cart-controller/cart-controller';
 import { useGetMyMatches, getGetMyMatchesQueryKey } from '@/api/generated/cart-match-controller/cart-match-controller';
 import type { CartMatchResponse } from '@/api/generated/model';
@@ -26,10 +31,12 @@ export default function CartMatchBanner() {
 
     if (matches.isError) {
         return (
-            <div className="mb-space-lg border border-outline-variant bg-surface-container-lowest rounded p-space-md flex flex-wrap items-center justify-between gap-space-sm" role="alert">
-                <p className="font-body-sm text-body-sm text-on-surface-variant">{errorMessage(matches.error, '장바구니 매칭을 불러오지 못했습니다.')}</p>
-                <button className="font-label-sm text-label-sm text-primary underline" type="button" onClick={() => void matches.refetch()}>다시 시도</button>
-            </div>
+            <Card className="mb-6" variant="muted" role="alert">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <Text color="secondary">{errorMessage(matches.error, '장바구니 매칭을 불러오지 못했습니다.')}</Text>
+                    <Button label="다시 시도" size="sm" variant="ghost" onClick={() => void matches.refetch()} />
+                </div>
+            </Card>
         );
     }
 
@@ -40,32 +47,35 @@ export default function CartMatchBanner() {
     if (results.length === 0) return null;
 
     return (
-        <section className="mb-space-lg border border-primary bg-surface-container-lowest rounded p-space-lg flex flex-col gap-space-md" aria-labelledby="cart-matches-title">
-            <div>
-                <h2 id="cart-matches-title" className="font-headline-sm text-headline-sm text-on-surface font-bold">내 장바구니와 맞는 공동구매</h2>
-                <p className="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">상품을 확인하고 초대 페이지에서 참여할 수 있습니다.</p>
-            </div>
-            <ul className="flex flex-col gap-space-sm">
-                {results.map((match) => (
-                    <li key={`${match.individualGroupPurchaseId}-${match.productId}`} className="border border-outline-variant rounded p-space-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-space-md">
-                        <div className="flex flex-col gap-space-xs">
-                            <div className="flex items-center gap-space-xs">
-                                <span className="font-caption text-caption text-primary font-bold">{match.matchType === 'EXACT' ? '같은 상품' : '비슷한 상품'}</span>
-                                <span className="font-label-md text-label-md text-on-surface">{match.title}</span>
+        <Card className="mb-6" variant="blue">
+            <section className="flex flex-col gap-4" aria-labelledby="cart-matches-title">
+                <div>
+                    <Heading id="cart-matches-title" level={2}>내 장바구니와 맞는 공동구매</Heading>
+                    <Text as="p" type="supporting" color="secondary" className="mt-1">상품을 확인하고 초대 페이지에서 참여할 수 있습니다.</Text>
+                </div>
+                <ul className="flex flex-col gap-space-sm">
+                    {results.map((match) => (
+                        <li key={`${match.individualGroupPurchaseId}-${match.productId}`} className="rounded-lg border border-outline-variant bg-surface-container-lowest p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex flex-col gap-space-xs">
+                                <div className="flex items-center gap-space-xs">
+                                    <Badge label={match.matchType === 'EXACT' ? '같은 상품' : '비슷한 상품'} variant="blue" />
+                                    <Text weight="semibold">{match.title}</Text>
+                                </div>
+                                <Text as="p" type="supporting" color="secondary">
+                                    {match.productName ?? `상품 #${match.productId}`} · 마감 {formatDateTime(match.deadlineAt)}
+                                </Text>
                             </div>
-                            <p className="font-body-sm text-body-sm text-on-surface-variant">
-                                {match.productName ?? `상품 #${match.productId}`} · 마감 {formatDateTime(match.deadlineAt)}
-                            </p>
-                        </div>
-                        <Link
-                            className="shrink-0 h-10 px-space-lg bg-primary text-on-primary rounded font-label-md text-label-md inline-flex items-center justify-center"
-                            href={ROUTES.groupPurchaseIndividualInvite(match.inviteCode)}
-                        >
-                            참여 내용 보기
-                        </Link>
-                    </li>
-                ))}
-            </ul>
-        </section>
+                            <Button
+                                label="참여 내용 보기"
+                                className="shrink-0"
+                                href={ROUTES.groupPurchaseIndividualInvite(match.inviteCode)}
+                                as={Link}
+                                variant="primary"
+                            />
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        </Card>
     );
 }
