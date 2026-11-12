@@ -71,7 +71,7 @@ export default function InquiryComposer() {
                                     <select
                                         id="inquiry-type"
                                         defaultValue=""
-                                        className="w-full h-[42px] px-space-md bg-surface-container-lowest border border-outline-variant rounded font-body-sm text-on-surface outline-none focus:border-primary appearance-none cursor-pointer"
+                                        className="w-full h-[42px] px-space-md bg-surface-container-lowest border border-outline-variant rounded font-body-sm text-on-surface outline-none focus:border-primary cursor-pointer"
                                     >
                                         <option value="">[ 문의 유형을 선택하세요 ]</option>
                                         {INQUIRY_TYPES.map((type) => (
@@ -80,7 +80,6 @@ export default function InquiryComposer() {
                                             </option>
                                         ))}
                                     </select>
-                                    <Icon name="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[20px]" />
                                 </div>
                             </div>
 

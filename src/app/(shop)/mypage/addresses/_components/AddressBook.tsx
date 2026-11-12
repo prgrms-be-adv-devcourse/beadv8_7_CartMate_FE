@@ -233,12 +233,12 @@ export default function AddressBook() {
             >
                 {/* 회원정보 수정 화면과 같은 틀: 카드 하나 + 제목 줄 + 안쪽 상자 목록 */}
                 <Card>
-                    <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-md border-b border-surface-container mb-space-xl">
+                    <div className="flex flex-wrap gap-space-sm items-center justify-between mb-space-xl">
                         <div>
                             <Heading level={2}>등록된 배송지</Heading>
                             <Text color="secondary">기본 배송지는 주문할 때 자동으로 선택됩니다.</Text>
                         </div>
-                        <span className="font-caption text-caption px-space-sm py-1 bg-surface-container border border-outline-variant text-on-surface-variant">
+                        <span className="font-caption text-caption px-space-sm py-1 bg-surface-container border border-outline-variant text-on-surface-variant rounded">
                             {query.isPending ? '-' : addresses.length} / {MAX_ADDRESS_COUNT}개
                         </span>
                     </div>
@@ -266,8 +266,8 @@ export default function AddressBook() {
                                         className="flex flex-wrap gap-space-md items-start justify-between p-space-md border border-outline-variant bg-surface-container-low rounded"
                                     >
                                         <div className="flex min-w-0 flex-col gap-1">
-                                            <div className="flex items-center gap-space-xs">
-                                                <span className="font-label-sm text-label-sm text-on-surface font-bold">
+                                            <div className="flex items-center gap-space-xs mb-1">
+                                                <span className="font-body-lg text-body-lg text-on-surface font-semibold">
                                                     {item.addressName ?? item.receiverName}
                                                 </span>
                                                 {isDefault && <Badge variant="blue" label="기본" />}

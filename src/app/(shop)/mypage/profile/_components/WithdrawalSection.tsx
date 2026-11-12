@@ -76,7 +76,7 @@ export default function WithdrawalSection() {
     return (
         <Card className="relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-error" />
-            <div className="pb-space-md border-b border-surface-container mb-space-md">
+            <div className="mb-space-md">
                 <Heading level={3}>회원 탈퇴</Heading>
                 <Text color="secondary">진행 중인 거래가 없어야 신청할 수 있으며, 신청 후 30일이 지나면 탈퇴가 확정됩니다.</Text>
             </div>
@@ -161,7 +161,7 @@ export default function WithdrawalSection() {
                             request.mutate({ data: { password } });
                         }}
                     >
-                        <div className="flex items-center justify-between pb-space-sm border-b border-surface-container">
+                        <div className="flex items-center justify-between">
                             <h4 className="font-headline-md text-headline-md text-error font-bold flex items-center gap-space-xs">
                                 <Icon name="error" />
                                 회원 탈퇴 신청

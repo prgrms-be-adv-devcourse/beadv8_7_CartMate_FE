@@ -232,7 +232,7 @@ export default function SellerApplyForm() {
 
         return (
             <Card>
-                <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-lg mb-space-lg border-b border-outline-variant">
+                <div className="flex flex-wrap gap-space-sm items-center justify-between mb-space-lg">
                     <div>
                         <Heading level={2}>판매자 정보</Heading>
                         <Text color="secondary">등록된 판매자 정보와 정산 계좌입니다.</Text>
@@ -280,7 +280,7 @@ export default function SellerApplyForm() {
 
     return (
         <Card>
-            <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-lg mb-space-lg border-b border-outline-variant">
+            <div className="flex flex-wrap gap-space-sm items-center justify-between mb-space-lg">
                 <div>
                     <Heading level={2}>판매자 파트너 신청서</Heading>
                     <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">

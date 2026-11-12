@@ -17,7 +17,7 @@ import { CANCEL_REASON_LABEL, errorStatus, hasCode, KIND_LABEL, ORDER_STATUS } f
 import OrderDeliveries, { summarizeDeliveries, useOrderDeliveries } from './OrderDeliveries';
 
 const CARD = 'bg-surface-container-lowest border border-outline-variant rounded p-space-md';
-const CARD_TITLE = 'font-label-md text-label-md text-on-surface font-bold mb-space-md pb-space-xs border-b border-surface-container';
+const CARD_TITLE = 'font-label-md text-label-md text-on-surface font-bold mb-space-md';
 const OUTLINE_BUTTON =
     'h-10 px-space-md border border-outline-variant bg-surface-container-lowest hover:bg-surface-container font-label-md text-label-md text-on-surface rounded inline-flex items-center justify-center gap-space-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface-container-lowest';
 const TONE_VARIANT: Record<'pending' | 'done' | 'muted', BadgeVariant> = { pending: 'warning', done: 'success', muted: 'neutral' };

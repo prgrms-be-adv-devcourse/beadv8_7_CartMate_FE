@@ -143,6 +143,24 @@
   }
 }
 
+/* 브라우저 기본 select 화살표는 오른쪽 테두리에 붙어 그려지고 padding 으로 옮길 수 없다.
+   기본 화살표를 끄고, 테두리에서 12px 띄운 화살표를 배경으로 그린다.
+   레이어 밖에 두어 각 화면의 px-*·pr-* 보다 우선하게 한다(오른쪽 여백을 모든 select 에서 같게). */
+select:not([multiple]):not([size]) {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239e9e9e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  padding-right: 36px;
+}
+
+/* 날짜 입력의 달력 아이콘도 오른쪽 끝에 붙지 않게 띄운다. */
+input::-webkit-calendar-picker-indicator {
+  margin-inline-start: 8px;
+  margin-inline-end: 4px;
+}
+
 /* 기존 이름을 쓰는 공통 셸은 UI-3에서 Astryx 컴포넌트로 교체한다. */
 .brand-gradient-text {
   color: var(--color-accent);

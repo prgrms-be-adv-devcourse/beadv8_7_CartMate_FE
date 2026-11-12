@@ -107,7 +107,7 @@ export default function OrderList() {
                 </div>
                 <div className="flex items-center gap-space-xs">
                     <select
-                        className="h-9 px-space-sm border border-outline-variant bg-surface-container-lowest font-body-sm text-on-surface outline-none rounded"
+                        className="h-9 pl-3 pr-3 border border-outline-variant bg-surface-container-lowest font-body-sm text-on-surface outline-none rounded"
                         aria-label="조회 기간"
                         value={period}
                         onChange={(e) => {
@@ -123,10 +123,10 @@ export default function OrderList() {
                             </option>
                         ))}
                     </select>
-                    <label className="h-9 border border-outline-variant bg-surface-container-lowest flex items-center px-space-xs rounded">
+                    <label className="h-9 border border-outline-variant bg-surface-container-lowest flex items-center gap-2 px-3 rounded">
                         <Icon name="search" className="text-[16px] text-outline" />
                         <input
-                            className="bg-transparent border-none outline-none font-body-sm text-on-surface w-40 px-1"
+                            className="bg-transparent border-none outline-none font-body-sm text-on-surface w-40"
                             placeholder="상품명/주문번호 검색"
                             type="search"
                             aria-label="상품명 또는 주문번호 검색"
