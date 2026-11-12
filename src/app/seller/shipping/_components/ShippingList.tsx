@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { Badge, Button, Card, Heading } from '@astryxdesign/core';
 import { getGetSellerDeliveriesQueryKey, useGetSellerDeliveries, useReadyDelivery, useShipDelivery } from '@/api/generated/delivery-controller/delivery-controller';
 import { GetSellerDeliveriesStatus } from '@/api/generated/model';
 import type { SellerDeliveryResponse } from '@/api/generated/model';
@@ -16,7 +17,6 @@ const COURIERS = ['CJ대한통운', '우체국택배', '롯데택배'];
 // BE 는 택배사·송장번호를 각각 50자까지 받는다.
 const MAX_LENGTH = 50;
 
-const BUTTON_CLASS = 'bg-primary text-on-primary hover:opacity-90 px-3 py-1 rounded text-caption font-label-md disabled:opacity-60 disabled:cursor-not-allowed';
 
 const PAGE_SIZE = 20;
 // 페이지 번호는 현재 페이지 앞뒤로 이만큼만 보여 준다.
@@ -113,7 +113,7 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
                 </div>
             </td>
             <td className="p-space-md text-center">
-                <span className="inline-block px-2.5 py-1 rounded-full text-caption bg-surface-container-high text-on-surface font-label-md">{STATUS_LABEL[delivery.status ?? ''] ?? delivery.status}</span>
+                <Badge label={STATUS_LABEL[delivery.status ?? ''] ?? delivery.status} />
             </td>
             <td className="p-space-md">
                 {/* 배송 요청: 송장 등록(ready) / 배송 준비: 출고(ship) / 그 이후: 비활성 */}
@@ -143,13 +143,9 @@ function DeliveryRow({ delivery }: { delivery: SellerDeliveryResponse }) {
                     {(editable || isPreparing) && (
                         <div className="flex justify-end gap-1">
                             {editable ? (
-                                <button className={BUTTON_CLASS} type="button" disabled={busy} onClick={register}>
-                                    {ready.isPending ? '처리 중…' : '등록'}
-                                </button>
+                                <Button label={ready.isPending ? '처리 중…' : '등록'} isDisabled={busy} onClick={register} />
                             ) : (
-                                <button className={BUTTON_CLASS} type="button" disabled={busy} onClick={shipOut}>
-                                    {ship.isPending ? '처리 중…' : '출고'}
-                                </button>
+                                <Button label={ship.isPending ? '처리 중…' : '출고'} isDisabled={busy} onClick={shipOut} />
                             )}
                         </div>
                     )}
@@ -205,10 +201,10 @@ export default function ShippingList() {
     return (
         <>
             {/* Order List Table Section */}
-            <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-space-xl">
+            <Card className="overflow-hidden mb-space-xl" padding={0}>
                 <div className="px-space-lg py-space-md border-b border-surface-variant flex items-center justify-between">
-                    <div className="font-headline-sm text-on-surface flex items-center gap-space-sm">
-                        <span>주문 목록</span>
+                    <div className="flex items-center gap-space-sm">
+                        <Heading level={2}>주문 목록</Heading>
                         {result && <span className="text-caption bg-surface-container-high text-on-surface px-2 py-0.5 rounded-full">총 {totalElements}건</span>}
                     </div>
                     <div className="text-body-sm text-on-surface-variant">
@@ -220,13 +216,7 @@ export default function ShippingList() {
                 ) : query.isError ? (
                     <div className="p-space-xl flex flex-col items-center gap-space-sm text-center" role="alert">
                         <p className="font-body-md text-on-surface">{errorMessage(query.error, '배송 목록을 불러오지 못했습니다.')}</p>
-                        <button
-                            className="h-10 px-space-lg bg-surface-container-lowest border border-outline-variant font-label-md text-on-surface rounded hover:bg-surface-container"
-                            type="button"
-                            onClick={() => query.refetch()}
-                        >
-                            다시 시도
-                        </button>
+                        <Button label="다시 시도" onClick={() => query.refetch()} />
                     </div>
                 ) : rows.length === 0 ? (
                     <div className="p-space-xl flex flex-col items-center gap-space-xs text-center text-on-surface-variant">
@@ -287,7 +277,7 @@ export default function ShippingList() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </Card>
         </>
     );
 }
