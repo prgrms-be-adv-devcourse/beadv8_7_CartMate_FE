@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import { apiFetch, ApiError } from '@/lib/api';
 import { ROUTES } from '@/lib/routes';
@@ -105,10 +106,8 @@ export default function MemberDetailContent({ memberId }: { memberId: string }) 
     if (error) {
         return (
             <div className="flex flex-col items-center gap-space-md py-space-xl">
-                <p className="font-body-md text-body-md text-error">{error}</p>
-                <Link href={ROUTES.adminMembers} className="font-label-md text-label-md text-primary underline">
-                    목록으로 돌아가기
-                </Link>
+                <Text className="text-error">{error}</Text>
+                <Button label="목록으로 돌아가기" href={ROUTES.adminMembers} variant="secondary" />
             </div>
         );
     }
@@ -151,45 +150,17 @@ export default function MemberDetailContent({ memberId }: { memberId: string }) 
                         <span className="text-primary font-semibold">회원 상세 ({code})</span>
                     </div>
                     <div className="flex items-center gap-space-md">
-                        <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">회원 상세 정보</h1>
-                        <span
-                            className={
-                                isSuspended
-                                    ? 'inline-flex items-center px-2.5 py-0.5 rounded-full font-caption text-caption border border-error bg-error text-on-error'
-                                    : 'inline-flex items-center px-2.5 py-0.5 rounded-full font-caption text-caption border border-primary bg-primary text-on-primary'
-                            }
-                        >
-                            {STATUS_LABEL[member.status]}
-                        </span>
+                        <Heading level={1}>회원 상세 정보</Heading>
+                        <Badge variant={isSuspended ? 'error' : member.status === 'ACTIVE' ? 'success' : 'neutral'} label={STATUS_LABEL[member.status]} />
                     </div>
                 </div>
                 <div className="flex items-center gap-space-sm">
-                    <Link
-                        href={ROUTES.adminMembers}
-                        className="inline-flex items-center gap-space-xs px-space-md h-11 rounded border border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-primary hover:bg-surface-container transition-colors"
-                    >
-                        <Icon name="arrow_back" className="text-[18px]" />
-                        목록으로 돌아가기
-                    </Link>
+                    <Button label="목록으로 돌아가기" href={ROUTES.adminMembers} variant="secondary" icon={<Icon name="arrow_back" className="text-[18px]" />} />
                     {canSuspend && (
-                        <Link
-                            href={ROUTES.adminMemberSuspend(String(member.id))}
-                            className="inline-flex items-center gap-space-xs px-space-md h-11 rounded bg-primary text-on-primary border border-primary font-label-md text-label-md hover:opacity-90 transition-opacity"
-                        >
-                            <Icon name="block" className="text-[18px]" />
-                            <span>회원 정지 처리</span>
-                        </Link>
+                        <Button label="회원 정지 처리" href={ROUTES.adminMemberSuspend(String(member.id))} icon={<Icon name="block" className="text-[18px]" />} />
                     )}
                     {isSuspended && (
-                        <button
-                            type="button"
-                            onClick={handleActivate}
-                            disabled={activating}
-                            className="inline-flex items-center gap-space-xs px-space-md h-11 rounded bg-primary text-on-primary border border-primary font-label-md text-label-md hover:opacity-90 transition-opacity disabled:opacity-60"
-                        >
-                            <Icon name="lock_open" className="text-[18px]" />
-                            <span>{activating ? '해제 중...' : '정지 해제'}</span>
-                        </button>
+                        <Button label={activating ? '해제 중...' : '정지 해제'} icon={<Icon name="lock_open" className="text-[18px]" />} isDisabled={activating} onClick={handleActivate} />
                     )}
                 </div>
             </div>
@@ -197,21 +168,21 @@ export default function MemberDetailContent({ memberId }: { memberId: string }) 
             {/* KPI */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
                 {kpis.map((kpi) => (
-                    <div key={kpi.label} className="p-space-md bg-surface-container-lowest border border-outline-variant rounded flex flex-col justify-between">
-                        <span className="font-caption text-caption text-on-surface-variant">{kpi.label}</span>
+                    <Card key={kpi.label} className="flex flex-col justify-between" padding={4}>
+                        <Text color="secondary">{kpi.label}</Text>
                         <div className="flex items-baseline justify-between mt-space-xs">
-                            <span className="font-headline-sm text-headline-sm text-primary tracking-tight">{kpi.value}</span>
-                            <span className="font-caption text-caption text-secondary">{kpi.sub}</span>
+                            <Heading level={3}>{kpi.value}</Heading>
+                            <Text color="secondary">{kpi.sub}</Text>
                         </div>
-                    </div>
+                    </Card>
                 ))}
             </div>
 
             {/* 기본 프로필 */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden">
+            <Card className="overflow-hidden" padding={0}>
                 <div className="px-space-lg py-space-md border-b border-outline-variant flex items-center gap-space-sm bg-surface-container-low">
                     <Icon name="badge" className="text-primary text-[20px]" />
-                    <h2 className="font-headline-sm text-headline-sm text-primary">회원 기본 프로필</h2>
+                    <Heading level={2}>회원 기본 프로필</Heading>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-outline-variant">
                     <div className="flex flex-col divide-y divide-outline-variant">
@@ -252,24 +223,20 @@ export default function MemberDetailContent({ memberId }: { memberId: string }) 
                         </div>
                     </div>
                 </div>
-            </div>
+            </Card>
 
             {/* 제재 이력 */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden">
+            <Card className="overflow-hidden" padding={0}>
                 <div className="px-space-lg py-space-md border-b border-outline-variant flex items-center justify-between bg-surface-container-low">
                     <div className="flex items-center gap-space-sm">
                         <Icon name="gavel" className="text-primary text-[20px]" />
-                        <h2 className="font-headline-sm text-headline-sm text-primary">계정 제재 및 정지 이력</h2>
-                        <span className="font-caption text-caption px-2 py-0.5 rounded border border-outline-variant bg-surface-container text-on-surface">
-                            총 {member.suspensions.length}건 기록
-                        </span>
+                        <Heading level={2}>계정 제재 및 정지 이력</Heading>
+                        <Badge variant="neutral" label={`총 ${member.suspensions.length}건 기록`} />
                     </div>
                 </div>
 
                 {member.suspensions.length === 0 ? (
-                    <div className="px-space-lg py-space-xl text-center font-body-sm text-body-sm text-on-surface-variant">
-                        제재 이력이 없습니다.
-                    </div>
+                    <Text className="px-space-lg py-space-xl text-center" color="secondary">제재 이력이 없습니다.</Text>
                 ) : (
                     <div className="w-full overflow-x-auto">
                         <table className="w-full text-left border-collapse font-body-sm text-body-sm">
@@ -305,15 +272,7 @@ export default function MemberDetailContent({ memberId }: { memberId: string }) 
                                         </td>
                                         <td className="py-space-md px-space-md whitespace-nowrap">{s.adminNickname}</td>
                                         <td className="py-space-md px-space-md whitespace-nowrap text-right">
-                                            <span
-                                                className={
-                                                    s.releasedAt
-                                                        ? 'inline-flex items-center px-2 py-0.5 rounded border border-outline-variant bg-surface font-caption text-caption text-secondary'
-                                                        : 'inline-flex items-center px-2 py-0.5 rounded border border-error bg-error text-on-error font-caption text-caption'
-                                                }
-                                            >
-                                                {suspensionStatusLabel(s)}
-                                            </span>
+                                            <Badge variant={s.releasedAt ? 'neutral' : 'error'} label={suspensionStatusLabel(s)} />
                                         </td>
                                     </tr>
                                 ))}
@@ -324,7 +283,7 @@ export default function MemberDetailContent({ memberId }: { memberId: string }) 
                 <div className="px-space-lg py-space-sm bg-surface text-center border-t border-outline-variant">
                     <span className="font-caption text-caption text-on-surface-variant">모든 제재 기록은 영구 보존됩니다.</span>
                 </div>
-            </div>
+            </Card>
         </div>
     );
 }

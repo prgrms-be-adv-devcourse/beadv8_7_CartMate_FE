@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Badge, Button, Card, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 
@@ -25,19 +26,6 @@ type Props = {
     onPageChange: (page: number) => void;
     onPageSizeChange: (size: number) => void;
     onBulkAction: (action: 'SUSPEND' | 'ACTIVATE', memberIds: string[]) => Promise<void>;
-};
-
-const ROLE_CLASS: Record<Member['role'], string> = {
-    일반: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-surface border border-outline-variant text-on-surface-variant',
-    판매자: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-secondary-container text-on-secondary-container',
-    관리자: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-primary text-on-primary',
-};
-
-const STATUS_CLASS: Record<Member['status'], string> = {
-    정상: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface-container-high text-on-surface-variant border border-outline-variant',
-    정지: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-primary text-on-primary border border-primary',
-    '탈퇴 대기': 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface text-error border border-error/40',
-    탈퇴: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface text-outline border border-outline-variant line-through',
 };
 
 const PAGE_BUTTON =
@@ -90,7 +78,7 @@ export default function MemberTable({
 
     return (
         <>
-            <div className="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden flex flex-col">
+            <Card className="overflow-hidden" padding={0}>
                 {/* 일괄 처리 바 */}
                 <div className="px-space-md py-space-sm bg-surface-container-low border-b border-outline-variant flex items-center justify-between">
                     <div className="flex items-center gap-space-sm">
@@ -113,22 +101,8 @@ export default function MemberTable({
                         </span>
                     </div>
                     <div className="flex items-center gap-space-xs">
-                        <button
-                            className="px-space-sm py-1 rounded border border-outline-variant bg-surface font-caption text-caption text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50"
-                            type="button"
-                            disabled={processing}
-                            onClick={() => runBulk('ACTIVATE')}
-                        >
-                            선택 정상 전환
-                        </button>
-                        <button
-                            className="px-space-sm py-1 rounded border border-outline-variant bg-surface font-caption text-caption text-error hover:bg-error-container transition-colors disabled:opacity-50"
-                            type="button"
-                            disabled={processing}
-                            onClick={() => runBulk('SUSPEND')}
-                        >
-                            선택 계정 정지
-                        </button>
+                        <Button label="선택 정상 전환" size="sm" variant="secondary" type="button" isDisabled={processing} onClick={() => runBulk('ACTIVATE')} />
+                        <Button label="선택 계정 정지" size="sm" variant="destructive" type="button" isDisabled={processing} onClick={() => runBulk('SUSPEND')} />
                     </div>
                 </div>
 
@@ -168,10 +142,10 @@ export default function MemberTable({
                                     </td>
                                     <td className="py-3.5 px-space-md text-on-surface-variant">{member.nickname}</td>
                                     <td className="py-3.5 px-space-md text-center">
-                                        <span className={ROLE_CLASS[member.role]}>{member.role}</span>
+                                        <Badge variant={member.role === '관리자' ? 'info' : member.role === '판매자' ? 'success' : 'neutral'} label={member.role} />
                                     </td>
                                     <td className="py-3.5 px-space-md text-center">
-                                        <span className={STATUS_CLASS[member.status]}>{member.status}</span>
+                                        <Badge variant={member.status === '정상' ? 'success' : member.status === '정지' ? 'error' : member.status === '탈퇴 대기' ? 'warning' : 'neutral'} label={member.status} />
                                     </td>
                                     <td className="py-3.5 px-space-md text-center font-mono text-caption text-on-surface-variant">{member.joinedAt}</td>
                                     <td className="py-3.5 px-space-md text-center" onClick={(e) => e.stopPropagation()}>
@@ -187,14 +161,11 @@ export default function MemberTable({
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </Card>
 
             {/* 하단: 총 인원, 페이지 이동, 페이지당 개수 */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-space-md py-space-xs">
-                <div className="font-body-sm text-body-sm text-on-surface-variant">
-                    총 <span className="font-label-md text-label-md text-primary">{totalElements.toLocaleString('ko-KR')}</span>명 (
-                    <span>선택 {selected.length}명</span>)
-                </div>
+                <Text color="secondary">총 <span className="font-semibold text-primary">{totalElements.toLocaleString('ko-KR')}</span>명 (선택 {selected.length}명)</Text>
 
                 <nav aria-label="페이지 이동" className="flex items-center gap-1">
                     <button className={PAGE_BUTTON} type="button" disabled={page === 0} onClick={() => onPageChange(page - 1)}>
