@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Button, Heading } from '@astryxdesign/core';
 import AdminPurchaseDashboard from './_components/AdminPurchaseDashboard';
 import { ROUTES } from '@/lib/routes';
 
@@ -13,9 +13,9 @@ export default async function AdminIndividualGroupPurchasePage({
     const { id } = await params;
     return (
         <div className="flex flex-col gap-space-lg">
-            <div>
-                <Link className="font-label-sm text-label-sm text-primary underline" href={ROUTES.adminCartDemands}>수요 후보로 돌아가기</Link>
-                <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold mt-space-sm">수요 공동구매 현황</h1>
+            <div className="flex flex-col items-start gap-space-sm">
+                <Button label="수요 후보로 돌아가기" href={ROUTES.adminCartDemands} variant="ghost" size="sm" />
+                <Heading level={1}>수요 공동구매 현황</Heading>
             </div>
             <AdminPurchaseDashboard id={id} />
         </div>

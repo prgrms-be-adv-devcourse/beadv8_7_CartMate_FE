@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import {
     getGetCandidatesQueryKey,
@@ -123,15 +124,16 @@ export default function DemandCandidates() {
     return (
         <div className="flex flex-col gap-space-lg">
             <div>
-                <div className="font-caption text-caption text-outline uppercase tracking-wider mb-1">[ ADMIN / CART DEMANDS ]</div>
-                <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">장바구니 수요 후보</h1>
-                <p className="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+                <Text type="supporting" color="accent" className="uppercase tracking-wider">ADMIN / CART DEMANDS</Text>
+                <Heading level={1} className="mt-1">장바구니 수요 후보</Heading>
+                <Text color="secondary" className="mt-2">
                     장바구니에 담긴 상품 수요를 확인하고 개인물품 공동구매를 개설합니다.
-                </p>
+                </Text>
             </div>
 
-            <form className="bg-surface-container-lowest border border-outline-variant rounded p-space-lg flex flex-col gap-space-md" onSubmit={applyFilters}>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface">후보 조회 기준</h2>
+            <Card>
+              <form className="flex flex-col gap-space-md" onSubmit={applyFilters}>
+                <Heading level={2}>후보 조회 기준</Heading>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-space-md">
                     {FILTER_FIELDS.map((field) => (
                         <label key={field.key} className="flex flex-col gap-space-xs font-label-sm text-label-sm text-on-surface-variant">
@@ -149,87 +151,82 @@ export default function DemandCandidates() {
                     ))}
                 </div>
                 <div className="flex items-center justify-between gap-space-sm">
-                    <p className="font-body-sm text-body-sm text-error" role={filterError ? 'alert' : undefined}>{filterError}</p>
-                    <button className="h-10 px-space-lg bg-primary text-on-primary rounded font-label-md text-label-md" type="submit">조회</button>
+                    <Text className="text-error" role={filterError ? 'alert' : undefined}>{filterError}</Text>
+                    <Button label="조회" type="submit" variant="primary" />
                 </div>
-            </form>
+              </form>
+            </Card>
 
             {open.isSuccess && (
-                <div className="border border-primary bg-surface-container-lowest rounded p-space-lg flex flex-col gap-space-xs" role="status">
-                    <p className="font-label-md text-label-md text-on-surface">공동구매가 개설되었습니다.{created?.id != null && ` (번호 #${created.id})`}</p>
+                <Card variant="muted" className="flex flex-col gap-space-xs" role="status">
+                    <Heading level={3}>공동구매가 개설되었습니다.{created?.id != null && ` (번호 #${created.id})`}</Heading>
                     {created?.inviteCode && (
                         <>
-                            <p className="font-body-sm text-body-sm text-on-surface-variant">초대 코드: <code>{created.inviteCode}</code></p>
-                            <Link className="font-label-sm text-label-sm text-primary underline" href={ROUTES.groupPurchaseIndividualInvite(created.inviteCode)}>
-                                초대 페이지 보기
-                            </Link>
+                            <Text color="secondary">초대 코드: <code>{created.inviteCode}</code></Text>
+                            <Button label="초대 페이지 보기" href={ROUTES.groupPurchaseIndividualInvite(created.inviteCode)} as={Link} variant="secondary" size="sm" />
                         </>
                     )}
                     {created?.id != null && (
-                        <Link className="font-label-sm text-label-sm text-primary underline" href={ROUTES.adminIndividualGroupPurchaseDashboard(created.id)}>
-                            관리자 현황판 보기
-                        </Link>
+                        <Button label="관리자 현황판 보기" href={ROUTES.adminIndividualGroupPurchaseDashboard(created.id)} as={Link} variant="primary" size="sm" />
                     )}
-                </div>
+                </Card>
             )}
 
             <section className="flex flex-col gap-space-md" aria-labelledby="demand-list-title">
-                <h2 id="demand-list-title" className="font-headline-md text-headline-md text-on-surface">수요 후보</h2>
+                <Heading id="demand-list-title" level={2}>수요 후보</Heading>
                 {candidates.isPending ? (
-                    <div className="border border-outline-variant bg-surface-container-lowest rounded p-space-xl text-center text-on-surface-variant" role="status">후보를 불러오는 중입니다…</div>
+                    <Card variant="muted" role="status"><Text color="secondary">후보를 불러오는 중입니다…</Text></Card>
                 ) : candidates.isError ? (
-                    <div className="border border-outline-variant bg-surface-container-lowest rounded p-space-xl flex flex-col items-center gap-space-sm" role="alert">
-                        <p className="text-error">{errorMessage(candidates.error, '후보를 불러오지 못했습니다.')}</p>
-                        <button className="h-9 px-space-md border border-outline-variant rounded" type="button" onClick={() => void candidates.refetch()}>다시 시도</button>
-                    </div>
+                    <Card variant="muted" className="flex flex-col items-center gap-space-sm" role="alert">
+                        <Text className="text-error">{errorMessage(candidates.error, '후보를 불러오지 못했습니다.')}</Text>
+                        <Button label="다시 시도" type="button" variant="secondary" size="sm" onClick={() => void candidates.refetch()} />
+                    </Card>
                 ) : candidates.data.length === 0 ? (
-                    <div className="border border-outline-variant bg-surface-container-lowest rounded p-space-xl text-center text-on-surface-variant">
-                        현재 조회 기준에 맞는 후보가 없습니다.
-                    </div>
+                    <Card variant="muted"><Text color="secondary">현재 조회 기준에 맞는 후보가 없습니다.</Text></Card>
                 ) : (
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-space-md">
                         {candidates.data.map((candidate) => (
-                            <article key={candidate.productId} className="bg-surface-container-lowest border border-outline-variant rounded p-space-lg flex flex-col gap-space-md">
+                            <Card key={candidate.productId} className="flex flex-col gap-space-md">
+                              <article className="flex flex-col gap-space-md">
                                 <div className="flex items-start justify-between gap-space-md">
                                     <div>
-                                        <h3 className="font-headline-sm text-headline-sm text-on-surface">{candidate.productName ?? `상품 #${candidate.productId}`}</h3>
-                                        <p className="font-caption text-caption text-outline mt-space-xs">상품 #{candidate.productId}</p>
+                                        <Heading level={3}>{candidate.productName ?? `상품 #${candidate.productId}`}</Heading>
+                                        <Text type="supporting" color="secondary">상품 #{candidate.productId}</Text>
                                     </div>
-                                    <span className="font-label-sm text-label-sm text-on-surface-variant">
+                                    <span>
                                         {candidate.openGroupPurchaseId != null ? (
-                                            <Link className="text-primary underline" href={ROUTES.adminIndividualGroupPurchaseDashboard(candidate.openGroupPurchaseId)}>
-                                                개설된 공구 #{candidate.openGroupPurchaseId} 현황
-                                            </Link>
-                                        ) : candidate.purchasable ? '개설 가능' : '개설 불가'}
+                                            <Button label={`개설된 공구 #${candidate.openGroupPurchaseId} 현황`} href={ROUTES.adminIndividualGroupPurchaseDashboard(candidate.openGroupPurchaseId)} as={Link} variant="secondary" size="sm" />
+                                        ) : <Badge label={candidate.purchasable ? '개설 가능' : '개설 불가'} variant={candidate.purchasable ? 'success' : 'neutral'} />}
                                     </span>
                                 </div>
                                 <dl className="grid grid-cols-3 gap-space-sm text-center bg-surface-container-low p-space-md rounded">
-                                    <div><dt className="font-caption text-caption text-outline">동일 상품</dt><dd className="font-label-md text-label-md text-on-surface">{candidate.exactMemberCount}명</dd></div>
-                                    <div><dt className="font-caption text-caption text-outline">유사 상품</dt><dd className="font-label-md text-label-md text-on-surface">{candidate.similarMemberCount}명</dd></div>
-                                    <div><dt className="font-caption text-caption text-outline">전체</dt><dd className="font-label-md text-label-md text-on-surface">{candidate.totalMemberCount}명</dd></div>
+                                    <div><dt className="font-caption text-caption text-outline">동일 상품</dt><dd><Text weight="semibold">{candidate.exactMemberCount}명</Text></dd></div>
+                                    <div><dt className="font-caption text-caption text-outline">유사 상품</dt><dd><Text weight="semibold">{candidate.similarMemberCount}명</Text></dd></div>
+                                    <div><dt className="font-caption text-caption text-outline">전체</dt><dd><Text weight="semibold">{candidate.totalMemberCount}명</Text></dd></div>
                                 </dl>
                                 {!!candidate.similarProducts?.length && (
-                                    <p className="font-body-sm text-body-sm text-on-surface-variant">함께 집계된 유사 상품 {candidate.similarProducts.length}개</p>
+                                    <Text color="secondary">함께 집계된 유사 상품 {candidate.similarProducts.length}개</Text>
                                 )}
-                                <button
-                                    className="h-10 px-space-lg bg-primary text-on-primary rounded font-label-md text-label-md disabled:opacity-50 disabled:cursor-not-allowed"
+                                <Button
+                                    label="공동구매 개설"
                                     type="button"
-                                    disabled={candidate.productId == null || !candidate.purchasable || candidate.openGroupPurchaseId != null || open.isPending}
+                                    variant="primary"
+                                    isDisabled={candidate.productId == null || !candidate.purchasable || candidate.openGroupPurchaseId != null || open.isPending}
                                     onClick={() => selectCandidate(candidate)}
-                                >
-                                    공동구매 개설
-                                </button>
-                            </article>
+                                />
+                              </article>
+                            </Card>
                         ))}
                     </div>
                 )}
             </section>
 
             {selected && (
-                <form className="bg-surface-container-lowest border border-primary rounded p-space-lg flex flex-col gap-space-md" onSubmit={submitOpen}>
+                <Card className="border border-primary">
+                  <form className="flex flex-col gap-space-md" onSubmit={submitOpen}>
                     <div>
-                        <h2 className="font-headline-sm text-headline-sm text-on-surface">{selected.productName ?? `상품 #${selected.productId}`} 공동구매 개설</h2>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">마감일을 비우면 72시간 뒤로 설정됩니다.</p>
+                        <Heading level={2}>{selected.productName ?? `상품 #${selected.productId}`} 공동구매 개설</Heading>
+                        <Text color="secondary" className="mt-space-xs">마감일을 비우면 72시간 뒤로 설정됩니다.</Text>
                     </div>
                     <label className="flex flex-col gap-space-xs font-label-sm text-label-sm text-on-surface">
                         공동구매 제목
@@ -239,12 +236,13 @@ export default function DemandCandidates() {
                         마감일 (선택, 한국 시간)
                         <input className="h-10 px-space-sm border border-outline-variant rounded" type="datetime-local" value={deadlineAt} onChange={(event) => setDeadlineAt(event.target.value)} />
                     </label>
-                    {(formError || open.isError) && <p className="font-body-sm text-body-sm text-error" role="alert">{formError ?? errorMessage(open.error, '공동구매를 개설하지 못했습니다.')}</p>}
+                    {(formError || open.isError) && <Text className="text-error" role="alert">{formError ?? errorMessage(open.error, '공동구매를 개설하지 못했습니다.')}</Text>}
                     <div className="flex justify-end gap-space-sm">
-                        <button className="h-10 px-space-lg border border-outline-variant rounded" type="button" onClick={() => setSelected(null)} disabled={open.isPending}>취소</button>
-                        <button className="h-10 px-space-lg bg-primary text-on-primary rounded disabled:opacity-50" type="submit" disabled={open.isPending}>{open.isPending ? '개설 중…' : '개설하기'}</button>
+                        <Button label="취소" type="button" variant="secondary" onClick={() => setSelected(null)} isDisabled={open.isPending} />
+                        <Button label={open.isPending ? '개설 중…' : '개설하기'} type="submit" variant="primary" isDisabled={open.isPending} />
                     </div>
-                </form>
+                  </form>
+                </Card>
             )}
         </div>
     );
