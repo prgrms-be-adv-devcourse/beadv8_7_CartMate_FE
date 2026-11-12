@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Text } from '@astryxdesign/core/Text';
 import { ApiError, errorMessage } from '@/api/http';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
@@ -36,17 +38,17 @@ export default function WalletPaymentSummary({
                 )}
             </dl>
             {!payable ? (
-                <p className="p-space-xs bg-error-container text-on-error-container font-caption text-caption text-center" role="status">
+                <Text as="p" className="rounded-lg bg-error-container p-2 text-center text-on-error-container" role="status">
                     {notPayableMessage}
-                </p>
+                </Text>
             ) : (
                 !sufficient && (
-                    <div className="p-space-xs bg-error-container text-on-error-container font-caption text-caption flex flex-wrap items-center justify-center gap-x-space-sm" role="status">
-                        <span>예치금이 {formatPrice(shortage)} 부족합니다.</span>
+                    <Card variant="red" padding={2} className="flex flex-wrap items-center justify-center gap-x-space-sm" role="status">
+                        <Text type="supporting">예치금이 {formatPrice(shortage)} 부족합니다.</Text>
                         <Link className="underline font-semibold" href={ROUTES.depositCharge}>
                             예치금 충전하기
                         </Link>
-                    </div>
+                    </Card>
                 )
             )}
         </>

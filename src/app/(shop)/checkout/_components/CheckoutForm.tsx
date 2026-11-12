@@ -5,6 +5,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import { getGetCartQueryKey, useGetCart } from '@/api/generated/cart-controller/cart-controller';
 import { useProfile } from '@/api/generated/member-controller/member-controller';
 import type { CartItemResponse } from '@/api/generated/model';
@@ -63,9 +68,9 @@ function CheckoutItems({ itemsParam }: { itemsParam: string }) {
     return (
         <>
             {items.length < ids.size && (
-                <p className="mb-space-md p-space-sm bg-surface-container-low font-body-sm text-body-sm text-on-surface" role="status">
+                <Text as="p" className="mb-4 rounded-lg bg-surface-container-low p-3" role="status">
                     선택한 상품 중 장바구니에 없거나 구매할 수 없는 상품은 주문에서 제외했습니다.
-                </p>
+                </Text>
             )}
             <CheckoutContent items={items} onCreated={(id) => router.replace(`${ROUTES.checkout}?order=${id}`)} />
         </>
@@ -123,7 +128,7 @@ function OrderForm({ items, onCreated, defaults }: ContentProps & { defaults: Ad
     return (
         <form className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="lg:col-span-8 flex flex-col gap-space-xl">
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+                <Card className="flex flex-col gap-space-md">
                     <SectionTitle icon="local_shipping" title="배송지 정보" />
                     {/* 배송지 칸은 주문서마다 같은 컴포넌트를 쓰고, 폼 값은 컨텍스트로 넘긴다 */}
                     <FormProvider {...form}>
@@ -137,12 +142,12 @@ function OrderForm({ items, onCreated, defaults }: ContentProps & { defaults: Ad
                             <option>문 앞 배치 (부재 시 문 앞에 놓아주세요)</option>
                         </select>
                     </div>
-                </section>
+                </Card>
 
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+                <Card className="flex flex-col gap-space-md">
                     <div className="flex items-center justify-between">
                         <SectionTitle icon="inventory_2" title="주문 상품 정보" />
-                        <span className="font-caption text-caption text-secondary">총 {items.length}개 품목</span>
+                        <Badge label={`총 ${items.length}개 품목`} variant="neutral" />
                     </div>
                     <ul className="flex flex-col divide-y divide-surface-container">
                         {items.map((item) => (
@@ -159,17 +164,17 @@ function OrderForm({ items, onCreated, defaults }: ContentProps & { defaults: Ad
                             </li>
                         ))}
                     </ul>
-                </section>
+                </Card>
 
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-sm">
+                <Card variant="muted" className="flex flex-col gap-space-sm">
                     <SectionTitle icon="payments" title="결제 수단" />
-                    <p className="font-body-sm text-body-sm text-on-surface">팀바이 예치금</p>
-                    <p className="font-caption text-caption text-secondary">주문을 만든 뒤 결제 기한 안에 예치금으로 결제합니다.</p>
-                </section>
+                    <Text as="p" weight="semibold">팀바이 예치금</Text>
+                    <Text as="p" type="supporting" color="secondary">주문을 만든 뒤 결제 기한 안에 예치금으로 결제합니다.</Text>
+                </Card>
             </div>
 
-            <aside className="lg:col-span-4 lg:sticky lg:top-36 bg-surface-container-lowest border border-primary p-space-lg flex flex-col gap-space-md">
-                <h2 className="font-headline-sm text-headline-sm text-primary">결제 예정 금액</h2>
+            <Card className="lg:col-span-4 lg:sticky lg:top-36 flex flex-col gap-space-md" variant="blue">
+                <Heading level={2}>결제 예정 금액</Heading>
                 <div className="flex items-center justify-between font-body-sm text-body-sm text-on-surface-variant">
                     <span>주문 상품 총액</span>
                     <span className="text-on-surface font-medium">{formatPrice(total)}</span>
@@ -203,14 +208,16 @@ function OrderForm({ items, onCreated, defaults }: ContentProps & { defaults: Ad
                         {errorMessage(createOrder.error, '주문을 만들지 못했습니다.')}
                     </p>
                 )}
-                <button
-                    className="w-full h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90 disabled:opacity-60"
+                <Button
+                    label={createOrder.isPending ? '주문 중...' : `${formatPrice(total)} 주문하기`}
+                    className="w-full"
                     type="submit"
-                    disabled={createOrder.isPending || createOrder.isSuccess}
-                >
-                    {createOrder.isPending ? '주문 중...' : `${formatPrice(total)} 주문하기`}
-                </button>
-            </aside>
+                    variant="primary"
+                    size="lg"
+                    isLoading={createOrder.isPending}
+                    isDisabled={createOrder.isPending || createOrder.isSuccess}
+                />
+            </Card>
         </form>
     );
 }
@@ -219,7 +226,7 @@ function SectionTitle({ icon, title }: { icon: string; title: string }) {
     return (
         <div className="flex items-center gap-space-sm">
             <Icon name={icon} className="text-[20px] text-primary" />
-            <h2 className="font-headline-sm text-headline-sm text-primary">{title}</h2>
+            <Heading level={2}>{title}</Heading>
         </div>
     );
 }
