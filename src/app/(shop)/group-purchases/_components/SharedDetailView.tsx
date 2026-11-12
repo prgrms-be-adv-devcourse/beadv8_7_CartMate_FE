@@ -143,7 +143,7 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
 
             {/* 참여자 */}
             <Card>
-                <div className="flex items-center gap-space-xs pb-space-md">
+                <div className="flex items-center gap-space-sm pb-space-md">
                     <Heading level={2}>참여자</Heading>
                     <Badge label={`${members.length}명 / 최대 ${purchase.maxParticipants ?? '-'}명`} variant="neutral" />
                 </div>

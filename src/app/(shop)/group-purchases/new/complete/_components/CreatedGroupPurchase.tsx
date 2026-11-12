@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Badge } from '@astryxdesign/core/Badge';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
 import { Heading } from '@astryxdesign/core/Heading';
@@ -55,19 +54,41 @@ function CreatedContent({ id, purchase, inviteCode }: ContentProps) {
 
     return (
         <>
-            <div className="text-center flex flex-col items-center mb-space-xl">
-                <div className="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center mb-space-md shadow-sm">
-                    <Icon name="check" className="text-primary text-[44px]" />
+            {/* 완료 사실은 제목 한 줄로 알리고, 제목 옆 작은 아이콘으로만 분위기를 더한다(큰 체크 원·완료 배지·내부 번호는 같은 말 반복이라 뺐다). */}
+            <div className="text-center flex flex-col items-center gap-3 mb-space-xl">
+                <div className="flex items-center justify-center gap-4">
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/15">
+                        <Icon name="celebration" filled size={32} className="text-primary" />
+                    </span>
+                    <Heading level={1} type="display-2">공동구매를 만들었습니다</Heading>
                 </div>
-                <div className="flex items-center gap-space-xs mb-space-xs">
-                    <Badge variant="info" label="생성 완료" />
-                    <Text size="sm" color="secondary">공동구매 번호 #{id}</Text>
-                </div>
-                <Heading level={1} type="display-2" className="mb-space-xs">공동구매를 만들었습니다!</Heading>
                 <Text size="lg" color="secondary" className="max-w-[620px]">팀원들에게 초대 링크를 공유해 함께 상품을 담도록 안내하세요.</Text>
             </div>
 
-            {/* 요약 카드 */}
+            {/* 진행 단계 — 제목 바로 아래에서 지금 어느 단계인지 보여 준다 */}
+            <Card padding={6} className="w-full mb-space-xl">
+                <Heading level={2} className="mb-space-md">공동구매 진행 단계</Heading>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
+                    {steps.map((step, i) => (
+                        // 모든 단계를 테두리 있는 카드로 그리고, 지금 단계(1단계)만 primary 테두리·옅은 배경으로 구분한다
+                        <div key={step.badge} className={`rounded-lg border p-space-md flex flex-col ${i === 0 ? 'border-primary bg-primary/10' : 'border-outline-variant bg-surface-container-low'}`}>
+                            <div className="flex items-center justify-between mb-space-sm">
+                                <span
+                                    className={`font-label-sm text-label-sm px-2 py-0.5 rounded-full ${i === 0 ? 'bg-primary text-on-primary' : 'bg-surface-container text-secondary'}`}
+                                >
+                                    {step.badge}
+                                </span>
+                                <Icon name={step.icon} className="text-secondary text-[16px]" />
+                            </div>
+                            <h5 className="font-label-md text-label-md text-primary font-bold mb-1">{step.title}</h5>
+                            <p className="font-body-sm text-body-sm text-secondary flex-1">{step.desc}</p>
+                            <div className={`mt-space-sm pt-space-xs font-caption text-caption ${i === 0 ? 'font-semibold text-primary' : 'text-secondary'}`}>{step.footer}</div>
+                        </div>
+                    ))}
+                </div>
+            </Card>
+
+            {/* 요약 + 팀원 초대 */}
             <Card padding={6} className="w-full mb-space-lg relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-space-md pb-space-md">
@@ -94,65 +115,44 @@ function CreatedContent({ id, purchase, inviteCode }: ContentProps) {
                         </div>
                     ))}
                 </div>
+
+                {/* 팀원 초대 — 따로 카드를 두지 않고 요약 카드 안에서 바로 공유한다 */}
+                <div className="mt-space-lg pt-space-lg border-t border-outline-variant flex flex-col gap-space-md">
+                    <div className="flex flex-col gap-space-xs">
+                        <Heading level={3}>팀원 초대</Heading>
+                        <p className="font-body-sm text-body-sm text-secondary">링크를 받은 팀원은 로그인한 뒤 바로 공동구매에 참여할 수 있습니다.</p>
+                    </div>
+                    <ShareLinkPanel url={url} inviteCode={inviteCode} />
+                    <div className="bg-surface-container-low rounded px-space-md py-space-sm flex items-center gap-space-sm">
+                        <Icon name="info" className="text-secondary text-[18px] shrink-0" />
+                        <p className="font-body-sm text-body-sm text-secondary">
+                            정원({purchase.maxParticipants}명)이 차거나 수정 기한이 지나면 더 참여할 수 없습니다. 링크는 공동구매가 진행되는 동안 계속 쓸 수 있습니다.
+                        </p>
+                    </div>
+                </div>
             </Card>
 
-            {/* 초대 · 공유 */}
-            <Card variant="blue" padding={6} className="w-full mb-space-lg">
-                <div className="flex items-center gap-2 mb-space-xs">
-                    <Icon name="link" className="text-primary text-[22px]" />
-                    <Heading level={2}>팀원 초대 링크</Heading>
-                </div>
-                <p className="font-body-sm text-body-sm text-secondary mb-space-md">링크를 받은 팀원은 로그인한 뒤 바로 공동구매에 참여할 수 있습니다.</p>
-                <ShareLinkPanel url={url} inviteCode={inviteCode} />
-                <div className="bg-surface-container-lowest/80 rounded p-space-sm flex items-start gap-space-xs">
-                    <Icon name="info" className="text-secondary text-[18px] shrink-0 mt-0.5" />
-                    <p className="font-caption text-caption text-secondary leading-normal">
-                        정원({purchase.maxParticipants}명)이 차거나 수정 기한이 지나면 더 참여할 수 없습니다. 링크는 공동구매가 진행되는 동안 계속 쓸 수 있습니다.
-                    </p>
-                </div>
-            </Card>
-
-            <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-space-md mb-space-xl">
+            {/* 두 버튼은 같은 폭·같은 아이콘 크기로 두고, 다음에 할 일(공동구매로 이동)만 primary 로 강조한다. lg(36px)가 가장 커서 높이는 ! 로 48px 로 올린다 */}
+            <div className="mx-auto mt-space-lg grid w-full max-w-[600px] grid-cols-1 gap-space-md sm:grid-cols-2">
                 <Button
                     as={Link}
-                    className="w-full sm:w-auto min-w-[260px]"
+                    variant="primary"
+                    className="w-full h-12!"
                     href={ROUTES.groupPurchase(id)}
                     size="lg"
-                    icon={<Icon name="shopping_cart_checkout" className="text-[22px]" />}
+                    icon={<Icon name="shopping_cart_checkout" className="text-[20px]" />}
                     label="공동구매로 이동"
                 />
                 <Button
                     as={Link}
                     variant="secondary"
-                    className="w-full sm:w-auto min-w-[220px]"
+                    className="w-full h-12!"
                     href={ROUTES.groupPurchases}
                     size="lg"
                     icon={<Icon name="format_list_bulleted" className="text-[20px]" />}
                     label="내 공동구매 목록 보기"
                 />
             </div>
-
-            {/* 진행 단계 안내 */}
-            <Card padding={6} className="w-full">
-                <Heading level={2} className="mb-space-md">공동구매 진행 단계</Heading>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
-                    {steps.map((step, i) => (
-                        <div key={step.badge} className={`rounded-lg p-space-md flex flex-col ${i === 0 ? 'bg-surface-container-high' : 'bg-surface-container-low'}`}>
-                            <div className="flex items-center justify-between mb-space-sm">
-                                <span
-                                    className={`font-label-sm text-label-sm px-2 py-0.5 rounded-full ${i === 0 ? 'bg-primary text-on-primary' : 'bg-surface-container text-secondary'}`}
-                                >
-                                    {step.badge}
-                                </span>
-                                <Icon name={step.icon} className="text-secondary text-[16px]" />
-                            </div>
-                            <h5 className="font-label-md text-label-md text-primary font-bold mb-1">{step.title}</h5>
-                            <p className="font-body-sm text-body-sm text-secondary flex-1">{step.desc}</p>
-                            <div className={`mt-space-sm pt-space-xs font-caption text-caption ${i === 0 ? 'font-semibold text-primary' : 'text-secondary'}`}>{step.footer}</div>
-                        </div>
-                    ))}
-                </div>
-            </Card>
         </>
     );
 }
