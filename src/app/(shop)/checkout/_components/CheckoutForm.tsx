@@ -68,7 +68,7 @@ function CheckoutItems({ itemsParam }: { itemsParam: string }) {
     return (
         <>
             {items.length < ids.size && (
-                <Text as="p" className="mb-4 rounded-lg bg-surface-container-low p-3" role="status">
+                <Text display="block" as="p" className="mb-4 rounded-lg bg-surface-container-low p-3" role="status">
                     선택한 상품 중 장바구니에 없거나 구매할 수 없는 상품은 주문에서 제외했습니다.
                 </Text>
             )}

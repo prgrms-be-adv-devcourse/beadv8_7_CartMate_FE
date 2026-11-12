@@ -21,7 +21,8 @@ type Props = {
 
 const BUTTON = 'h-11 px-space-md rounded font-label-md text-label-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed';
 const PRIMARY = `${BUTTON} bg-primary text-on-primary hover:opacity-90`;
-const SECONDARY = `${BUTTON} bg-surface-container text-on-surface hover:bg-surface-container-high`;
+// 배경과 같은 색으로 칠하면 버튼 경계가 안 보여서 테두리로 구분한다
+const SECONDARY = `${BUTTON} border border-outline-variant bg-surface-container-low text-on-surface hover:border-primary`;
 const DANGER = `${BUTTON} border border-error text-error hover:bg-error-container/40`;
 
 // 상세 하단의 초대·관리 영역. 참여자: 초대 링크·나가기 / 만든 사람: 초대 링크·마감·인원 늘리기·취소·다시 만들기.
@@ -86,7 +87,7 @@ export default function SharedManagePanel({ id, purchase, deadlinePassed, action
     if (!isActive && purchase.status !== 'CLOSED' && !perm.canDuplicate) return null;
 
     return (
-        <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+        <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-space-lg flex flex-col gap-space-md">
             <h2 className="font-headline-sm text-headline-sm text-primary">{purchase.viewerIsCreator ? '공동구매 관리' : '참여 관리'}</h2>
 
             {purchase.status === 'CLOSED' && (

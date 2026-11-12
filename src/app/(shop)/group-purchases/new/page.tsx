@@ -28,7 +28,7 @@ export default function GroupPurchaseNewPage() {
                     <div className="mt-space-xs">
                         <Text type="supporting" color="accent">NEW GROUP PURCHASE</Text>
                         <Heading level={1}>공동물품 공동구매 만들기</Heading>
-                        <Text as="p" type="supporting" color="secondary" className="mt-1">
+                        <Text display="block" as="p" type="supporting" color="secondary" className="mt-1">
                             팀원들과 하나의 장바구니에 상품을 함께 담고, 금액은 참여 인원 수로 나눠 결제합니다.
                         </Text>
                     </div>

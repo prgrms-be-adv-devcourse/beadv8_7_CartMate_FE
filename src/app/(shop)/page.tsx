@@ -21,16 +21,17 @@ export default function HomePage() {
         <div className="w-full">
             <section className="border-b border-outline-variant bg-surface-container-low">
                 <div className="mx-auto grid max-w-[1200px] gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.4fr_0.6fr] lg:items-end lg:py-16">
-                    <div className="max-w-2xl">
+                    {/* astryx Text·Heading 은 자체 margin 이 우선해 mt-* 가 먹지 않는다. 간격은 부모 gap 으로 준다. */}
+                    <div className="flex max-w-2xl flex-col items-start gap-4">
                         <Badge label="TEAM COMMERCE" variant="blue" />
-                        <Heading level={1} type="display-2" className="mt-5" textWrap="balance">
+                        <Heading level={1} type="display-2" textWrap="balance">
                             팀 장비 구매를 한곳에서,
                             <br />함께 사면 더 간단하게
                         </Heading>
-                        <Text type="large" color="secondary" className="mt-4 max-w-xl">
+                        <Text type="large" color="secondary" className="max-w-xl">
                             판매 상품을 비교하고 공동구매를 만들어 팀원별 주문을 한 번에 모아보세요.
                         </Text>
-                        <div className="mt-7 flex flex-wrap gap-3">
+                        <div className="mt-3 flex flex-wrap gap-3">
                             <Button label="상품 둘러보기" href={ROUTES.search} variant="primary" size="lg" />
                             <Button label="공동구매 시작하기" href={ROUTES.groupPurchaseNew} variant="secondary" size="lg" />
                         </div>
@@ -66,7 +67,7 @@ export default function HomePage() {
                                     <Text type="supporting" color="secondary">0{index + 1}</Text>
                                 </div>
                                 <Heading level={3}>{step.title}</Heading>
-                                <Text color="secondary" className="mt-2">{step.description}</Text>
+                                <Text display="block" color="secondary" className="mt-2">{step.description}</Text>
                             </Card>
                         ))}
                     </div>

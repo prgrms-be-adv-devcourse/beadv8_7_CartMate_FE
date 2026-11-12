@@ -14,7 +14,7 @@ export default function SellerClaimsPage() {
             <div className="flex items-center justify-between mb-space-xl">
                 <div>
                     <Heading level={1}>교환·환불 관리</Heading>
-                    <Text color="secondary" className="mt-space-xs">고객이 신청한 교환 및 환불 요청을 확인하고 처리 상태를 관리합니다.</Text>
+                    <Text display="block" color="secondary" className="mt-space-xs">고객이 신청한 교환 및 환불 요청을 확인하고 처리 상태를 관리합니다.</Text>
                 </div>
                 <div className="flex items-center gap-space-md">
                     {/* 선택한 탭을 URL 쿼리스트링에서 읽는 부분은 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}

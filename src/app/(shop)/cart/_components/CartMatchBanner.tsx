@@ -51,7 +51,7 @@ export default function CartMatchBanner() {
             <section className="flex flex-col gap-4" aria-labelledby="cart-matches-title">
                 <div>
                     <Heading id="cart-matches-title" level={2}>내 장바구니와 맞는 공동구매</Heading>
-                    <Text as="p" type="supporting" color="secondary" className="mt-1">상품을 확인하고 초대 페이지에서 참여할 수 있습니다.</Text>
+                    <Text display="block" as="p" type="supporting" color="secondary" className="mt-1">상품을 확인하고 초대 페이지에서 참여할 수 있습니다.</Text>
                 </div>
                 <ul className="flex flex-col gap-space-sm">
                     {results.map((match) => (

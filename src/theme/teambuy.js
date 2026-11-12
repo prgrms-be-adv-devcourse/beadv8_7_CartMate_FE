@@ -389,6 +389,10 @@ export const teambuyTheme = {
       "variant:gray": {
         "backgroundColor": "var(--color-background-gray)",
         "color": "var(--color-text-gray)"
+      },
+      "base": {
+        "height": "24px",
+        "paddingInline": "var(--spacing-2-5, 10px)"
       }
     },
     "segmented-control": {
@@ -426,6 +430,9 @@ export const teambuyTheme = {
     "card": {
       "base": {
         "padding": "var(--spacing-6)"
+      },
+      "variant:muted": {
+        "border": "1px solid var(--color-border)"
       }
     },
     "section": {

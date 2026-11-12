@@ -198,12 +198,12 @@ export default function MembersContent() {
             {/* 1. Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-sm pb-space-sm border-b border-outline-variant">
                 <div>
-                    <Text color="secondary" className="mb-space-xs">
+                    <Text display="block" color="secondary" className="mb-space-xs">
                         <span className="w-2 h-2 rounded-full bg-primary inline-block"></span>
                         <span>회원 관리</span>
                     </Text>
                     <Heading level={1}>회원 목록</Heading>
-                    <Text color="secondary" className="mt-1">
+                    <Text display="block" color="secondary" className="mt-1">
                         전체 등록 회원을 조회하고 상태 및 권한을 관리합니다.
                         {result && <span className="ml-2 font-semibold text-primary">총 {result.totalElements.toLocaleString('ko-KR')}명</span>}
                     </Text>

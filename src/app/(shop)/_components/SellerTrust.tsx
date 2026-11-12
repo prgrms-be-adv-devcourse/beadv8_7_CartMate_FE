@@ -102,7 +102,7 @@ export function SellerTrustPanel({ sellerId, fallback }: { sellerId: number | un
                     <div className="h-full bg-primary" style={{ width: `${trust.score}%` }} />
                 </div>
             )}
-            <Text type="supporting" color="secondary" className="mt-2">{style.description}</Text>
+            <Text display="block" type="supporting" color="secondary" className="mt-2">{style.description}</Text>
             </Card>
         </section>
     );

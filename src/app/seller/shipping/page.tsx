@@ -13,7 +13,7 @@ export default function SellerShippingPage() {
             <div className="mb-space-xl">
                 <div>
                     <Heading level={1}>배송 관리</Heading>
-                    <Text color="secondary" className="mt-space-xs">주문된 상품의 배송 상태를 확인하고 운송장 번호를 등록·관리합니다.</Text>
+                    <Text display="block" color="secondary" className="mt-space-xs">주문된 상품의 배송 상태를 확인하고 운송장 번호를 등록·관리합니다.</Text>
                 </div>
             </div>
             {/* API가 지원하는 배송 상태 필터만 노출한다. */}

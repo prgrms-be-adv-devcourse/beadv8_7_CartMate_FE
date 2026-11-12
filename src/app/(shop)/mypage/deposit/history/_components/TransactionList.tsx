@@ -93,7 +93,7 @@ export default function TransactionList() {
                                         <div className="flex items-start justify-between gap-space-md">
                                             <div className="min-w-0">
                                                 <Badge label={info.label} variant="neutral" />
-                                                <Text as="p" weight="semibold" className="mt-space-xs">{info.title}</Text>
+                                                <Text display="block" as="p" weight="semibold" className="mt-space-xs">{info.title}</Text>
                                             </div>
                                             <Text as="span" weight="bold" className={`shrink-0 ${info.amountClassName}`} hasTabularNumbers>
                                                 {tx.amount == null ? '-' : `${info.sign}${tx.amount.toLocaleString('ko-KR')}원`}
@@ -109,7 +109,7 @@ export default function TransactionList() {
                                                 <Text as="p" type="supporting">{formatDateTime(tx.createdAt)}</Text>
                                             </div>
                                         </div>
-                                        <Text as="p" type="supporting" color="secondary" className="mt-space-sm break-all">
+                                        <Text display="block" as="p" type="supporting" color="secondary" className="mt-space-sm break-all">
                                             {tx.orderId != null ? `주문번호: #${tx.orderId} · ` : ''}거래번호: #{tx.transactionId}
                                         </Text>
                                     </article>
@@ -137,7 +137,7 @@ export default function TransactionList() {
                                                 <td className="py-space-md px-space-sm text-center"><Badge label={info.label} variant="neutral" /></td>
                                                 <td className="py-space-md px-space-md">
                                                     <Text as="div" weight="semibold">{info.title}</Text>
-                                                    <Text as="div" type="supporting" color="secondary" className="mt-0.5">
+                                                    <Text display="block" as="div" type="supporting" color="secondary" className="mt-0.5">
                                                         {tx.orderId != null ? `주문번호: #${tx.orderId} · ` : ''}거래번호: #{tx.transactionId}
                                                     </Text>
                                                 </td>
