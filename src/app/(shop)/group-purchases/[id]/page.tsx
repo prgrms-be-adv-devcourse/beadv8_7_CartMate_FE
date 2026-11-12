@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function GroupPurchaseDetailPage() {
     return (
-        <div className="max-w-[1200px] mx-auto px-gutter py-space-xl">
+        <div className="max-w-[1200px] mx-auto px-gutter py-8 sm:py-12">
             <nav className="flex items-center gap-2 text-secondary font-body-sm text-body-sm mb-space-md">
                 <Link className="hover:text-primary" href={ROUTES.groupPurchases}>
                     내 공동구매

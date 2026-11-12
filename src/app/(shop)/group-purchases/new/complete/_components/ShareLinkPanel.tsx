@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import Icon from '@/components/ui/Icon';
 
 type ShareLinkPanelProps = { url: string; inviteCode: string };
@@ -47,35 +48,31 @@ export default function ShareLinkPanel({ url, inviteCode }: ShareLinkPanelProps)
                     value={url}
                     onFocus={(e) => e.target.select()}
                 />
-                <button
-                    className="h-11 px-space-md bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 transition hover:opacity-90 active:scale-[0.98]"
+                <Button
                     type="button"
                     onClick={() => copy(url, '초대 링크가 복사되었습니다.')}
-                >
-                    <Icon name="content_copy" className="text-[18px]" />
-                    <span>링크 복사</span>
-                </button>
-                <button
-                    className="h-11 px-space-md bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    icon={<Icon name="content_copy" className="text-[18px]" />}
+                    label="링크 복사"
+                />
+                <Button
+                    variant="secondary"
                     type="button"
-                    disabled
-                    title="준비 중"
-                >
-                    <Icon name="chat" className="text-[20px]" />
-                    <span>카카오톡 공유 (준비 중)</span>
-                </button>
+                    isDisabled
+                    icon={<Icon name="chat" className="text-[20px]" />}
+                    label="카카오톡 공유 (준비 중)"
+                />
             </div>
             <div className="flex items-center gap-space-sm mb-space-md font-body-sm text-body-sm text-secondary">
                 <span>초대 코드</span>
                 <span className="font-mono font-bold text-primary tracking-wider">{inviteCode}</span>
-                <button
-                    className="h-8 px-space-sm border border-outline-variant bg-surface-container-lowest text-on-surface font-label-sm text-label-sm rounded flex items-center gap-1 hover:bg-surface-container"
+                <Button
+                    variant="secondary"
+                    size="sm"
                     type="button"
                     onClick={() => copy(inviteCode, '초대 코드가 복사되었습니다.')}
-                >
-                    <Icon name="content_copy" className="text-[14px]" />
-                    코드 복사
-                </button>
+                    icon={<Icon name="content_copy" className="text-[14px]" />}
+                    label="코드 복사"
+                />
             </div>
             <div
                 className={`fixed bottom-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-space-md py-space-sm rounded shadow-xl transition-all duration-300 flex items-center gap-2 z-50 ${

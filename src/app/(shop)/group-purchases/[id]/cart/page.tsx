@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function GroupPurchaseCartPage() {
     return (
-        <div className="max-w-[1200px] mx-auto px-gutter py-space-xl">
+        <div className="max-w-[1200px] mx-auto px-gutter py-8 sm:py-12">
             {/* 요청마다 달라지는 공동구매 id를 읽는 부분만 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}
             <Suspense fallback={<DetailSkeleton />}>
                 <SharedCartView />

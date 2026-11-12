@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { useGetMyList1 } from '@/api/generated/shared-group-purchase-controller/shared-group-purchase-controller';
 import type { SharedGroupPurchaseSummaryResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
@@ -68,24 +72,18 @@ export default function MyGroupPurchaseList() {
                     ))}
                 </div>
             ) : list.isError ? (
-                <div className="bg-surface-container-low p-space-xl flex flex-col items-center gap-space-md text-center" role="alert">
-                    <p className="font-body-md text-body-md text-on-surface">{errorMessage(list.error, '공동구매 목록을 불러오지 못했습니다.')}</p>
-                    <button className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md" type="button" onClick={() => void list.refetch()}>
-                        다시 시도
-                    </button>
-                </div>
+                <EmptyState
+                    title={errorMessage(list.error, '공동구매 목록을 불러오지 못했습니다.')}
+                    description="잠시 후 다시 시도해 주세요."
+                    actions={<Button label="다시 시도" variant="secondary" onClick={() => void list.refetch()} />}
+                />
             ) : visible.length === 0 ? (
-                <div className="bg-surface-container-low p-space-xl flex flex-col items-center gap-space-md text-center">
-                    <Icon name="groups" className="text-[40px] text-outline" />
-                    <p className="font-body-md text-body-md text-on-surface">
-                        {rows.length === 0 ? '아직 만들거나 참여한 공동구매가 없습니다.' : '해당하는 공동구매가 없습니다.'}
-                    </p>
-                    {rows.length === 0 && (
-                        <Link className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md flex items-center" href={ROUTES.groupPurchaseNew}>
-                            공동구매 만들기
-                        </Link>
-                    )}
-                </div>
+                <EmptyState
+                    title={rows.length === 0 ? '아직 만들거나 참여한 공동구매가 없습니다.' : '해당하는 공동구매가 없습니다.'}
+                    description="팀원과 함께 살 상품을 모아 보세요."
+                    icon={<Icon name="groups" className="text-[40px]" />}
+                    actions={rows.length === 0 ? <Button label="공동구매 만들기" href={ROUTES.groupPurchaseNew} as={Link} variant="primary" /> : undefined}
+                />
             ) : (
                 <ul className="flex flex-col gap-space-sm">
                     {visible.map((row) => (
@@ -105,16 +103,12 @@ function GroupPurchaseCard({ row }: { row: Row }) {
     const percent = max > 0 ? Math.min(100, Math.round((count / max) * 100)) : 0;
 
     return (
-        <Link
-            className="group block bg-surface-container-lowest border border-outline-variant hover:border-primary transition-colors p-space-md"
-            href={ROUTES.groupPurchase(row.id)}
-        >
+        <Card className="transition-colors hover:border-primary">
+        <Link className="group block" href={ROUTES.groupPurchase(row.id)}>
             <div className="flex flex-wrap items-center justify-between gap-space-sm mb-space-sm">
                 <div className="flex flex-wrap items-center gap-space-xs">
                     <span className={statusBadgeClass(row.status, row.editable)}>{statusLabel(row.status, row.editable)}</span>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded border border-outline-variant font-caption text-caption text-on-surface-variant">
-                        {row.creator ? '내가 만든' : '참여 중'}
-                    </span>
+                    <Badge label={row.creator ? '내가 만든' : '참여 중'} variant="neutral" />
                     <span className="font-caption text-caption text-outline">#{row.id}</span>
                 </div>
                 <span className="font-caption text-caption text-outline">수정 마감 {formatDateTime(row.editDeadlineAt)}</span>
@@ -132,5 +126,6 @@ function GroupPurchaseCard({ row }: { row: Row }) {
                 </span>
             </div>
         </Link>
+        </Card>
     );
 }

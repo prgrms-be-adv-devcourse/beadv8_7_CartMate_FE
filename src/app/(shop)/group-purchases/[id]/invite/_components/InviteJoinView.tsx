@@ -3,6 +3,10 @@
 import { useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import {
     getGetDetail1QueryKey,
     getGetMyList1QueryKey,
@@ -78,7 +82,7 @@ function JoinCard({ code }: { code: string }) {
 
     return (
         <div className="flex flex-col gap-space-lg">
-            <section className="bg-surface-container-lowest rounded-xl shadow-md p-space-xl relative overflow-hidden flex flex-col items-center text-center gap-space-md">
+            <Card className="relative overflow-hidden flex flex-col items-center text-center gap-space-md" variant="blue">
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-primary" />
                 <div className="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center shadow-sm">
                     <Icon name="mail" className="text-primary text-[40px]" />
@@ -87,30 +91,32 @@ function JoinCard({ code }: { code: string }) {
                     <span className="self-center font-caption text-caption px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-bold">
                         공동물품 (N빵) 공동구매 초대
                     </span>
-                    <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">공동구매에 초대되었습니다</h1>
-                    <p className="font-body-md text-body-md text-secondary max-w-[560px]">
+                    <Heading level={1}>공동구매에 초대되었습니다</Heading>
+                    <Text as="p" color="secondary" className="max-w-[560px]">
                         참여하면 팀원들과 함께 장바구니를 채우고, 마감 후 총액을 인원 수대로 나눠 결제합니다. 공동구매 내용은 참여한 뒤에 볼 수 있습니다.
-                    </p>
+                    </Text>
                 </div>
                 {join.isError && (
                     <p className="w-full max-w-[480px] p-space-sm rounded bg-error-container text-on-error-container font-body-sm text-body-sm" role="alert">
                         {joinErrorMessage(join.error)}
                     </p>
                 )}
-                <button
-                    className="w-full max-w-[360px] h-14 rounded bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-space-xs shadow-lg hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
-                    type="button"
-                    disabled={busy}
+                <Button
+                    label={busy ? '참여하는 중...' : '공동구매 참여하기'}
+                    width="100%"
+                    className="max-w-[360px]"
+                    size="lg"
+                    variant="primary"
+                    isLoading={join.isPending}
+                    isDisabled={busy}
+                    icon={<Icon name="group_add" className="text-[22px]" />}
                     onClick={() => join.mutate({ data: { inviteCode: code } })}
-                >
-                    <Icon name="group_add" className="text-[22px]" />
-                    {busy ? '참여하는 중...' : '공동구매 참여하기'}
-                </button>
+                />
                 <p className="font-caption text-caption text-secondary">수정 마감 전까지는 언제든 나갈 수 있습니다.</p>
-            </section>
+            </Card>
 
-            <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
-                <h2 className="font-headline-sm text-headline-sm text-primary mb-space-md">진행 방법</h2>
+            <Card>
+                <Heading level={2} className="mb-space-md">진행 방법</Heading>
                 <ol className="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
                     {STEPS.map((step, i) => (
                         <li key={step.title} className="rounded-lg p-space-md bg-surface-container-low flex flex-col gap-1">
@@ -123,7 +129,7 @@ function JoinCard({ code }: { code: string }) {
                         </li>
                     ))}
                 </ol>
-            </section>
+            </Card>
         </div>
     );
 }

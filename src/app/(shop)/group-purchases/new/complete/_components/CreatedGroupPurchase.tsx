@@ -2,6 +2,11 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import { useGetDetail1 } from '@/api/generated/shared-group-purchase-controller/shared-group-purchase-controller';
 import type { SharedGroupPurchaseDetailResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
@@ -55,15 +60,15 @@ function CreatedContent({ id, purchase, inviteCode }: ContentProps) {
                     <Icon name="check" className="text-primary text-[44px]" />
                 </div>
                 <div className="flex items-center gap-space-xs mb-space-xs">
-                    <span className="font-caption text-caption px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-bold">생성 완료</span>
-                    <span className="font-caption text-caption text-secondary">공동구매 번호 #{id}</span>
+                    <Badge variant="info" label="생성 완료" />
+                    <Text size="sm" color="secondary">공동구매 번호 #{id}</Text>
                 </div>
-                <h1 className="font-display-xl text-display-xl text-primary tracking-tight mb-space-xs">공동구매를 만들었습니다!</h1>
-                <p className="font-body-lg text-body-lg text-secondary max-w-[620px]">팀원들에게 초대 링크를 공유해 함께 상품을 담도록 안내하세요.</p>
+                <Heading level={1} type="display-2" className="mb-space-xs">공동구매를 만들었습니다!</Heading>
+                <Text size="lg" color="secondary" className="max-w-[620px]">팀원들에게 초대 링크를 공유해 함께 상품을 담도록 안내하세요.</Text>
             </div>
 
             {/* 요약 카드 */}
-            <div className="w-full bg-surface-container-lowest rounded-xl shadow-md p-space-lg mb-space-lg relative overflow-hidden">
+            <Card padding={6} className="w-full mb-space-lg relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-space-md pb-space-md">
                     <div className="min-w-0">
@@ -89,13 +94,13 @@ function CreatedContent({ id, purchase, inviteCode }: ContentProps) {
                         </div>
                     ))}
                 </div>
-            </div>
+            </Card>
 
             {/* 초대 · 공유 */}
-            <div className="w-full bg-surface-container-high rounded-xl p-space-lg shadow-md mb-space-lg">
+            <Card variant="blue" padding={6} className="w-full mb-space-lg">
                 <div className="flex items-center gap-2 mb-space-xs">
                     <Icon name="link" className="text-primary text-[22px]" />
-                    <h3 className="font-headline-sm text-headline-sm text-primary">팀원 초대 링크</h3>
+                    <Heading level={2}>팀원 초대 링크</Heading>
                 </div>
                 <p className="font-body-sm text-body-sm text-secondary mb-space-md">링크를 받은 팀원은 로그인한 뒤 바로 공동구매에 참여할 수 있습니다.</p>
                 <ShareLinkPanel url={url} inviteCode={inviteCode} />
@@ -105,28 +110,31 @@ function CreatedContent({ id, purchase, inviteCode }: ContentProps) {
                         정원({purchase.maxParticipants}명)이 차거나 수정 기한이 지나면 더 참여할 수 없습니다. 링크는 공동구매가 진행되는 동안 계속 쓸 수 있습니다.
                     </p>
                 </div>
-            </div>
+            </Card>
 
             <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-space-md mb-space-xl">
-                <Link
-                    className="w-full sm:w-auto min-w-[260px] h-14 bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-space-xs shadow-lg transition hover:opacity-90"
+                <Button
+                    as={Link}
+                    className="w-full sm:w-auto min-w-[260px]"
                     href={ROUTES.groupPurchase(id)}
-                >
-                    <Icon name="shopping_cart_checkout" className="text-[22px]" />
-                    <span>공동구매로 이동</span>
-                </Link>
-                <Link
-                    className="w-full sm:w-auto min-w-[220px] h-14 bg-surface-container text-on-surface font-label-md text-label-md rounded flex items-center justify-center gap-space-xs transition hover:bg-surface-variant"
+                    size="lg"
+                    icon={<Icon name="shopping_cart_checkout" className="text-[22px]" />}
+                    label="공동구매로 이동"
+                />
+                <Button
+                    as={Link}
+                    variant="secondary"
+                    className="w-full sm:w-auto min-w-[220px]"
                     href={ROUTES.groupPurchases}
-                >
-                    <Icon name="format_list_bulleted" className="text-[20px]" />
-                    <span>내 공동구매 목록 보기</span>
-                </Link>
+                    size="lg"
+                    icon={<Icon name="format_list_bulleted" className="text-[20px]" />}
+                    label="내 공동구매 목록 보기"
+                />
             </div>
 
             {/* 진행 단계 안내 */}
-            <div className="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
-                <h4 className="font-headline-sm text-headline-sm text-primary mb-space-md">공동구매 진행 단계</h4>
+            <Card padding={6} className="w-full">
+                <Heading level={2} className="mb-space-md">공동구매 진행 단계</Heading>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
                     {steps.map((step, i) => (
                         <div key={step.badge} className={`rounded-lg p-space-md flex flex-col ${i === 0 ? 'bg-surface-container-high' : 'bg-surface-container-low'}`}>
@@ -144,7 +152,7 @@ function CreatedContent({ id, purchase, inviteCode }: ContentProps) {
                         </div>
                     ))}
                 </div>
-            </div>
+            </Card>
         </>
     );
 }
