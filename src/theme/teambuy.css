@@ -494,6 +494,11 @@
     color: var(--color-text-gray);
   }
 
+  .astryx-badge {
+    height: 24px;
+    padding-inline: var(--spacing-2-5, 10px);
+  }
+
   .astryx-segmented-control {
     padding: var(--spacing-1);
     --_segmented-control-padding: var(--spacing-1);
@@ -529,6 +534,10 @@
 
   .astryx-card {
     --astryx-card-padding: var(--spacing-6);
+  }
+
+  .astryx-card[data-variant="muted"] {
+    border: 1px solid var(--color-border);
   }
 
   .astryx-section {

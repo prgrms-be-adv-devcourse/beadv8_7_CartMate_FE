@@ -15,6 +15,17 @@ export const teambuyTheme = defineTheme({
             base: {
                 padding: 'var(--spacing-6)',
             },
+            // muted 카드는 어두운 화면에서 배경이 바깥 카드와 같아 경계가 사라진다. 테두리로 구분한다.
+            'variant:muted': {
+                border: '1px solid var(--color-border)',
+            },
+        },
+        // 기본 배지(높이 20px, 좌우 8px)는 글자가 꽉 차 보여 조금 넓힌다.
+        badge: {
+            base: {
+                height: '24px',
+                paddingInline: 'var(--spacing-2-5, 10px)',
+            },
         },
     },
 });
