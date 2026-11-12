@@ -226,7 +226,7 @@ export default function MembersContent() {
                         </label>
                         <div className="relative">
                             <select
-                                className="w-full h-10 px-space-sm pr-8 bg-surface border border-outline-variant rounded font-body-sm text-body-sm text-primary focus:border-primary focus:outline-none appearance-none cursor-pointer"
+                                className="w-full h-10 px-space-sm bg-surface border border-outline-variant rounded font-body-sm text-body-sm text-primary focus:border-primary focus:outline-none cursor-pointer"
                                 id="search-target"
                                 value={form.searchType}
                                 onChange={(e) => update('searchType', e.target.value as SearchType)}
@@ -235,10 +235,6 @@ export default function MembersContent() {
                                 <option value="id">회원번호</option>
                                 <option value="nickname">닉네임</option>
                             </select>
-                            <Icon
-                                name="expand_more"
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none"
-                            />
                         </div>
                     </div>
                     <div className="md:col-span-9 flex flex-col gap-1">

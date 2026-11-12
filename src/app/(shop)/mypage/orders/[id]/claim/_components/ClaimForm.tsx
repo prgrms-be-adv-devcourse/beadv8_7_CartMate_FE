@@ -302,7 +302,7 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                                     setReason(e.target.value);
                                     setFormError(null);
                                 }}
-                                className="w-full h-[42px] border border-outline-variant bg-surface-container-lowest px-space-md rounded font-body-sm text-body-sm text-on-surface outline-none focus:border-primary appearance-none cursor-pointer"
+                                className="w-full h-[42px] border border-outline-variant bg-surface-container-lowest px-space-md rounded font-body-sm text-body-sm text-on-surface outline-none focus:border-primary cursor-pointer"
                             >
                                 <option disabled value="">
                                     사유를 선택해 주세요
@@ -313,7 +313,6 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                                     </option>
                                 ))}
                             </select>
-                            <Icon name="expand_more" className="absolute right-3 top-2.5 text-outline pointer-events-none" />
                         </div>
                     </div>
 
