@@ -125,7 +125,7 @@ export default function DemandCandidates() {
         <div className="flex flex-col gap-space-lg">
             <div>
                 <Heading level={1}>장바구니 수요 후보</Heading>
-                <Text color="secondary" className="mt-2">
+                <Text display="block" color="secondary" className="mt-2">
                     장바구니에 담긴 상품 수요를 확인하고 개인물품 공동구매를 개설합니다.
                 </Text>
             </div>
@@ -225,7 +225,7 @@ export default function DemandCandidates() {
                   <form className="flex flex-col gap-space-md" onSubmit={submitOpen}>
                     <div>
                         <Heading level={2}>{selected.productName ?? `상품 #${selected.productId}`} 공동구매 개설</Heading>
-                        <Text color="secondary" className="mt-space-xs">마감일을 비우면 72시간 뒤로 설정됩니다.</Text>
+                        <Text display="block" color="secondary" className="mt-space-xs">마감일을 비우면 72시간 뒤로 설정됩니다.</Text>
                     </div>
                     <label className="flex flex-col gap-space-xs font-label-sm text-label-sm text-on-surface">
                         공동구매 제목

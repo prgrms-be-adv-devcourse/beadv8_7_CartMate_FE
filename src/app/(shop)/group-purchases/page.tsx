@@ -27,7 +27,7 @@ export default function GroupPurchasesPage() {
                             </div>
                             <Text type="supporting" color="accent">GROUP PURCHASE</Text>
                             <Heading level={1}>내 공동구매</Heading>
-                            <Text as="p" type="supporting" color="secondary" className="mt-1">내가 만들었거나 초대받아 참여한 공동구매입니다.</Text>
+                            <Text display="block" as="p" type="supporting" color="secondary" className="mt-1">내가 만들었거나 초대받아 참여한 공동구매입니다.</Text>
                         </div>
                         <Button label="공동구매 만들기" className="self-start md:self-auto" href={ROUTES.groupPurchaseNew} variant="primary" icon={<Icon name="group_add" className="text-[18px]" />} />
                     </div>

@@ -62,7 +62,7 @@ export function DeadlineBox({ purchase, remainingMs }: { purchase: Detail; remai
             <Heading level={3}>
                 {counting ? remainingText(remainingMs) : '수정 마감'}
             </Heading>
-            <Text as="p" type="supporting" color="secondary" className="mt-1">마감 일시: {formatDateTime(purchase.editDeadlineAt)}</Text>
+            <Text display="block" as="p" type="supporting" color="secondary" className="mt-1">마감 일시: {formatDateTime(purchase.editDeadlineAt)}</Text>
         </Card>
     );
 }

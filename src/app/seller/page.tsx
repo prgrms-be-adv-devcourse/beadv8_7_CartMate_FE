@@ -14,7 +14,7 @@ export default function SellerDashboardPage() {
                 <div>
                     <Text type="supporting" color="accent">SELLER OVERVIEW</Text>
                     <Heading level={1} className="mt-1">대시보드</Heading>
-                    <Text color="secondary" className="mt-space-xs">처리가 필요한 배송, 클레임과 다음 정산을 확인하세요.</Text>
+                    <Text display="block" color="secondary" className="mt-space-xs">처리가 필요한 배송, 클레임과 다음 정산을 확인하세요.</Text>
                 </div>
                 <div className="flex flex-wrap gap-space-sm">
                     <Button label="배송 관리" href={ROUTES.sellerShipping} variant="secondary" icon={<Icon name="local_shipping" />} />
@@ -31,7 +31,7 @@ export default function SellerDashboardPage() {
                 <div className="flex flex-wrap items-center justify-between gap-space-lg">
                     <div>
                         <Heading level={2}>운영 바로가기</Heading>
-                        <Text color="secondary" className="mt-space-xs">목록에서 최신 상태를 조회하고 필요한 작업을 이어갈 수 있습니다.</Text>
+                        <Text display="block" color="secondary" className="mt-space-xs">목록에서 최신 상태를 조회하고 필요한 작업을 이어갈 수 있습니다.</Text>
                     </div>
                     <div className="flex flex-wrap gap-space-sm">
                         <Button label="교환·환불 관리" href={ROUTES.sellerClaims} variant="ghost" />

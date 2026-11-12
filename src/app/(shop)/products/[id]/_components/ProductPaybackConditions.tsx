@@ -41,7 +41,7 @@ export default function ProductPaybackConditions({ productId }: { productId: num
             <Card variant="muted">
             <Heading level={2}>페이백 조건</Heading>
             {query.isPending ? (
-                <Text color="secondary" className="mt-3" role="status">조건을 불러오는 중입니다.</Text>
+                <Text display="block" color="secondary" className="mt-3" role="status">조건을 불러오는 중입니다.</Text>
             ) : query.isError || invalid ? (
                 <div className="mt-3 flex flex-col items-start gap-3" role="alert">
                     <p className="font-body-sm text-body-sm text-error">
@@ -50,14 +50,14 @@ export default function ProductPaybackConditions({ productId }: { productId: num
                     <Button label="다시 시도" size="sm" onClick={() => query.refetch()} />
                 </div>
             ) : ordered.length === 0 ? (
-                <Text color="secondary" className="mt-3">현재 설정된 페이백 조건이 없습니다.</Text>
+                <Text display="block" color="secondary" className="mt-3">현재 설정된 페이백 조건이 없습니다.</Text>
             ) : (
                 <>
                     <ul className="mt-3 flex flex-col gap-2">
                         {ordered.map((condition) => (
                             <li key={condition.funder} className="rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
                                 <Badge label={funderLabels[condition.funder!]} variant={condition.funder === 'ADMIN' ? 'blue' : 'teal'} />
-                                <Text className="mt-2">
+                                <Text display="block" className="mt-2">
                                     공동구매 내 해당 상품 구매확정 수량이 {condition.minQuantity!.toLocaleString('ko-KR')}개 이상이면,
                                     내 구매확정 수량 1개당 {condition.amountPerUnit!.toLocaleString('ko-KR')}원
                                 </Text>
@@ -65,7 +65,7 @@ export default function ProductPaybackConditions({ productId }: { productId: num
                         ))}
                     </ul>
                     {hasBoth && (
-                        <Text color="secondary" className="mt-3">
+                        <Text display="block" color="secondary" className="mt-3">
                             중복 조건: {policy in policyDescriptions
                                 ? policyDescriptions[policy]
                                 : '적용 방식은 현재 확인할 수 없습니다.'}

@@ -256,8 +256,8 @@ function CartRow({ item, checked, disabled, onToggle, onRemove, onQuantity }: Ro
                         <Badge label="현재 구매할 수 없는 상품입니다" variant="neutral" className="self-start mb-1" />
                     )}
                     <Heading level={3} color={canBuy ? 'primary' : 'secondary'} hasStrikethrough={!canBuy} maxLines={1}>{item.productName}</Heading>
-                    {item.optionName && <Text type="supporting" color="secondary" className="mt-1">옵션: {item.optionName}</Text>}
-                    {item.price !== undefined && <Text type="supporting" color="secondary" className="mt-0.5">단가: {formatPrice(item.price)}</Text>}
+                    {item.optionName && <Text display="block" type="supporting" color="secondary" className="mt-1">옵션: {item.optionName}</Text>}
+                    {item.price !== undefined && <Text display="block" type="supporting" color="secondary" className="mt-0.5">단가: {formatPrice(item.price)}</Text>}
                 </div>
             </div>
             <div className="flex md:flex-col items-end justify-between w-full md:w-auto md:min-w-[140px] pt-space-sm md:pt-0 gap-space-sm">
