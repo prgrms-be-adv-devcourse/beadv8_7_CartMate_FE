@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
+import { Button, EmptyState } from '@astryxdesign/core';
 import { useQueries } from '@tanstack/react-query';
 import { useGetMyClaims } from '@/api/generated/claim-controller/claim-controller';
 import { getGetDeliveryDetailsQueryOptions, useGetDeliveriesByOrder } from '@/api/generated/delivery-controller/delivery-controller';
@@ -13,9 +14,6 @@ import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import { ACTIVE_CLAIM_STATUSES, errorStatus, isRefunded } from '@/app/(shop)/mypage/claims/_lib/claimView';
 import ClaimForm from './ClaimForm';
-
-const OUTLINE_BUTTON =
-    'h-10 px-space-md border border-outline-variant bg-surface-container-lowest hover:bg-surface-container font-label-md text-label-md text-on-surface rounded inline-flex items-center justify-center gap-space-xs transition-colors';
 
 // 404·403은 재시도해도 같으니 바로 안내한다.
 const retryUnlessHttp = (count: number, error: unknown) => errorStatus(error) === undefined && count < 2;
@@ -59,9 +57,7 @@ export default function ClaimContent() {
         if (status === 403) return <Notice icon="lock" title="신청할 수 없는 주문입니다" message="본인이 주문한 내역만 교환 · 환불을 신청할 수 있습니다." />;
         return (
             <Notice icon="error" title="주문 정보를 불러오지 못했습니다" message={errorMessage(orderQuery.error, '잠시 후 다시 시도해 주세요.')}>
-                <button className={OUTLINE_BUTTON} type="button" onClick={() => void orderQuery.refetch()}>
-                    다시 시도
-                </button>
+                <Button label="다시 시도" variant="secondary" onClick={() => void orderQuery.refetch()} />
             </Notice>
         );
     }
@@ -88,17 +84,15 @@ export default function ClaimContent() {
     if (loadError) {
         return (
             <Notice icon="error" title="배송 정보를 불러오지 못했습니다" message={errorMessage(loadError, '잠시 후 다시 시도해 주세요.')}>
-                <button
-                    className={OUTLINE_BUTTON}
-                    type="button"
+                <Button
+                    label="다시 시도"
+                    variant="secondary"
                     onClick={() => {
                         void deliveriesQuery.refetch();
                         detailQueries.forEach((q) => void q.refetch());
                         void claimsQuery.refetch();
                     }}
-                >
-                    다시 시도
-                </button>
+                />
             </Notice>
         );
     }
@@ -142,9 +136,7 @@ export default function ClaimContent() {
 
 function BackToOrder({ orderId }: { orderId: number }) {
     return (
-        <Link className={OUTLINE_BUTTON} href={ROUTES.order(orderId)}>
-            주문 상세로
-        </Link>
+        <Button label="주문 상세로" variant="secondary" href={ROUTES.order(orderId)} as={Link} />
     );
 }
 
@@ -159,11 +151,6 @@ function Loading() {
 
 function Notice({ icon, title, message, children }: { icon: string; title: string; message: string; children?: ReactNode }) {
     return (
-        <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl flex flex-col items-center text-center gap-space-sm">
-            <Icon name={icon} className="text-[40px] text-outline" />
-            <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">{title}</h2>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">{message}</p>
-            {children && <div className="mt-space-sm flex gap-space-sm">{children}</div>}
-        </div>
+        <EmptyState icon={<Icon name={icon} />} title={title} description={message} actions={children ? <div className="flex flex-wrap justify-center gap-space-sm">{children}</div> : undefined} />
     );
 }

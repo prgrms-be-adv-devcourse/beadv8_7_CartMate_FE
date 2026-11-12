@@ -1,8 +1,9 @@
 'use client';
 
+import { Badge, Card, Heading, Text } from '@astryxdesign/core';
 import { useGetMyWallet, useGetMyWalletTransactionSummary } from '@/api/generated/wallet-controller/wallet-controller';
 
-const BOX_BORDER = 'border-b md:border-b-0 md:border-r border-outline-variant pb-space-sm md:pb-0';
+const BOX_BORDER = 'border-b md:border-b-0 md:border-r border-outline-variant pb-space-md md:pb-0';
 
 function won(value: number | undefined, sign: '+' | '-' | ''): string {
     if (value === undefined) return '-';
@@ -18,28 +19,34 @@ export default function SummaryBar() {
     const held = wallet.data?.data?.heldBalance;
 
     return (
-        <div className="bg-surface-container border border-outline-variant p-space-md mb-space-lg grid grid-cols-12 gap-space-md items-center">
-            <div className={`col-span-12 md:col-span-4 flex items-center justify-between px-space-md ${BOX_BORDER}`}>
-                <span className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs">
-                    <span className="w-2 h-2 inline-block bg-primary" />총 충전
-                </span>
-                <span className="font-headline-sm text-headline-sm font-bold text-primary">{won(totalCharged, '+')}</span>
+        <Card padding={4} className="mb-space-lg">
+            <div className="mb-space-md flex flex-wrap items-center justify-between gap-space-sm">
+                <Heading level={2}>전체 기간 요약</Heading>
+                <Badge label="전체 기간" variant="neutral" />
             </div>
-            <div className={`col-span-12 md:col-span-4 flex items-center justify-between px-space-md ${BOX_BORDER}`}>
-                <span className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs">
-                    <span className="w-2 h-2 inline-block bg-outline" />총 결제 (환불 차감)
-                </span>
-                <span className="font-headline-sm text-headline-sm font-bold text-on-surface">{won(totalPaid, '-')}</span>
-            </div>
-            <div className="col-span-12 md:col-span-4 flex items-center justify-between px-space-md">
-                <div className="flex flex-col">
-                    <span className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs">
-                        <span className="w-2 h-2 inline-block border border-primary" />동결 중 (정산 전 보관액)
-                    </span>
-                    <span className="font-caption text-caption text-outline">판매자 정산 대기</span>
+            <div className="grid grid-cols-1 gap-space-md md:grid-cols-3">
+                <div className={`flex items-center justify-between gap-space-md md:px-space-md ${BOX_BORDER}`}>
+                    <Text as="span" color="secondary" className="flex items-center gap-space-xs">
+                        <span className="w-2 h-2 inline-block bg-primary" />총 충전
+                    </Text>
+                    <Text as="span" type="large" weight="bold" color="accent" hasTabularNumbers>{won(totalCharged, '+')}</Text>
                 </div>
-                <span className="font-headline-sm text-headline-sm font-bold text-primary">{won(held, '')}</span>
+                <div className={`flex items-center justify-between gap-space-md md:px-space-md ${BOX_BORDER}`}>
+                    <Text as="span" color="secondary" className="flex items-center gap-space-xs">
+                        <span className="w-2 h-2 inline-block bg-outline" />총 결제 (환불 차감)
+                    </Text>
+                    <Text as="span" type="large" weight="bold" hasTabularNumbers>{won(totalPaid, '-')}</Text>
+                </div>
+                <div className="flex items-center justify-between gap-space-md md:px-space-md">
+                    <div className="flex flex-col">
+                        <Text as="span" color="secondary" className="flex items-center gap-space-xs">
+                            <span className="w-2 h-2 inline-block border border-primary" />동결 중 (정산 전 보관액)
+                        </Text>
+                        <Text as="span" type="supporting" color="secondary">판매자 정산 대기</Text>
+                    </div>
+                    <Text as="span" type="large" weight="bold" color="accent" hasTabularNumbers>{won(held, '')}</Text>
+                </div>
             </div>
-        </div>
+        </Card>
     );
 }

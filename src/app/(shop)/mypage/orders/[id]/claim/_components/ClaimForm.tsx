@@ -3,6 +3,7 @@
 import { type FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Badge, Button, Card, Heading } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetMyClaimsQueryKey, useCreateClaim } from '@/api/generated/claim-controller/claim-controller';
 import type { DeliveryClaimCreateRequestReason, DeliveryDetailItemResponse, DeliveryDetailResponse, OrderDetailResponse } from '@/api/generated/model';
@@ -11,8 +12,6 @@ import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
 import { CLAIM_REASON_LABEL, claimErrorMessage, type ClaimType } from '@/app/(shop)/mypage/claims/_lib/claimView';
 
-const CARD = 'bg-surface-container-lowest border border-outline-variant p-space-xl rounded';
-const CARD_TITLE = 'font-headline-sm text-headline-sm text-on-surface font-bold';
 const DETAIL_MAX = 1000;
 
 const REQUEST_TYPES: { value: ClaimType; title: string; description: string }[] = [
@@ -141,11 +140,11 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
     return (
         <form className="flex flex-col gap-space-xl" onSubmit={handleSubmit} noValidate>
             {/* 1. 대상 상품 */}
-            <section className={CARD} aria-labelledby="claim-items-title">
+            <Card padding={4} aria-labelledby="claim-items-title">
                 <div className="flex flex-wrap items-center justify-between gap-space-sm mb-space-md pb-space-sm border-b border-surface-container">
-                    <h2 id="claim-items-title" className={CARD_TITLE}>
+                    <Heading id="claim-items-title" level={2}>
                         1. 교환 / 환불 대상 상품 선택
-                    </h2>
+                    </Heading>
                     <Link href={ROUTES.order(orderId)} className="font-caption text-caption text-outline hover:text-primary">
                         주문번호 {order.orderNumber}
                     </Link>
@@ -175,9 +174,7 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                             <div key={delivery.deliveryId} data-delivery-id={delivery.deliveryId} className="flex flex-col gap-space-sm">
                                 <div className="flex flex-wrap items-center gap-space-sm font-body-sm text-body-sm">
                                     <span className="font-label-md text-label-md text-on-surface">배송 #{delivery.deliveryId}</span>
-                                    <span className={`font-caption text-caption px-space-xs py-0.5 rounded font-bold ${open ? 'bg-primary text-on-primary' : 'border border-outline-variant text-outline'}`}>
-                                        {status.label}
-                                    </span>
+                                    <Badge label={status.label} variant={open ? 'success' : 'neutral'} />
                                     {delivery.carrier && (
                                         <span className="text-outline">
                                             {delivery.carrier} {delivery.trackingNumber}
@@ -254,13 +251,13 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                         );
                     })}
                 </div>
-            </section>
+            </Card>
 
             {/* 2. 유형 · 사유 */}
-            <section className={CARD} aria-labelledby="claim-form-title">
-                <h2 id="claim-form-title" className={`${CARD_TITLE} mb-space-md pb-space-sm border-b border-surface-container`}>
+            <Card padding={4} aria-labelledby="claim-form-title">
+                <Heading id="claim-form-title" level={2} className="mb-space-md pb-space-sm border-b border-surface-container">
                     2. 접수 유형 및 사유 선택
-                </h2>
+                </Heading>
                 <div className="flex flex-col gap-space-lg">
                     <fieldset>
                         <legend className="block font-body-sm text-body-sm text-on-surface font-medium mb-space-xs">신청 구분</legend>
@@ -374,23 +371,18 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                     )}
 
                     <div className="pt-space-md border-t border-surface-container flex items-center justify-end gap-space-md">
-                        <Link
-                            href={ROUTES.order(orderId)}
-                            className="h-11 px-space-xl border border-outline-variant bg-surface-container-lowest text-on-surface font-label-md rounded hover:bg-surface-container transition-colors inline-flex items-center"
-                        >
-                            취소
-                        </Link>
-                        <button
-                            className="h-11 px-space-xl bg-primary text-on-primary font-label-md rounded hover:opacity-90 transition-colors flex items-center gap-space-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                        <Button label="취소" variant="secondary" href={ROUTES.order(orderId)} as={Link} />
+                        <Button
+                            label="요청하기"
+                            variant="primary"
                             type="submit"
-                            disabled={create.isPending || !anyClaimable}
-                        >
-                            <Icon name="check" className="text-[18px]" />
-                            <span>{create.isPending ? '신청하는 중...' : '요청하기'}</span>
-                        </button>
+                            icon={<Icon name="check" className="text-[18px]" />}
+                            isLoading={create.isPending}
+                            isDisabled={create.isPending || !anyClaimable}
+                        />
                     </div>
                 </div>
-            </section>
+            </Card>
         </form>
     );
 }

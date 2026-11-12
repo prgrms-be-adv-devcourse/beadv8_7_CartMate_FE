@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Badge, Button, Card, EmptyState, Text } from '@astryxdesign/core';
 import { useGetMyWalletTransactions } from '@/api/generated/wallet-controller/wallet-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -21,7 +22,7 @@ function TableSkeleton() {
     return (
         <div className="flex flex-col gap-space-sm p-space-md" aria-hidden>
             {Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className="h-12 bg-surface-container animate-pulse" />
+                <div key={i} className="h-16 bg-surface-container animate-pulse md:h-12" />
             ))}
         </div>
     );
@@ -56,125 +57,127 @@ export default function TransactionList() {
 
     return (
         <>
-            {/* Table Utility Bar */}
-            <div className="flex items-center justify-between pb-space-sm mb-space-xs">
-                <div className="font-body-sm text-body-sm text-on-surface">
+            <div className="flex flex-wrap items-center justify-between gap-space-sm pb-space-sm mb-space-xs">
+                <Text as="div">
                     {totalElements === undefined ? (query.isError ? '거래 건수를 불러오지 못했습니다.' : '거래 건수 확인 중') : <>총 <span className="font-bold text-primary">{totalElements}</span>건의 거래 내역</>}
-                </div>
-                <span className="font-caption text-caption text-on-surface-variant">페이지당 {PAGE_SIZE}건</span>
+                </Text>
+                <Text as="span" type="supporting" color="secondary">페이지당 {PAGE_SIZE}건</Text>
             </div>
 
-            {/* 3. Complete Data Table Structure */}
-            <div className="w-full bg-surface-container-lowest border border-outline-variant overflow-x-auto">
+            <Card padding={0} className="w-full overflow-hidden">
                 {query.isPending ? (
                     <TableSkeleton />
                 ) : query.isError ? (
-                    <div className="py-space-xl px-space-lg flex flex-col items-center gap-space-sm text-center" role="alert">
-                        <p className="font-body-md text-body-md text-on-surface">{errorMessage(query.error, '거래 내역을 불러오지 못했습니다.')}</p>
-                        <button className="h-8 px-space-md bg-surface-container-lowest border border-outline-variant font-label-sm text-label-sm text-on-surface hover:border-primary" type="button" onClick={() => query.refetch()}>
-                            다시 시도
-                        </button>
+                    <div role="alert">
+                        <EmptyState
+                            title="거래 내역을 불러오지 못했습니다"
+                            description={errorMessage(query.error, '잠시 후 다시 시도해 주세요.')}
+                            icon={<Icon name="error_outline" />}
+                            actions={<Button label="다시 시도" variant="secondary" onClick={() => void query.refetch()} />}
+                        />
                     </div>
                 ) : rows.length === 0 ? (
-                    <div className="py-space-xl px-space-lg text-center font-body-md text-body-md text-on-surface-variant">
-                        {(totalElements ?? 0) > 0 ? (
-                            <>
-                                이 페이지에는 거래 내역이 없습니다.{' '}
-                                <button className="text-primary font-label-sm underline" type="button" onClick={() => goPage(1)}>
-                                    첫 페이지로
-                                </button>
-                            </>
-                        ) : (
-                            '거래 내역이 없습니다.'
-                        )}
-                    </div>
+                    <EmptyState
+                        title={(totalElements ?? 0) > 0 ? '이 페이지에는 거래 내역이 없습니다' : '거래 내역이 없습니다'}
+                        description={(totalElements ?? 0) > 0 ? '페이지 번호를 다시 확인하거나 첫 페이지로 이동해 주세요.' : '예치금 거래가 발생하면 최신순으로 표시됩니다.'}
+                        icon={<Icon name="receipt_long" />}
+                        actions={(totalElements ?? 0) > 0 ? <Button label="첫 페이지로" variant="secondary" onClick={() => goPage(1)} /> : undefined}
+                    />
                 ) : (
-                    <table className="w-full border-collapse text-left font-body-sm text-body-sm">
-                        <thead>
-                            <tr className="bg-surface-container border-b border-outline-variant text-on-surface font-label-sm text-label-sm">
-                                <th className="py-space-md px-space-md w-36 whitespace-nowrap">일시</th>
-                                <th className="py-space-md px-space-sm w-28 text-center whitespace-nowrap">거래 유형</th>
-                                <th className="py-space-md px-space-md">거래 내용 / 주문 번호</th>
-                                <th className="py-space-md px-space-md w-44 text-right whitespace-nowrap">거래 금액</th>
-                                <th className="py-space-md px-space-md w-48 text-right whitespace-nowrap">거래 후 잔액</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-outline-variant">
+                    <>
+                        <div className="divide-y divide-outline-variant md:hidden">
                             {rows.map((tx) => {
                                 const info = transactionTypeInfo(tx.transactionType);
                                 return (
-                                    <tr key={tx.transactionId} className="hover:bg-surface-container-low transition-colors">
-                                        <td className="py-space-md px-space-md text-on-surface-variant font-caption text-caption whitespace-nowrap">{formatDateTime(tx.createdAt)}</td>
-                                        <td className="py-space-md px-space-sm text-center">
-                                            <span className="inline-block px-2 py-0.5 border border-outline-variant bg-surface-container text-on-surface font-caption text-caption font-semibold">{info.label}</span>
-                                        </td>
-                                        <td className="py-space-md px-space-md">
-                                            <div className="font-label-md text-label-md text-on-surface">{info.title}</div>
-                                            <div className="font-caption text-caption text-outline flex items-center gap-space-xs mt-0.5">
-                                                {tx.orderId != null && (
-                                                    <>
-                                                        <span>주문번호: #{tx.orderId}</span>
-                                                        <span>·</span>
-                                                    </>
-                                                )}
-                                                <span>거래번호: #{tx.transactionId}</span>
+                                    <article key={tx.transactionId} className="p-space-md">
+                                        <div className="flex items-start justify-between gap-space-md">
+                                            <div className="min-w-0">
+                                                <Badge label={info.label} variant="neutral" />
+                                                <Text as="p" weight="semibold" className="mt-space-xs">{info.title}</Text>
                                             </div>
-                                        </td>
-                                        <td className={`py-space-md px-space-md text-right font-label-md text-label-md whitespace-nowrap font-bold ${info.amountClassName}`}>
-                                            {tx.amount == null ? '-' : `${info.sign}${tx.amount.toLocaleString('ko-KR')}원`}
-                                        </td>
-                                        <td className="py-space-md px-space-md text-right whitespace-nowrap">
-                                            <div className="font-label-md text-label-md text-primary font-bold">{tx.balanceAfter == null ? '-' : `${tx.balanceAfter.toLocaleString('ko-KR')}원`}</div>
-                                        </td>
-                                    </tr>
+                                            <Text as="span" weight="bold" className={`shrink-0 ${info.amountClassName}`} hasTabularNumbers>
+                                                {tx.amount == null ? '-' : `${info.sign}${tx.amount.toLocaleString('ko-KR')}원`}
+                                            </Text>
+                                        </div>
+                                        <div className="mt-space-md grid grid-cols-2 gap-space-sm border-t border-outline-variant pt-space-sm">
+                                            <div>
+                                                <Text as="span" type="supporting" color="secondary">거래 후 잔액</Text>
+                                                <Text as="p" weight="semibold" hasTabularNumbers>{tx.balanceAfter == null ? '-' : `${tx.balanceAfter.toLocaleString('ko-KR')}원`}</Text>
+                                            </div>
+                                            <div className="text-right">
+                                                <Text as="span" type="supporting" color="secondary">일시</Text>
+                                                <Text as="p" type="supporting">{formatDateTime(tx.createdAt)}</Text>
+                                            </div>
+                                        </div>
+                                        <Text as="p" type="supporting" color="secondary" className="mt-space-sm break-all">
+                                            {tx.orderId != null ? `주문번호: #${tx.orderId} · ` : ''}거래번호: #{tx.transactionId}
+                                        </Text>
+                                    </article>
                                 );
                             })}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+                        </div>
 
-            {/* 4. Pagination Navigation Bar */}
-            <div className="flex items-center justify-between pt-space-lg mt-space-md">
-                <div className="font-caption text-caption text-outline">
+                        <div className="hidden overflow-x-auto md:block">
+                            <table className="w-full border-collapse text-left font-body-sm text-body-sm">
+                                <thead>
+                                    <tr className="bg-surface-container border-b border-outline-variant text-on-surface font-label-sm text-label-sm">
+                                        <th className="py-space-md px-space-md w-36 whitespace-nowrap">일시</th>
+                                        <th className="py-space-md px-space-sm w-28 text-center whitespace-nowrap">거래 유형</th>
+                                        <th className="py-space-md px-space-md">거래 내용 / 주문 번호</th>
+                                        <th className="py-space-md px-space-md w-44 text-right whitespace-nowrap">거래 금액</th>
+                                        <th className="py-space-md px-space-md w-48 text-right whitespace-nowrap">거래 후 잔액</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-outline-variant">
+                                    {rows.map((tx) => {
+                                        const info = transactionTypeInfo(tx.transactionType);
+                                        return (
+                                            <tr key={tx.transactionId} className="hover:bg-surface-container-low transition-colors">
+                                                <td className="py-space-md px-space-md text-on-surface-variant font-caption text-caption whitespace-nowrap">{formatDateTime(tx.createdAt)}</td>
+                                                <td className="py-space-md px-space-sm text-center"><Badge label={info.label} variant="neutral" /></td>
+                                                <td className="py-space-md px-space-md">
+                                                    <Text as="div" weight="semibold">{info.title}</Text>
+                                                    <Text as="div" type="supporting" color="secondary" className="mt-0.5">
+                                                        {tx.orderId != null ? `주문번호: #${tx.orderId} · ` : ''}거래번호: #{tx.transactionId}
+                                                    </Text>
+                                                </td>
+                                                <td className={`py-space-md px-space-md text-right whitespace-nowrap font-bold ${info.amountClassName}`}>
+                                                    {tx.amount == null ? '-' : `${info.sign}${tx.amount.toLocaleString('ko-KR')}원`}
+                                                </td>
+                                                <td className="py-space-md px-space-md text-right whitespace-nowrap font-bold text-primary">
+                                                    {tx.balanceAfter == null ? '-' : `${tx.balanceAfter.toLocaleString('ko-KR')}원`}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                )}
+            </Card>
+
+            <div className="flex flex-col gap-space-md pt-space-lg mt-space-md sm:flex-row sm:items-center sm:justify-between">
+                <Text as="div" type="supporting" color="secondary">
                     {totalElements === undefined ? (query.isError ? '표시 범위를 확인할 수 없습니다.' : '표시 범위 확인 중') : `표시 중: ${from} - ${to} (총 ${totalElements} 항목)`}
-                </div>
-                <div className="flex items-center gap-1">
-                    <button
-                        className="h-8 px-space-sm bg-surface-container-lowest border border-outline-variant text-on-surface font-label-sm text-label-sm hover:border-primary disabled:text-outline disabled:cursor-not-allowed flex items-center gap-0.5"
-                        disabled={page <= 1}
-                        type="button"
-                        onClick={() => goPage(page - 1)}
-                    >
-                        <Icon name="chevron_left" className="text-[16px]" />
-                        이전
-                    </button>
-                    {pages.map((n) => (
-                        <button
-                            key={n}
-                            aria-current={n === page ? 'page' : undefined}
-                            className={
-                                n === page
-                                    ? 'w-8 h-8 bg-primary text-on-primary border border-primary font-label-sm text-label-sm flex items-center justify-center'
-                                    : 'w-8 h-8 bg-surface-container-lowest text-on-surface border border-outline-variant font-label-sm text-label-sm hover:border-primary flex items-center justify-center'
-                            }
-                            type="button"
-                            onClick={() => goPage(n)}
-                        >
-                            {n}
-                        </button>
-                    ))}
-                    <button
-                        className="h-8 px-space-sm bg-surface-container-lowest border border-outline-variant text-on-surface font-label-sm text-label-sm hover:border-primary disabled:text-outline disabled:cursor-not-allowed flex items-center gap-0.5"
-                        disabled={totalPages === 0 || page >= totalPages}
-                        type="button"
-                        onClick={() => goPage(page + 1)}
-                    >
-                        다음
-                        <Icon name="chevron_right" className="text-[16px]" />
-                    </button>
-                </div>
-                <div className="w-24" />
+                </Text>
+                <nav aria-label="거래 내역 페이지" className="flex items-center justify-between gap-1 sm:justify-end">
+                    <Button label="이전" size="sm" variant="secondary" icon={<Icon name="chevron_left" />} isDisabled={page <= 1} onClick={() => goPage(page - 1)} />
+                    <div className="hidden items-center gap-1 sm:flex">
+                        {pages.map((n) => (
+                            <Button
+                                key={n}
+                                label={String(n)}
+                                aria-current={n === page ? 'page' : undefined}
+                                size="sm"
+                                variant={n === page ? 'primary' : 'ghost'}
+                                onClick={() => goPage(n)}
+                            />
+                        ))}
+                    </div>
+                    <Badge label={`${page} / ${Math.max(totalPages, 1)}`} variant="neutral" className="sm:hidden" />
+                    <Button label="다음" size="sm" variant="secondary" endContent={<Icon name="chevron_right" />} isDisabled={totalPages === 0 || page >= totalPages} onClick={() => goPage(page + 1)} />
+                </nav>
             </div>
         </>
     );

@@ -2,16 +2,13 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Button, EmptyState, Heading, Text } from '@astryxdesign/core';
 import { useGetDeliveryDetails } from '@/api/generated/delivery-controller/delivery-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import { errorStatus } from '../../../orders/_lib/orderView';
 import DeliveryCard from '../../_components/DeliveryCard';
-
-const CARD = 'bg-surface-container-lowest border border-outline-variant rounded p-space-md';
-const OUTLINE_BUTTON =
-    'h-10 px-space-md border border-outline-variant bg-surface-container-lowest hover:bg-surface-container font-label-md text-label-md text-on-surface rounded inline-flex items-center justify-center gap-space-xs transition-colors';
 
 // 배송 한 건의 상세. 공동물품 공구 배송처럼 주문 상세가 따로 없는 배송도 여기서 조회 · 구매 확정한다.
 export default function DeliveryDetailView() {
@@ -30,9 +27,7 @@ export default function DeliveryDetailView() {
         if (status === 403) return <Notice icon="lock" title="볼 수 없는 배송입니다" message="본인이 받는 배송만 볼 수 있습니다." />;
         return (
             <Notice icon="error" title="배송 정보를 불러오지 못했습니다" message={errorMessage(query.error, '잠시 후 다시 시도해주세요.')}>
-                <button className={OUTLINE_BUTTON} type="button" onClick={() => void query.refetch()}>
-                    다시 시도
-                </button>
+                <Button label="다시 시도" variant="secondary" onClick={() => void query.refetch()} />
             </Notice>
         );
     }
@@ -43,22 +38,16 @@ export default function DeliveryDetailView() {
     return (
         <div className="flex flex-col gap-space-lg">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
-                <h1 className="font-headline-md text-headline-md text-on-surface font-bold">배송 #{deliveryId}</h1>
-                <span className="font-body-sm text-body-sm text-on-surface-variant">{orderLabel}</span>
+                <Heading level={1}>배송 #{deliveryId}</Heading>
+                <Text color="secondary">{orderLabel}</Text>
             </div>
 
             <DeliveryCard deliveryId={deliveryId} title="배송 현황" showItems showReceiver />
 
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                <Link className={`${OUTLINE_BUTTON} flex-1`} href={ROUTES.deliveries}>
-                    <Icon name="list" className="text-[18px]" />
-                    배송 목록으로
-                </Link>
+                <Button label="배송 목록으로" variant="secondary" className="flex-1" href={ROUTES.deliveries} as={Link} icon={<Icon name="list" className="text-[18px]" />} />
                 {!shared && delivery.orderId !== undefined && (
-                    <Link className={`${OUTLINE_BUTTON} flex-1`} href={ROUTES.order(delivery.orderId)}>
-                        <Icon name="receipt_long" className="text-[18px]" />
-                        주문 상세 보기
-                    </Link>
+                    <Button label="주문 상세 보기" variant="secondary" className="flex-1" href={ROUTES.order(delivery.orderId)} as={Link} icon={<Icon name="receipt_long" className="text-[18px]" />} />
                 )}
             </div>
         </div>
@@ -67,17 +56,7 @@ export default function DeliveryDetailView() {
 
 function Notice({ icon, title, message, children }: { icon: string; title: string; message: string; children?: React.ReactNode }) {
     return (
-        <div className={`${CARD} flex flex-col items-center text-center gap-space-sm py-space-xl`} role="alert">
-            <Icon name={icon} className="text-[36px] text-outline" />
-            <h1 className="font-headline-sm text-headline-sm text-on-surface font-bold">{title}</h1>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">{message}</p>
-            <div className="flex gap-space-sm">
-                {children}
-                <Link className={OUTLINE_BUTTON} href={ROUTES.deliveries}>
-                    배송 목록으로
-                </Link>
-            </div>
-        </div>
+        <EmptyState icon={<Icon name={icon} />} title={title} description={message} actions={<div className="flex flex-wrap justify-center gap-space-sm">{children}<Button label="배송 목록으로" variant="secondary" href={ROUTES.deliveries} as={Link} /></div>} />
     );
 }
 

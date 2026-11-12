@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Badge, Button, Card, EmptyState, Heading, type BadgeVariant } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetDashboardQueryKey } from '@/api/generated/individual-group-purchase-controller/individual-group-purchase-controller';
 import type { OrderDetailResponse, RsDataOrderDetailResponse } from '@/api/generated/model';
@@ -13,15 +14,14 @@ import Icon from '@/components/ui/Icon';
 import { formatDateTime, parseKst } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
-import { CANCEL_REASON_LABEL, errorStatus, hasCode, KIND_LABEL, ORDER_STATUS, STATUS_TONE_CLASS } from '../../_lib/orderView';
+import { CANCEL_REASON_LABEL, errorStatus, hasCode, KIND_LABEL, ORDER_STATUS } from '../../_lib/orderView';
 import OrderDeliveries, { summarizeDeliveries, useOrderDeliveries } from './OrderDeliveries';
 
 const CARD = 'bg-surface-container-lowest border border-outline-variant rounded p-space-md';
 const CARD_TITLE = 'font-label-md text-label-md text-on-surface font-bold mb-space-md pb-space-xs border-b border-surface-container';
 const OUTLINE_BUTTON =
     'h-10 px-space-md border border-outline-variant bg-surface-container-lowest hover:bg-surface-container font-label-md text-label-md text-on-surface rounded inline-flex items-center justify-center gap-space-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface-container-lowest';
-const PRIMARY_BUTTON =
-    'h-10 px-space-md bg-primary text-on-primary font-label-md text-label-md rounded inline-flex items-center justify-center gap-space-xs hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed';
+const TONE_VARIANT: Record<'pending' | 'done' | 'muted', BadgeVariant> = { pending: 'warning', done: 'success', muted: 'neutral' };
 
 // 개인 주문(일반 · 개인물품 공구) 상세. 공동물품 공구 주문은 목록에서 공동구매 결과 화면으로 바로 보낸다.
 export default function OrderDetailView() {
@@ -39,9 +39,7 @@ export default function OrderDetailView() {
         if (status === 403) return <DetailNotice icon="lock" title="볼 수 없는 주문입니다" message="본인이 주문한 내역만 볼 수 있습니다." />;
         return (
             <DetailNotice icon="error" title="주문 정보를 불러오지 못했습니다" message={errorMessage(query.error, '잠시 후 다시 시도해주세요.')}>
-                <button className={OUTLINE_BUTTON} type="button" onClick={() => void query.refetch()}>
-                    다시 시도
-                </button>
+                <Button label="다시 시도" variant="secondary" onClick={() => void query.refetch()} />
             </DetailNotice>
         );
     }
@@ -58,17 +56,17 @@ function OrderDetail({ order, orderId }: { order: OrderDetailResponse; orderId: 
     return (
         <div className="flex flex-col gap-space-lg">
             {/* 주문 머리 + 진행 단계 */}
-            <div className={`${CARD} flex flex-col gap-space-md`}>
+            <Card padding={3} className="flex flex-col gap-space-md">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
                     <div className="flex flex-wrap items-center gap-space-sm">
-                        <h1 className="font-headline-md text-headline-md text-on-surface font-bold">주문 {order.orderNumber}</h1>
-                        <span className="font-caption text-caption px-space-xs py-0.5 rounded border border-outline-variant bg-surface-container text-on-surface">{KIND_LABEL[kind]}</span>
-                        <span className={`font-caption text-caption px-space-xs py-0.5 rounded font-bold ${STATUS_TONE_CLASS[status.tone]}`}>{status.label}</span>
+                        <Heading level={1}>주문 {order.orderNumber}</Heading>
+                        <Badge label={KIND_LABEL[kind]} variant={kind === 'INDIVIDUAL_GROUP' ? 'purple' : 'neutral'} />
+                        <Badge label={status.label} variant={TONE_VARIANT[status.tone]} />
                     </div>
                     <div className="font-body-sm text-body-sm text-on-surface-variant">주문일시 {formatDateTime(order.createdAt)}</div>
                 </div>
                 <OrderSteps order={order} orderId={orderId} />
-            </div>
+            </Card>
 
             <OrderStatusPanel order={order} orderId={orderId} />
 
@@ -77,7 +75,7 @@ function OrderDetail({ order, orderId }: { order: OrderDetailResponse; orderId: 
 
             {/* 주문 상품 */}
             <section className={CARD} aria-label="주문 상품">
-                <h2 className={CARD_TITLE}>주문 상품 {items.length}건</h2>
+                <Heading level={2} className={CARD_TITLE}>주문 상품 {items.length}건</Heading>
                 {items.length === 0 ? (
                     <p className="font-body-sm text-body-sm text-on-surface-variant">상품 정보가 없습니다.</p>
                 ) : (
@@ -142,15 +140,9 @@ function OrderDetail({ order, orderId }: { order: OrderDetailResponse; orderId: 
             </div>
 
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                <Link className={`${OUTLINE_BUTTON} flex-1`} href={ROUTES.orders}>
-                    <Icon name="list" className="text-[18px]" />
-                    주문 목록으로
-                </Link>
+                <Button label="주문 목록으로" variant="secondary" className="flex-1" href={ROUTES.orders} as={Link} icon={<Icon name="list" className="text-[18px]" />} />
                 {kind === 'INDIVIDUAL_GROUP' && order.individualGroupPurchaseId !== undefined && (
-                    <Link className={`${OUTLINE_BUTTON} flex-1`} href={ROUTES.groupPurchaseIndividual(order.individualGroupPurchaseId)}>
-                        <Icon name="groups" className="text-[18px]" />
-                        개인물품 공구 보기
-                    </Link>
+                    <Button label="개인물품 공구 보기" variant="secondary" className="flex-1" href={ROUTES.groupPurchaseIndividual(order.individualGroupPurchaseId)} as={Link} icon={<Icon name="groups" className="text-[18px]" />} />
                 )}
             </div>
         </div>
@@ -228,13 +220,13 @@ function OrderStatusPanel({ order, orderId }: { order: OrderDetailResponse; orde
 
     if (order.status === 'CANCELED') {
         return (
-            <div className={`${CARD} flex items-start gap-space-sm`} role="status">
+            <Card padding={3} className="flex items-start gap-space-sm" role="status">
                 <Icon name="cancel" className="text-[22px] text-outline mt-0.5" />
                 <div className="font-body-sm text-body-sm">
                     <div className="font-bold text-on-surface">취소된 주문입니다 · {formatDateTime(order.canceledAt)}</div>
                     <p className="text-on-surface-variant mt-0.5">{CANCEL_REASON_LABEL[order.cancelReason ?? ''] ?? '주문이 취소되었습니다.'}</p>
                 </div>
-            </div>
+            </Card>
         );
     }
 
@@ -284,10 +276,7 @@ function OrderStatusPanel({ order, orderId }: { order: OrderDetailResponse; orde
                 {pending ? (
                     <>
                         {!expired && (
-                            <Link className={`${PRIMARY_BUTTON} flex-1`} href={`${ROUTES.checkout}?order=${orderId}`}>
-                                <Icon name="account_balance_wallet" className="text-[18px]" />
-                                {formatPrice(order.totalAmount ?? 0)} 결제하기
-                            </Link>
+                            <Button label={`${formatPrice(order.totalAmount ?? 0)} 결제하기`} variant="primary" className="flex-1" href={`${ROUTES.checkout}?order=${orderId}`} as={Link} icon={<Icon name="account_balance_wallet" className="text-[18px]" />} />
                         )}
                         <button className={`${OUTLINE_BUTTON} flex-1`} type="button" disabled={busy} onClick={onCancel}>
                             {busy ? '취소하는 중...' : '주문 취소'}
@@ -308,17 +297,12 @@ function OrderStatusPanel({ order, orderId }: { order: OrderDetailResponse; orde
 
 function DetailNotice({ icon, title, message, children }: { icon: string; title: string; message: string; children?: React.ReactNode }) {
     return (
-        <div className={`${CARD} flex flex-col items-center text-center gap-space-sm py-space-xl`} role="alert">
-            <Icon name={icon} className="text-[36px] text-outline" />
-            <h1 className="font-headline-sm text-headline-sm text-on-surface font-bold">{title}</h1>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">{message}</p>
-            <div className="flex gap-space-sm">
-                {children}
-                <Link className={OUTLINE_BUTTON} href={ROUTES.orders}>
-                    주문 목록으로
-                </Link>
-            </div>
-        </div>
+        <EmptyState
+            icon={<Icon name={icon} />}
+            title={title}
+            description={message}
+            actions={<div className="flex flex-wrap justify-center gap-space-sm">{children}<Button label="주문 목록으로" variant="secondary" href={ROUTES.orders} as={Link} /></div>}
+        />
     );
 }
 

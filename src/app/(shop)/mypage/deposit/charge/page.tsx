@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Badge, Button, Card, EmptyState } from '@astryxdesign/core';
 import MyPageSidebar from '@/components/layout/MyPageSidebar';
+import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 
 export const metadata: Metadata = {
@@ -9,19 +11,21 @@ export const metadata: Metadata = {
 
 export default function DepositChargePage() {
     return (
-        <div className="max-w-[1200px] mx-auto px-gutter py-space-xl grid grid-cols-12 gap-gutter">
+        <main className="max-w-[1200px] mx-auto px-gutter py-space-xl grid grid-cols-1 gap-gutter lg:grid-cols-12">
             <MyPageSidebar />
-            <div className="col-span-9 flex flex-col w-full items-center justify-center">
-                <div className="w-full max-w-[600px] rounded-xl border border-outline-variant bg-surface-container-lowest p-space-xl">
-                    <h1 className="font-headline-lg text-headline-lg text-on-surface">예치금 충전 준비 중</h1>
-                    <p className="mt-space-sm font-body-md text-body-md text-on-surface-variant">
-                        현재 이 화면에서는 예치금을 충전할 수 없습니다. 잔액과 거래 내역은 예치금 관리에서 확인할 수 있습니다.
-                    </p>
-                    <Link className="mt-space-lg inline-block font-label-md text-label-md text-primary underline" href={ROUTES.deposit}>
-                        예치금 관리로 돌아가기
-                    </Link>
-                </div>
-            </div>
-        </div>
+            <section className="flex min-w-0 w-full items-center justify-center lg:col-span-9">
+                <Card padding={5} className="w-full max-w-[640px]">
+                    <div className="mb-space-md flex justify-center">
+                        <Badge label="충전 기능 비공개" variant="neutral" />
+                    </div>
+                    <EmptyState
+                        title="예치금 충전 준비 중"
+                        description="현재 이 화면에서는 예치금을 충전할 수 없습니다. 잔액과 거래 내역은 예치금 관리에서 확인할 수 있습니다."
+                        icon={<Icon name="account_balance_wallet" />}
+                        actions={<Button label="예치금 관리로 돌아가기" href={ROUTES.deposit} as={Link} variant="primary" />}
+                    />
+                </Card>
+            </section>
+        </main>
     );
 }

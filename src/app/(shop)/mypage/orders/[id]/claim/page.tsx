@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { Button, Card, Heading, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import ClaimContent from './_components/ClaimContent';
@@ -33,15 +34,13 @@ export default function OrderClaimPage() {
                         <Icon name="chevron_right" className="text-[14px] text-outline" />
                         <span className="text-on-surface">교환 · 환불 신청</span>
                     </nav>
-                    <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">교환 및 환불 요청</h1>
-                    <p className="font-body-md text-body-md text-on-surface-variant mt-space-xs">
-                        배송 완료된 상품의 교환 또는 반품(환불)을 접수합니다.
-                    </p>
+                    <Heading level={1}>교환 및 환불 요청</Heading>
+                    <Text color="secondary">배송 완료된 상품의 교환 또는 반품(환불)을 접수합니다.</Text>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
                     <aside className="lg:col-span-3 flex flex-col gap-space-lg lg:sticky lg:top-36">
-                        <div className="bg-surface-container-lowest border border-outline-variant p-space-lg rounded">
+                        <Card padding={3}>
                             <div className="font-label-md text-label-md text-on-surface mb-space-md pb-space-xs border-b border-surface-container">신청 안내</div>
                             <ul className="flex flex-col gap-space-sm font-body-sm text-body-sm text-on-surface-variant">
                                 {NOTICES.map((notice) => (
@@ -51,17 +50,8 @@ export default function OrderClaimPage() {
                                     </li>
                                 ))}
                             </ul>
-                        </div>
-                        <Link
-                            href={ROUTES.myClaims}
-                            className="bg-surface-container-low border border-outline-variant p-space-lg rounded flex items-center justify-between gap-space-sm hover:border-primary transition-colors"
-                        >
-                            <div>
-                                <div className="font-label-md text-label-md text-on-surface">내 교환 · 환불 내역</div>
-                                <div className="font-caption text-caption text-outline mt-1">신청한 요청의 진행 상태와 환불 금액</div>
-                            </div>
-                            <Icon name="chevron_right" className="text-outline" />
-                        </Link>
+                        </Card>
+                        <Button label="내 교환 · 환불 내역" variant="secondary" href={ROUTES.myClaims} as={Link} endContent={<Icon name="chevron_right" className="text-outline" />} />
                     </aside>
 
                     {/* 주문 id(동적 경로)를 읽는 부분만 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}
