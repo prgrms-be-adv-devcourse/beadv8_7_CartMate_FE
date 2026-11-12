@@ -7,6 +7,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
 import {
     getGetDetail2QueryKey,
     getGetMyList2QueryKey,
@@ -82,9 +85,9 @@ function ManageContent({ purchaseId, detail }: { purchaseId: number; detail: Det
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
             <div className="lg:col-span-8 flex flex-col gap-space-xl">
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-sm">
+                <Card variant="blue" className="flex flex-col gap-space-sm">
                     <div className="flex items-start justify-between gap-space-md">
-                        <h2 className="font-headline-md text-headline-md text-on-surface break-all">{detail.title}</h2>
+                        <Heading level={2} className="break-all">{detail.title}</Heading>
                         <StatusBadge status={detail.status} open={editable} />
                     </div>
                     <dl className="grid grid-cols-[auto_1fr] gap-x-space-md gap-y-1 font-body-sm text-body-sm">
@@ -107,7 +110,7 @@ function ManageContent({ purchaseId, detail }: { purchaseId: number; detail: Det
                             판매 기한이 지나 더 이상 주문을 받지 않습니다. 상품·기한은 바꿀 수 없고 마감 처리만 할 수 있습니다.
                         </p>
                     )}
-                </section>
+                </Card>
 
                 <ProductsSection purchaseId={purchaseId} products={detail.products ?? []} editable={editable} refresh={refresh} />
             </div>
@@ -115,25 +118,27 @@ function ManageContent({ purchaseId, detail }: { purchaseId: number; detail: Det
             <aside className="lg:col-span-4 lg:sticky lg:top-36 flex flex-col gap-gutter">
                 <InviteSection inviteCode={detail.inviteCode} closed={state === 'closed'} />
                 {editable && <DeadlineSection purchaseId={purchaseId} deadlineAt={detail.deadlineAt} now={now} refresh={refresh} />}
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-sm">
+                <Card className="flex flex-col gap-space-sm">
                     <SectionTitle icon="monitoring" title="주문 현황" />
-                    <Link
-                        className="w-full h-10 border border-outline-variant font-label-md text-label-md text-on-surface flex items-center justify-center gap-1 hover:border-primary"
+                    <Button
+                        label="주문 현황판 보기"
+                        className="w-full"
+                        as={Link}
+                        variant="secondary"
                         href={ROUTES.groupPurchaseIndividualDashboard(purchaseId)}
-                    >
-                        <Icon name="monitoring" className="text-[18px]" />
-                        주문 현황판 보기
-                    </Link>
+                        icon={<Icon name="monitoring" className="text-[18px]" />}
+                    />
                     {detail.status === 'OPEN' && (
                         <>
-                            <button
-                                className="w-full h-10 bg-error text-on-error font-label-md text-label-md hover:opacity-90 disabled:opacity-60"
+                            <Button
+                                label={close.isPending ? '마감하는 중...' : '공동구매 마감하기'}
+                                className="w-full"
+                                variant="destructive"
                                 type="button"
-                                disabled={close.isPending}
+                                isLoading={close.isPending}
+                                isDisabled={close.isPending}
                                 onClick={onClose}
-                            >
-                                {close.isPending ? '마감하는 중...' : '공동구매 마감하기'}
-                            </button>
+                            />
                             <p className="font-caption text-caption text-secondary">마감하면 다시 열 수 없습니다. 기한 전에 판매를 멈출 때 씁니다.</p>
                         </>
                     )}
@@ -142,7 +147,7 @@ function ManageContent({ purchaseId, detail }: { purchaseId: number; detail: Det
                             {errorMessage(close.error, '공동구매를 마감하지 못했습니다.')}
                         </p>
                     )}
-                </section>
+                </Card>
             </aside>
         </div>
     );

@@ -2,6 +2,10 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
 import { useGetDashboard } from '@/api/generated/individual-group-purchase-controller/individual-group-purchase-controller';
 import type { BuyerSummary, IndividualGroupPurchaseDashboardResponse, ProductSummary } from '@/api/generated/model';
 import { ApiError, errorMessage } from '@/api/http';
@@ -67,29 +71,25 @@ function DashboardContent({ dashboard, fetching, onRefresh }: ContentProps) {
 
     return (
         <div className="flex flex-col gap-space-xl">
-            <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+            <Card variant="blue" className="flex flex-col gap-space-md">
                 <div className="flex flex-wrap items-start justify-between gap-space-md">
                     <div className="flex flex-col gap-space-xs min-w-0">
                         <div className="flex items-center gap-space-sm">
-                            <h2 className="font-headline-md text-headline-md text-on-surface break-all">{dashboard.title}</h2>
+                            <Heading level={2} className="break-all">{dashboard.title}</Heading>
                             {/* 현황판 응답에는 마감 처리 여부가 없어 판매 가능 여부만 보여 준다 */}
-                            <span
-                                className={`shrink-0 px-space-xs py-0.5 font-caption text-caption font-semibold ${dashboard.open ? 'bg-primary text-on-primary' : 'bg-surface-container text-outline'}`}
-                            >
-                                {dashboard.open ? '판매 중' : '판매 종료'}
-                            </span>
+                            <Badge label={dashboard.open ? '판매 중' : '판매 종료'} variant={dashboard.open ? 'success' : 'neutral'} />
                         </div>
                         <p className="font-body-sm text-body-sm text-on-surface-variant">판매 기한 {formatDateTime(dashboard.deadlineAt)}</p>
                     </div>
-                    <button
-                        className="h-9 px-space-md border border-outline-variant font-label-sm text-label-sm flex items-center gap-1 hover:border-primary disabled:opacity-60"
+                    <Button
+                        label={fetching ? '불러오는 중...' : '새로고침'}
+                        variant="secondary"
                         type="button"
-                        disabled={fetching}
+                        isLoading={fetching}
+                        isDisabled={fetching}
                         onClick={onRefresh}
-                    >
-                        <Icon name="refresh" className="text-[18px]" />
-                        {fetching ? '불러오는 중...' : '새로고침'}
-                    </button>
+                        icon={<Icon name="refresh" className="text-[18px]" />}
+                    />
                 </div>
                 <dl className="grid grid-cols-2 md:grid-cols-4 gap-space-sm">
                     <Stat label="결제 완료 주문" value={`${dashboard.orderCount ?? 0}건`} />
@@ -98,9 +98,9 @@ function DashboardContent({ dashboard, fetching, onRefresh }: ContentProps) {
                     <Stat label="총 결제 금액" value={formatPrice(dashboard.totalAmount ?? 0)} />
                 </dl>
                 <p className="font-caption text-caption text-secondary">결제가 끝난 주문만 집계합니다. 결제 대기 중이거나 취소된 주문은 포함되지 않습니다.</p>
-            </section>
+            </Card>
 
-            <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+            <Card className="flex flex-col gap-space-md">
                 <SectionTitle icon="inventory_2" title="상품별 현황" />
                 {products.length === 0 ? (
                     <p className="p-space-md bg-surface-container-low text-center font-body-sm text-body-sm text-on-surface-variant">담긴 상품이 없습니다.</p>
@@ -111,9 +111,9 @@ function DashboardContent({ dashboard, fetching, onRefresh }: ContentProps) {
                         ))}
                     </ul>
                 )}
-            </section>
+            </Card>
 
-            <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+            <Card className="flex flex-col gap-space-md">
                 <div className="flex items-center justify-between gap-space-md">
                     <SectionTitle icon="group" title="구매자별 주문" />
                     <span className="font-caption text-caption text-secondary">총 {buyers.length}명</span>
@@ -127,7 +127,7 @@ function DashboardContent({ dashboard, fetching, onRefresh }: ContentProps) {
                         ))}
                     </ul>
                 )}
-            </section>
+            </Card>
         </div>
     );
 }
