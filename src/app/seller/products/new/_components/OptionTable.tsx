@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button, Card, Heading, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 
 type OptionRow = {
@@ -36,16 +37,13 @@ export default function OptionTable() {
     };
 
     return (
-        <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/30 space-y-space-lg">
+        <Card className="space-y-space-lg" padding={8}>
             <div className="flex items-center justify-between border-b border-outline-variant/30 pb-space-md">
                 <div>
-                    <h2 className="text-headline-sm font-headline-sm text-on-surface">옵션 표 (사이즈 / 색상)</h2>
-                    <p className="text-body-sm text-on-surface-variant">상품의 세부 옵션별 추가금액과 재고를 설정합니다.</p>
+                    <Heading level={2}>옵션 표 (사이즈 / 색상)</Heading>
+                    <Text color="secondary">상품의 세부 옵션별 추가금액과 재고를 설정합니다.</Text>
                 </div>
-                <button className="h-9 px-space-md rounded bg-surface-container-high text-on-surface font-label-sm hover:bg-surface-variant transition-colors flex items-center gap-space-xs" type="button" onClick={addRow}>
-                    <Icon name="add" className="text-[16px]" />
-                    행 추가
-                </button>
+                <Button label="행 추가" size="sm" icon={<Icon name="add" className="text-[16px]" />} onClick={addRow} />
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -74,15 +72,13 @@ export default function OptionTable() {
                                     <input className={INPUT_CLASS} type="text" defaultValue={row.stock} />
                                 </td>
                                 <td className="p-space-sm text-center">
-                                    <button className="p-1 rounded text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-colors" type="button" onClick={() => deleteRow(row.key)}>
-                                        <Icon name="delete" className="text-[18px]" />
-                                    </button>
+                                    <Button label="옵션 삭제" size="sm" variant="ghost" icon={<Icon name="delete" className="text-[18px]" />} isIconOnly onClick={() => deleteRow(row.key)} />
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-        </div>
+        </Card>
     );
 }
