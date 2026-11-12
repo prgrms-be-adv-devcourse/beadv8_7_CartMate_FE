@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import {
     useGetAdminSalesPostCounts,
     useGetAdminSalesPosts,
@@ -47,48 +48,37 @@ export default function AdminPostsContent() {
     };
 
     const metrics = [
-        { label: '전체 판매글', icon: 'inventory_2', value: c?.total, tab: '' as const, danger: false },
-        { label: '판매 중', icon: 'visibility', value: c?.onSale, tab: 'ON_SALE' as const, danger: false },
-        { label: '판매자 내림', icon: 'pause_circle', value: c?.pausedBySeller, tab: 'PAUSED' as const, danger: false },
-        { label: '관리자 숨김', icon: 'visibility_off', value: c?.suspendedByAdmin, tab: 'SUSPENDED' as const, danger: true },
+        { label: '전체 판매글', icon: 'inventory_2', value: c?.total, tab: '' as const, variant: 'neutral' as const },
+        { label: '판매 중', icon: 'visibility', value: c?.onSale, tab: 'ON_SALE' as const, variant: 'success' as const },
+        { label: '판매자 내림', icon: 'pause_circle', value: c?.pausedBySeller, tab: 'PAUSED' as const, variant: 'neutral' as const },
+        { label: '관리자 숨김', icon: 'visibility_off', value: c?.suspendedByAdmin, tab: 'SUSPENDED' as const, variant: 'error' as const },
     ];
 
     return (
         <div className="flex flex-col gap-space-lg">
             <div>
-                <div className="font-caption text-caption text-outline uppercase tracking-wider mb-1">[ ADMIN / POSTS ]</div>
-                <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">판매글 관리</h1>
-                <p className="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+                <Text type="supporting" color="accent" className="uppercase tracking-wider">ADMIN / POSTS</Text>
+                <Heading level={1} className="mt-1">판매글 관리</Heading>
+                <Text color="secondary" className="mt-2">
                     판매글을 숨기면 새 구매가 막히고, 발송 전 진행 중인 주문은 자동으로 취소·환불됩니다.
-                </p>
+                </Text>
             </div>
 
             {/* 상태별 개수 (누르면 해당 탭) */}
-            <div className="grid grid-cols-4 gap-space-md">
+            <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2 xl:grid-cols-4">
                 {metrics.map((m) => (
-                    <button
-                        key={m.label}
-                        type="button"
-                        onClick={() => {
-                            setStatus(m.tab);
-                            setPage(0);
-                        }}
-                        className={`text-left bg-surface-container-lowest p-space-md border rounded flex flex-col gap-space-xs hover:border-primary transition-colors ${
-                            status === m.tab ? 'border-primary' : 'border-outline-variant'
-                        }`}
-                    >
+                    <Card key={m.label} padding={3} className={status === m.tab ? 'ring-2 ring-primary' : ''}>
+                        <button type="button" className="flex w-full flex-col gap-space-xs text-left" onClick={() => { setStatus(m.tab); setPage(0); }}>
                         <div className="flex items-center justify-between font-label-sm text-label-sm text-outline">
                             <span>{m.label}</span>
                             <Icon name={m.icon} className="text-[18px]" />
                         </div>
-                        <div
-                            className={`font-headline-md text-headline-md font-bold ${
-                                m.danger && (m.value ?? 0) > 0 ? 'text-error' : 'text-on-surface'
-                            }`}
-                        >
+                        <div className="font-headline-md text-headline-md font-bold">
                             {counts.isPending ? '…' : `${(m.value ?? 0).toLocaleString('ko-KR')}건`}
                         </div>
-                    </button>
+                        <Badge label={status === m.tab ? '선택됨' : '상태 보기'} variant={m.variant} />
+                        </button>
+                    </Card>
                 ))}
             </div>
 
@@ -96,21 +86,17 @@ export default function AdminPostsContent() {
             <div className="flex items-center justify-between gap-space-md flex-wrap">
                 <div className="flex gap-space-xs">
                     {TABS.map((t) => (
-                        <button
+                        <Button
                             key={t.label}
+                            label={t.label}
                             type="button"
                             onClick={() => {
                                 setStatus(t.value);
                                 setPage(0);
                             }}
-                            className={`h-8 px-space-md rounded border font-label-sm text-label-sm transition-colors ${
-                                status === t.value
-                                    ? 'bg-primary text-on-primary border-primary'
-                                    : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:border-primary'
-                            }`}
-                        >
-                            {t.label}
-                        </button>
+                            variant={status === t.value ? 'primary' : 'secondary'}
+                            size="sm"
+                        />
                     ))}
                 </div>
                 <form onSubmit={onSearch} className="flex gap-space-xs">
@@ -120,14 +106,12 @@ export default function AdminPostsContent() {
                         value={keywordInput}
                         onChange={(e) => setKeywordInput(e.target.value)}
                     />
-                    <button className="h-8 px-space-md border border-outline-variant rounded font-label-sm text-label-sm hover:border-primary" type="submit">
-                        검색
-                    </button>
+                    <Button label="검색" type="submit" variant="secondary" size="sm" />
                 </form>
             </div>
 
             {/* 목록 */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded overflow-x-auto">
+            <Card padding={0} className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-surface-container-low border-b border-outline-variant text-on-surface-variant font-label-sm text-label-sm">
@@ -181,19 +165,11 @@ export default function AdminPostsContent() {
                                         <td className="py-space-sm px-space-md text-on-surface-variant">{p.sellerName ?? `판매자 #${p.sellerId}`}</td>
                                         <td className="py-space-sm px-space-md text-right">{won(p.minPrice)}</td>
                                         <td className="py-space-sm px-space-md text-center">
-                                            <span className={s.badge}>
-                                                <span className={s.dot} />
-                                                {s.label}
-                                            </span>
+                                            <Badge label={s.label} variant={p.status === 'ON_SALE' ? 'success' : p.status === 'SUSPENDED' ? 'error' : 'neutral'} />
                                         </td>
                                         <td className="py-space-sm px-space-md text-center text-outline">{formatDateTime(p.createdAt)}</td>
                                         <td className="py-space-sm px-space-md text-center">
-                                            <Link
-                                                href={ROUTES.adminPost(p.id ?? 0)}
-                                                className="inline-flex items-center h-8 px-space-sm border border-outline-variant text-primary rounded font-label-sm text-label-sm hover:bg-primary hover:text-on-primary transition-colors whitespace-nowrap"
-                                            >
-                                                상세
-                                            </Link>
+                                            <Button label="상세" href={ROUTES.adminPost(p.id ?? 0)} as={Link} variant="secondary" size="sm" />
                                         </td>
                                     </tr>
                                 );
@@ -201,7 +177,7 @@ export default function AdminPostsContent() {
                         )}
                     </tbody>
                 </table>
-            </div>
+            </Card>
 
             {/* 페이지 */}
             {totalPages > 1 && (

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import {
     getGetAdminSalesPostCountsQueryKey,
@@ -62,12 +63,10 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
     }
     if (!post) {
         return (
-            <div className="p-space-xl bg-surface-container-lowest border border-outline-variant rounded flex flex-col items-center gap-space-md">
-                <p className="font-body-sm text-body-sm text-error">{errorMessage(query.error, '판매글을 불러오지 못했습니다.')}</p>
-                <Link href={ROUTES.adminPosts} className="h-9 px-space-md border border-outline-variant rounded font-label-sm flex items-center">
-                    목록으로
-                </Link>
-            </div>
+            <Card variant="muted" className="flex flex-col items-center gap-space-md">
+                <Text className="text-error">{errorMessage(query.error, '판매글을 불러오지 못했습니다.')}</Text>
+                <Button label="목록으로" href={ROUTES.adminPosts} as={Link} variant="secondary" />
+            </Card>
         );
     }
 
@@ -91,11 +90,8 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                         <Icon name="arrow_back" className="text-[16px]" /> 판매글 관리
                     </Link>
                     <div className="flex items-center gap-space-sm">
-                        <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">{post.title}</h1>
-                        <span className={s.badge}>
-                            <span className={s.dot} />
-                            {s.label}
-                        </span>
+                        <Heading level={1}>{post.title}</Heading>
+                        <Badge label={s.label} variant={post.status === 'ON_SALE' ? 'success' : suspended ? 'error' : 'neutral'} />
                     </div>
                     <div className="font-caption text-caption text-outline">
                         #{post.id} · {post.sellerName ?? `판매자 #${post.sellerId}`} · 등록 {formatDateTime(post.createdAt)} · 조회 {post.viewCount ?? 0}
@@ -104,20 +100,20 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
             </div>
 
             {suspended && (
-                <div className="p-space-md rounded border border-error bg-error-container text-on-error-container font-body-sm text-body-sm flex items-start gap-space-sm">
+                <Card variant="muted" role="alert" className="flex items-start gap-space-sm border border-error">
                     <Icon name="visibility_off" className="text-[18px]" />
                     <div>
                         관리자 숨김 상태입니다. 사용자 목록·상세에 보이지 않고 구매할 수 없습니다.
                         {post.sanctions?.[0] && <div className="mt-1 font-semibold">사유: {post.sanctions[0].reason}</div>}
                     </div>
-                </div>
+                </Card>
             )}
 
             <div className="grid grid-cols-12 gap-space-lg items-start">
                 {/* 왼쪽: 상품·본문 */}
-                <div className="col-span-8 flex flex-col gap-space-lg">
-                    <section className="bg-surface-container-lowest border border-outline-variant rounded p-space-lg">
-                        <h2 className="font-headline-sm text-headline-sm font-bold mb-space-md">상품 {post.products?.length ?? 0}개</h2>
+                <div className="col-span-12 flex flex-col gap-space-lg xl:col-span-8">
+                    <Card>
+                        <Heading level={2} className="mb-space-md">상품 {post.products?.length ?? 0}개</Heading>
                         <div className="flex flex-col divide-y divide-surface-container">
                             {(post.products ?? []).map((p) => (
                                 <div key={p.id} className="py-space-sm flex flex-col gap-space-sm">
@@ -136,14 +132,14 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                                     </div>
                                     <div className="font-label-md text-label-md">{won(p.basePrice)}</div>
                                     {typeof p.id === 'number' && p.id > 0 && (
-                                        <button
+                                        <Button
+                                            label="페이백 조건 관리"
                                             type="button"
-                                            className="h-9 px-space-sm border border-outline-variant rounded font-label-sm text-label-sm hover:bg-surface-container"
+                                            variant="secondary"
+                                            size="sm"
                                             aria-expanded={paybackProductId === p.id}
                                             onClick={() => setPaybackProductId(paybackProductId === p.id ? null : p.id ?? null)}
-                                        >
-                                            페이백 조건 관리
-                                        </button>
+                                        />
                                     )}
                                     </div>
                                     {paybackProductId === p.id && typeof p.id === 'number' && (
@@ -152,20 +148,17 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                                 </div>
                             ))}
                         </div>
-                    </section>
+                    </Card>
 
                     {post.content && (
-                        <section className="bg-surface-container-lowest border border-outline-variant rounded p-space-lg">
-                            <h2 className="font-headline-sm text-headline-sm font-bold mb-space-md">판매글 내용</h2>
-                            <p className="font-body-sm text-body-sm text-on-surface-variant whitespace-pre-wrap">{post.content}</p>
-                        </section>
+                        <Card><Heading level={2} className="mb-space-md">판매글 내용</Heading><Text color="secondary" className="whitespace-pre-wrap">{post.content}</Text></Card>
                     )}
                 </div>
 
                 {/* 오른쪽: 숨김 관리·이력 */}
-                <div className="col-span-4 flex flex-col gap-space-lg">
-                    <section className="bg-surface-container-lowest border border-outline-variant rounded p-space-lg flex flex-col gap-space-md">
-                        <h2 className="font-headline-sm text-headline-sm font-bold">{suspended ? '숨김 해제' : '판매글 숨김'}</h2>
+                <div className="col-span-12 flex flex-col gap-space-lg xl:col-span-4">
+                    <Card className="flex flex-col gap-space-md">
+                        <Heading level={2}>{suspended ? '숨김 해제' : '판매글 숨김'}</Heading>
 
                         {suspended ? (
                             <>
@@ -177,14 +170,13 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                                     onChange={(e) => setMemo(e.target.value)}
                                 />
                                 <p className="font-caption text-caption text-outline">해제해도 숨김 중 취소·환불된 주문은 되돌아오지 않습니다.</p>
-                                <button
+                                <Button
+                                    label="숨김 해제"
                                     type="button"
-                                    className="h-10 bg-primary text-on-primary rounded font-label-md disabled:opacity-50"
+                                    variant="primary"
                                     onClick={() => setConfirm('resume')}
-                                    disabled={pending}
-                                >
-                                    숨김 해제
-                                </button>
+                                    isDisabled={pending}
+                                />
                             </>
                         ) : canSuspend ? (
                             <>
@@ -207,24 +199,23 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                                 <div className="p-space-sm rounded bg-surface-container font-caption text-caption text-on-surface-variant">
                                     숨기면 <strong>새 구매가 즉시 막히고</strong>, 발송 전 진행 중인 주문·공동구매는 <strong>자동 취소·환불</strong>됩니다.
                                 </div>
-                                <button
+                                <Button
+                                    label="판매글 숨기기"
                                     type="button"
-                                    className="h-10 bg-error text-on-error rounded font-label-md disabled:opacity-50"
+                                    variant="destructive"
                                     onClick={() => setConfirm('suspend')}
-                                    disabled={pending}
-                                >
-                                    판매글 숨기기
-                                </button>
+                                    isDisabled={pending}
+                                />
                             </>
                         ) : (
                             <p className="font-body-sm text-body-sm text-outline">현재 상태({s.label})에서는 숨김·해제를 할 수 없습니다.</p>
                         )}
 
-                        {error && <p className="font-body-sm text-body-sm text-error" role="alert">{error}</p>}
-                    </section>
+                        {error && <Text className="text-error" role="alert">{error}</Text>}
+                    </Card>
 
-                    <section className="bg-surface-container-lowest border border-outline-variant rounded p-space-lg">
-                        <h2 className="font-headline-sm text-headline-sm font-bold mb-space-md">처리 이력</h2>
+                    <Card>
+                        <Heading level={2} className="mb-space-md">처리 이력</Heading>
                         {(post.sanctions ?? []).length === 0 ? (
                             <p className="font-body-sm text-body-sm text-outline">이력이 없습니다.</p>
                         ) : (
@@ -242,7 +233,7 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                                 ))}
                             </ol>
                         )}
-                    </section>
+                    </Card>
                 </div>
             </div>
 
@@ -266,24 +257,20 @@ export default function AdminPostDetail({ postId }: { postId: number }) {
                             </p>
                         )}
                         <div className="flex justify-end gap-space-sm pt-space-sm">
-                            <button
+                            <Button
+                                label="취소"
                                 type="button"
-                                className="h-10 px-space-md border border-outline-variant rounded font-label-md"
+                                variant="secondary"
                                 onClick={() => setConfirm(null)}
-                                disabled={pending}
-                            >
-                                취소
-                            </button>
-                            <button
+                                isDisabled={pending}
+                            />
+                            <Button
+                                label={pending ? '처리 중…' : confirm === 'suspend' ? '숨기기' : '해제하기'}
                                 type="button"
-                                className={`h-10 px-space-md rounded font-label-md disabled:opacity-50 ${
-                                    confirm === 'suspend' ? 'bg-error text-on-error' : 'bg-primary text-on-primary'
-                                }`}
+                                variant={confirm === 'suspend' ? 'destructive' : 'primary'}
                                 onClick={submit}
-                                disabled={pending}
-                            >
-                                {pending ? '처리 중…' : confirm === 'suspend' ? '숨기기' : '해제하기'}
-                            </button>
+                                isDisabled={pending}
+                            />
                         </div>
                     </div>
                 </div>

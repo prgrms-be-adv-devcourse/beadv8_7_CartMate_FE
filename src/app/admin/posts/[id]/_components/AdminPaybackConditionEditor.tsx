@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import type { PaybackConditionResponse, AdminPaybackConditionRequestOverlapPolicy } from '@/api/generated/model';
 import { useReleaseAdminPaybackCondition, useSetAdminPaybackCondition } from '@/api/generated/admin-payback-condition-controller/admin-payback-condition-controller';
@@ -36,41 +37,41 @@ export default function AdminPaybackConditionEditor({ productId, productName }: 
     const admin = Array.isArray(conditions) ? conditions.find((condition) => condition.funder === 'ADMIN') : undefined;
     const seller = Array.isArray(conditions) ? conditions.find((condition) => condition.funder === 'SELLER') : undefined;
 
-    if (query.isPending) return <p className="font-body-sm text-body-sm text-outline" role="status">{productName} 페이백 조건을 불러오는 중입니다.</p>;
+    if (query.isPending) return <Text color="secondary" role="status">{productName} 페이백 조건을 불러오는 중입니다.</Text>;
     if ((query.isError && !hasValidData) || invalid) {
         return (
-            <div className="border border-outline-variant p-space-md flex flex-col items-start gap-space-xs" role="alert">
-                <p className="font-body-sm text-body-sm text-error">{invalid ? '조건 응답을 표시할 수 없습니다.' : failureMessage(query.error)}</p>
-                <button type="button" className="h-9 px-space-sm border border-outline-variant rounded" onClick={() => query.refetch()}>다시 시도</button>
-            </div>
+            <Card variant="muted" className="flex flex-col items-start gap-space-xs" role="alert">
+                <Text className="text-error">{invalid ? '조건 응답을 표시할 수 없습니다.' : failureMessage(query.error)}</Text>
+                <Button label="다시 시도" variant="secondary" size="sm" onClick={() => query.refetch()} />
+            </Card>
         );
     }
 
     const formKey = `${productId}:${admin?.minQuantity ?? ''}:${admin?.amountPerUnit ?? ''}:${admin?.overlapPolicy ?? 'BOTH'}`;
     return (
-        <div className="border border-outline-variant bg-surface-container-low p-space-md flex flex-col gap-space-md">
+        <Card variant="muted" className="flex flex-col gap-space-md">
             <div>
-                <h3 className="font-label-md text-label-md font-bold">{productName} 페이백 조건</h3>
-                <p className="font-caption text-caption text-outline">상품 #{productId} · 현재 설정된 조건</p>
+                <Heading level={3}>{productName} 페이백 조건</Heading>
+                <Text type="supporting" color="secondary">상품 #{productId} · 현재 설정된 조건</Text>
             </div>
             {query.isError && (
                 <div className="border border-error p-space-sm flex items-center gap-space-sm" role="alert">
-                    <p className="font-body-sm text-body-sm text-error flex-1">최신 조건을 확인하지 못했습니다. 입력값은 유지됩니다. 다시 조회한 뒤 저장해 주세요.</p>
-                    <button type="button" className="h-9 px-space-sm border border-outline-variant rounded" onClick={() => query.refetch()}>다시 조회</button>
+                    <Text className="text-error flex-1">최신 조건을 확인하지 못했습니다. 입력값은 유지됩니다. 다시 조회한 뒤 저장해 주세요.</Text>
+                    <Button label="다시 조회" variant="secondary" size="sm" onClick={() => query.refetch()} />
                 </div>
             )}
             {seller ? (
-                <div className="border border-outline-variant bg-surface-container-lowest p-space-sm font-body-sm text-body-sm">
-                    <strong>판매자 부담 (읽기 전용)</strong>
-                    <p>공동구매 내 구매확정 {seller.minQuantity!.toLocaleString('ko-KR')}개 이상 · 내 구매확정 1개당 {seller.amountPerUnit!.toLocaleString('ko-KR')}원</p>
-                </div>
-            ) : <p className="font-body-sm text-body-sm text-outline">판매자 부담 조건은 없습니다.</p>}
-            {notice && <p className="font-body-sm text-body-sm text-primary" role="status">{notice}</p>}
+                <Card padding={3} className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2"><Text weight="semibold">판매자 부담</Text><Badge label="읽기 전용" /></div>
+                    <Text>공동구매 내 구매확정 {seller.minQuantity!.toLocaleString('ko-KR')}개 이상 · 내 구매확정 1개당 {seller.amountPerUnit!.toLocaleString('ko-KR')}원</Text>
+                </Card>
+            ) : <Text color="secondary">판매자 부담 조건은 없습니다.</Text>}
+            {notice && <Text color="accent" role="status">{notice}</Text>}
             <AdminConditionForm key={formKey} productId={productId} admin={admin} hasSeller={Boolean(seller)} blocked={query.isError} onStart={() => setNotice(null)} onDone={setNotice} invalidate={() => queryClient.invalidateQueries({ queryKey: getGetProductPaybackConditionsQueryKey(productId) })} />
-            <p className="font-caption text-caption text-outline border-t border-outline-variant pt-space-xs">
+            <Text type="supporting" color="secondary" className="border-t border-outline-variant pt-space-xs">
                 공동구매에 적용되는 조건은 상품이 처음 포함될 때 정해지며, 이후 변경한 조건과 다를 수 있습니다.
-            </p>
-        </div>
+            </Text>
+        </Card>
     );
 }
 
@@ -127,7 +128,7 @@ function AdminConditionForm({ productId, admin, hasSeller, blocked, onStart, onD
 
     return (
         <form onSubmit={submit} className="flex flex-col gap-space-sm">
-            <h4 className="font-label-md text-label-md font-bold">플랫폼 부담 조건 {admin ? '수정' : '설정'}</h4>
+            <Heading level={4}>플랫폼 부담 조건 {admin ? '수정' : '설정'}</Heading>
             <div className="grid grid-cols-2 gap-space-sm">
                 <label className="font-label-sm text-label-sm flex flex-col gap-space-xs">공동구매 내 구매확정 기준 수량
                     <input type="number" min={2} max={100000} step={1} required disabled={disabled} value={minQuantity} onChange={(event) => setMinQuantity(event.target.value)} className="h-10 px-space-sm border border-outline-variant rounded bg-surface-container-lowest" />
@@ -141,18 +142,18 @@ function AdminConditionForm({ productId, admin, hasSeller, blocked, onStart, onD
                     {policies.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
                 </select>
             </label>
-            <p className="font-caption text-caption text-outline">{policies.find((item) => item.value === policy)?.description} {hasSeller ? '' : '판매자 부담 조건이 없으면 현재는 플랫폼 부담 조건 하나만 적용됩니다.'}</p>
-            {error && <p className="font-body-sm text-body-sm text-error" role="alert">{error}</p>}
+            <Text type="supporting" color="secondary">{policies.find((item) => item.value === policy)?.description} {hasSeller ? '' : '판매자 부담 조건이 없으면 현재는 플랫폼 부담 조건 하나만 적용됩니다.'}</Text>
+            {error && <Text className="text-error" role="alert">{error}</Text>}
             <div className="flex gap-space-sm">
-                <button type="submit" disabled={disabled} className="h-10 px-space-md bg-primary text-on-primary rounded font-label-sm text-label-sm disabled:opacity-50">{pending ? '처리 중…' : '조건 저장'}</button>
-                {admin && !confirmDelete && <button type="button" disabled={disabled} onClick={() => setConfirmDelete(true)} className="h-10 px-space-md border border-error text-error rounded font-label-sm text-label-sm disabled:opacity-50">조건 삭제</button>}
+                <Button label={pending ? '처리 중…' : '조건 저장'} type="submit" variant="primary" isDisabled={disabled} />
+                {admin && !confirmDelete && <Button label="조건 삭제" type="button" variant="destructive" isDisabled={disabled} onClick={() => setConfirmDelete(true)} />}
             </div>
             {admin && confirmDelete && (
                 <div className="border border-error p-space-sm flex flex-col gap-space-xs">
-                    <p className="font-body-sm text-body-sm">플랫폼 부담 조건을 삭제할까요? 기존 공동구매에 적용된 조건은 그대로 남을 수 있습니다.</p>
+                    <Text>플랫폼 부담 조건을 삭제할까요? 기존 공동구매에 적용된 조건은 그대로 남을 수 있습니다.</Text>
                     <div className="flex gap-space-sm">
-                        <button type="button" disabled={disabled} onClick={deleteCondition} className="h-9 px-space-sm bg-error text-on-error rounded disabled:opacity-50">삭제 확인</button>
-                        <button type="button" disabled={disabled} onClick={() => setConfirmDelete(false)} className="h-9 px-space-sm border border-outline-variant rounded">취소</button>
+                        <Button label="삭제 확인" type="button" variant="destructive" isDisabled={disabled} onClick={deleteCondition} />
+                        <Button label="취소" type="button" variant="secondary" isDisabled={disabled} onClick={() => setConfirmDelete(false)} />
                     </div>
                 </div>
             )}
