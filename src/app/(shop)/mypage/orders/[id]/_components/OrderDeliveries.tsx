@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { Button, Card, EmptyState, Heading } from '@astryxdesign/core';
 import { useGetDeliveriesByOrder } from '@/api/generated/delivery-controller/delivery-controller';
 import type { DeliveryResponse } from '@/api/generated/model';
@@ -36,7 +35,7 @@ export default function OrderDeliveries({ orderId }: { orderId: number }) {
         <section className="flex flex-col gap-space-sm" aria-label="배송 조회">
             <div className="flex items-center justify-between gap-space-sm">
                 <Heading level={2}>배송 조회</Heading>
-                <Button label="전체 배송 목록" variant="ghost" size="sm" href={ROUTES.deliveries} as={Link} endContent={<Icon name="chevron_right" className="text-[16px]" />} />
+                <Button label="전체 배송 목록" variant="ghost" size="sm" href={ROUTES.deliveries} endContent={<Icon name="chevron_right" className="text-[16px]" />} />
             </div>
 
             {query.isPending ? (

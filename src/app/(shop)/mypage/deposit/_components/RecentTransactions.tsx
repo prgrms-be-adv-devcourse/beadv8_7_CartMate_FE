@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
@@ -90,7 +89,7 @@ export default function RecentTransactions() {
             {/* Table Footer Navigation */}
             <div className="mt-space-lg pt-space-md flex items-center justify-between">
                 <div className="font-caption text-caption text-secondary">[최근 {RECENT_COUNT}건만 보여 줍니다. 전체 내역은 거래 내역 화면에서 확인할 수 있습니다]</div>
-                <Button label="전체 거래 내역" variant="secondary" href={ROUTES.depositHistory} as={Link} endContent={<Icon name="chevron_right" className="text-[16px]" />} />
+                <Button label="전체 거래 내역" variant="secondary" href={ROUTES.depositHistory} endContent={<Icon name="chevron_right" className="text-[16px]" />} />
             </div>
         </Card>
     );

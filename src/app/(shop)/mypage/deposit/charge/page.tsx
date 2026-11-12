@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Badge, Button, Card, EmptyState } from '@astryxdesign/core';
 import MyPageSidebar from '@/components/layout/MyPageSidebar';
 import Icon from '@/components/ui/Icon';
@@ -22,7 +21,7 @@ export default function DepositChargePage() {
                         title="예치금 충전 준비 중"
                         description="현재 이 화면에서는 예치금을 충전할 수 없습니다. 잔액과 거래 내역은 예치금 관리에서 확인할 수 있습니다."
                         icon={<Icon name="account_balance_wallet" />}
-                        actions={<Button label="예치금 관리로 돌아가기" href={ROUTES.deposit} as={Link} variant="primary" />}
+                        actions={<Button label="예치금 관리로 돌아가기" href={ROUTES.deposit} variant="primary" />}
                     />
                 </Card>
             </section>

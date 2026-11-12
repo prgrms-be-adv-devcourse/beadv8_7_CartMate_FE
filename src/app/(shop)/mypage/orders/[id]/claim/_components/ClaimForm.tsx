@@ -371,7 +371,7 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                     )}
 
                     <div className="pt-space-md border-t border-surface-container flex items-center justify-end gap-space-md">
-                        <Button label="취소" variant="secondary" href={ROUTES.order(orderId)} as={Link} />
+                        <Button label="취소" variant="secondary" href={ROUTES.order(orderId)} />
                         <Button
                             label="요청하기"
                             variant="primary"

@@ -222,9 +222,9 @@ function OrderTableRow({ row }: { row: OrderRow }) {
             </td>
             <td className="p-space-md align-top text-center">
                 <div className="flex flex-col items-center gap-1">
-                    <Button label={row.kind === 'SHARED_GROUP' ? '주문 현황' : '상세보기'} variant="secondary" size="sm" href={row.href} as={Link} />
+                    <Button label={row.kind === 'SHARED_GROUP' ? '주문 현황' : '상세보기'} variant="secondary" size="sm" href={row.href} />
                     {row.payHref && (
-                        <Button label="결제하기" variant="primary" size="sm" href={row.payHref} as={Link} />
+                        <Button label="결제하기" variant="primary" size="sm" href={row.payHref} />
                     )}
                 </div>
             </td>
@@ -240,7 +240,7 @@ function EmptyMessage({ hasAny, hasFailure }: { hasAny: boolean; hasFailure: boo
             <EmptyState
                 title="아직 주문 내역이 없습니다"
                 description="상품을 둘러보고 첫 주문을 시작해 보세요."
-                actions={<Button label="쇼핑하러 가기" variant="primary" href={ROUTES.home} as={Link} />}
+                actions={<Button label="쇼핑하러 가기" variant="primary" href={ROUTES.home} />}
             />
         </div>
     );

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
 import { Text } from '@astryxdesign/core/Text';
@@ -23,7 +22,6 @@ export default function OrdersPage() {
                                 variant="secondary"
                                 size="sm"
                                 href={ROUTES.deliveries}
-                                as={Link}
                                 icon={<Icon name="local_shipping" className="text-[16px]" />}
                             />
                         </div>

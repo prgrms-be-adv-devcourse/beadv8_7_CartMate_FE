@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
@@ -52,7 +51,7 @@ export default function DeliveryList() {
             <EmptyState
                 title="배송 중인 상품이 없습니다"
                 description="결제가 끝난 주문은 판매자별 배송으로 만들어져 여기에 표시됩니다."
-                actions={<Button label="주문 내역 보기" variant="secondary" href={ROUTES.orders} as={Link} />}
+                actions={<Button label="주문 내역 보기" variant="secondary" href={ROUTES.orders} />}
             />
         );
     }
@@ -129,9 +128,9 @@ function DeliveryRow({ row }: { row: DeliveryResponse }) {
                 </div>
                 <div className="flex gap-space-xs">
                     {!shared && row.orderId !== undefined && (
-                        <Button label="주문 상세" variant="secondary" size="sm" href={ROUTES.order(row.orderId)} as={Link} />
+                        <Button label="주문 상세" variant="secondary" size="sm" href={ROUTES.order(row.orderId)} />
                     )}
-                    <Button label={row.status === 'DELIVERED' ? '구매 확정하기' : '배송 조회'} variant="primary" size="sm" href={ROUTES.delivery(row.deliveryId as number)} as={Link} endContent={<Icon name="chevron_right" className="text-[16px]" />} />
+                    <Button label={row.status === 'DELIVERED' ? '구매 확정하기' : '배송 조회'} variant="primary" size="sm" href={ROUTES.delivery(row.deliveryId as number)} endContent={<Icon name="chevron_right" className="text-[16px]" />} />
                 </div>
             </div>
         </Card>

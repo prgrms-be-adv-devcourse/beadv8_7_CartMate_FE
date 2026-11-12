@@ -51,7 +51,7 @@ export default function OrderClaimPage() {
                                 ))}
                             </ul>
                         </Card>
-                        <Button label="내 교환 · 환불 내역" variant="secondary" href={ROUTES.myClaims} as={Link} endContent={<Icon name="chevron_right" className="text-outline" />} />
+                        <Button label="내 교환 · 환불 내역" variant="secondary" href={ROUTES.myClaims} endContent={<Icon name="chevron_right" className="text-outline" />} />
                     </aside>
 
                     {/* 주문 id(동적 경로)를 읽는 부분만 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}

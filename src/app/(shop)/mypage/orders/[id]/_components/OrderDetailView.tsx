@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Badge, Button, Card, EmptyState, Heading, type BadgeVariant } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -140,9 +139,9 @@ function OrderDetail({ order, orderId }: { order: OrderDetailResponse; orderId: 
             </div>
 
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                <Button label="주문 목록으로" variant="secondary" className="flex-1" href={ROUTES.orders} as={Link} icon={<Icon name="list" className="text-[18px]" />} />
+                <Button label="주문 목록으로" variant="secondary" className="flex-1" href={ROUTES.orders} icon={<Icon name="list" className="text-[18px]" />} />
                 {kind === 'INDIVIDUAL_GROUP' && order.individualGroupPurchaseId !== undefined && (
-                    <Button label="개인물품 공구 보기" variant="secondary" className="flex-1" href={ROUTES.groupPurchaseIndividual(order.individualGroupPurchaseId)} as={Link} icon={<Icon name="groups" className="text-[18px]" />} />
+                    <Button label="개인물품 공구 보기" variant="secondary" className="flex-1" href={ROUTES.groupPurchaseIndividual(order.individualGroupPurchaseId)} icon={<Icon name="groups" className="text-[18px]" />} />
                 )}
             </div>
         </div>
@@ -276,7 +275,7 @@ function OrderStatusPanel({ order, orderId }: { order: OrderDetailResponse; orde
                 {pending ? (
                     <>
                         {!expired && (
-                            <Button label={`${formatPrice(order.totalAmount ?? 0)} 결제하기`} variant="primary" className="flex-1" href={`${ROUTES.checkout}?order=${orderId}`} as={Link} icon={<Icon name="account_balance_wallet" className="text-[18px]" />} />
+                            <Button label={`${formatPrice(order.totalAmount ?? 0)} 결제하기`} variant="primary" className="flex-1" href={`${ROUTES.checkout}?order=${orderId}`} icon={<Icon name="account_balance_wallet" className="text-[18px]" />} />
                         )}
                         <button className={`${OUTLINE_BUTTON} flex-1`} type="button" disabled={busy} onClick={onCancel}>
                             {busy ? '취소하는 중...' : '주문 취소'}
@@ -301,7 +300,7 @@ function DetailNotice({ icon, title, message, children }: { icon: string; title:
             icon={<Icon name={icon} />}
             title={title}
             description={message}
-            actions={<div className="flex flex-wrap justify-center gap-space-sm">{children}<Button label="주문 목록으로" variant="secondary" href={ROUTES.orders} as={Link} /></div>}
+            actions={<div className="flex flex-wrap justify-center gap-space-sm">{children}<Button label="주문 목록으로" variant="secondary" href={ROUTES.orders} /></div>}
         />
     );
 }

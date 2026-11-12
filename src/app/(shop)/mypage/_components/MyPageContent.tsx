@@ -161,10 +161,10 @@ export default function MyPageContent() {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         {member.role === 'SELLER' && (
-                            <Button label="판매자 센터" variant="secondary" href={ROUTES.seller} as={Link} icon={<Icon name="storefront" className="text-[18px]" />} />
+                            <Button label="판매자 센터" variant="secondary" href={ROUTES.seller} icon={<Icon name="storefront" className="text-[18px]" />} />
                         )}
-                        <Button label="공동구매 개설" variant="primary" href={ROUTES.groupPurchaseNew} as={Link} icon={<Icon name="add" className="text-[18px]" />} />
-                        <Button label="회원정보 수정" variant="secondary" href={ROUTES.profile} as={Link} icon={<Icon name="settings" className="text-[18px]" />} />
+                        <Button label="공동구매 개설" variant="primary" href={ROUTES.groupPurchaseNew} icon={<Icon name="add" className="text-[18px]" />} />
+                        <Button label="회원정보 수정" variant="secondary" href={ROUTES.profile} icon={<Icon name="settings" className="text-[18px]" />} />
                     </div>
                 </div>
 
@@ -203,7 +203,7 @@ export default function MyPageContent() {
                                     <Heading level={2}>참여 중인 공동구매</Heading>
                                     <Text color="secondary">참여 현황과 마감 일정을 확인하세요.</Text>
                                 </div>
-                                <Button label="전체 보기" variant="ghost" size="sm" href={ROUTES.groupPurchases} as={Link} endContent={<Icon name="arrow_forward" className="text-[14px]" />} />
+                                <Button label="전체 보기" variant="ghost" size="sm" href={ROUTES.groupPurchases} endContent={<Icon name="arrow_forward" className="text-[14px]" />} />
                             </div>
 
                             {groups.length === 0 ? (
@@ -260,7 +260,7 @@ export default function MyPageContent() {
                                     <Heading level={2}>최근 주문</Heading>
                                     <Text color="secondary">최근 3개월간 주문 및 배송 내역입니다.</Text>
                                 </div>
-                                <Button label="전체 내역" variant="ghost" size="sm" href={ROUTES.orders} as={Link} endContent={<Icon name="arrow_forward" className="text-[14px]" />} />
+                                <Button label="전체 내역" variant="ghost" size="sm" href={ROUTES.orders} endContent={<Icon name="arrow_forward" className="text-[14px]" />} />
                             </div>
 
                             {orders.length === 0 ? (

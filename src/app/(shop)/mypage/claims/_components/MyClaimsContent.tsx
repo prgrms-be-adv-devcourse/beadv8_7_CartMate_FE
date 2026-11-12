@@ -122,7 +122,7 @@ export default function MyClaimsContent() {
                 ) : claimsQuery.isError ? (
                     <EmptyState icon={<Icon name="error" />} title="교환 · 환불 내역을 불러오지 못했습니다" description={errorMessage(claimsQuery.error, '잠시 후 다시 시도해 주세요.')} actions={<Button label="다시 시도" variant="secondary" onClick={() => void claimsQuery.refetch()} />} />
                 ) : claims.length === 0 ? (
-                    <EmptyState icon={<Icon name="assignment_return" />} title="신청한 교환 · 환불이 없습니다" description="배송 완료된 주문에서 교환이나 환불을 신청할 수 있습니다." actions={<Button label="주문 내역에서 신청하기" variant="secondary" href={ROUTES.orders} as={Link} />} />
+                    <EmptyState icon={<Icon name="assignment_return" />} title="신청한 교환 · 환불이 없습니다" description="배송 완료된 주문에서 교환이나 환불을 신청할 수 있습니다." actions={<Button label="주문 내역에서 신청하기" variant="secondary" href={ROUTES.orders} />} />
                 ) : (
                     <ul className="flex flex-col gap-space-md">
                         {claims.map((claim) => {

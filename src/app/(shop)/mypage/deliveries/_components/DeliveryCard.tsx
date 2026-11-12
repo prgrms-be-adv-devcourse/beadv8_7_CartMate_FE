@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Badge, Button, Card, Heading, type BadgeVariant } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useGetMyClaims } from '@/api/generated/claim-controller/claim-controller';
@@ -326,7 +325,7 @@ function DeliveryActions({ delivery, deliveryId }: { delivery: DeliveryDetailRes
                                 <Button label="교환 · 환불 진행 중" variant="secondary" className="w-full" isDisabled />
                             </div>
                         ) : claimHref ? (
-                            <Button label="교환 · 환불 신청" variant="secondary" className="flex-1" href={claimHref} as={Link} icon={<Icon name="assignment_return" className="text-[18px]" />} />
+                            <Button label="교환 · 환불 신청" variant="secondary" className="flex-1" href={claimHref} icon={<Icon name="assignment_return" className="text-[18px]" />} />
                         ) : (
                             <div className="flex-1" title="공동물품 공구 배송의 교환 · 환불 신청은 준비 중입니다">
                                 <Button label="교환 · 환불 신청 (준비 중)" variant="secondary" className="w-full" isDisabled />

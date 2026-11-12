@@ -1,7 +1,6 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Button, EmptyState } from '@astryxdesign/core';
 import { useQueries } from '@tanstack/react-query';
@@ -136,7 +135,7 @@ export default function ClaimContent() {
 
 function BackToOrder({ orderId }: { orderId: number }) {
     return (
-        <Button label="주문 상세로" variant="secondary" href={ROUTES.order(orderId)} as={Link} />
+        <Button label="주문 상세로" variant="secondary" href={ROUTES.order(orderId)} />
     );
 }
 

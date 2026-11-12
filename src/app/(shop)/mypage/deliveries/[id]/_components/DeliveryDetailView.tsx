@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button, EmptyState, Heading, Text } from '@astryxdesign/core';
 import { useGetDeliveryDetails } from '@/api/generated/delivery-controller/delivery-controller';
@@ -45,9 +44,9 @@ export default function DeliveryDetailView() {
             <DeliveryCard deliveryId={deliveryId} title="배송 현황" showItems showReceiver />
 
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                <Button label="배송 목록으로" variant="secondary" className="flex-1" href={ROUTES.deliveries} as={Link} icon={<Icon name="list" className="text-[18px]" />} />
+                <Button label="배송 목록으로" variant="secondary" className="flex-1" href={ROUTES.deliveries} icon={<Icon name="list" className="text-[18px]" />} />
                 {!shared && delivery.orderId !== undefined && (
-                    <Button label="주문 상세 보기" variant="secondary" className="flex-1" href={ROUTES.order(delivery.orderId)} as={Link} icon={<Icon name="receipt_long" className="text-[18px]" />} />
+                    <Button label="주문 상세 보기" variant="secondary" className="flex-1" href={ROUTES.order(delivery.orderId)} icon={<Icon name="receipt_long" className="text-[18px]" />} />
                 )}
             </div>
         </div>
@@ -56,7 +55,7 @@ export default function DeliveryDetailView() {
 
 function Notice({ icon, title, message, children }: { icon: string; title: string; message: string; children?: React.ReactNode }) {
     return (
-        <EmptyState icon={<Icon name={icon} />} title={title} description={message} actions={<div className="flex flex-wrap justify-center gap-space-sm">{children}<Button label="배송 목록으로" variant="secondary" href={ROUTES.deliveries} as={Link} /></div>} />
+        <EmptyState icon={<Icon name={icon} />} title={title} description={message} actions={<div className="flex flex-wrap justify-center gap-space-sm">{children}<Button label="배송 목록으로" variant="secondary" href={ROUTES.deliveries} /></div>} />
     );
 }
 
