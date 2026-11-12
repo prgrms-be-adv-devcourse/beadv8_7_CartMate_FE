@@ -22,10 +22,6 @@ const FILTERS: { key: Filter; label: string }[] = [
     { key: 'joined', label: '참여한' },
 ];
 
-const TAB_ACTIVE = 'inline-flex items-center h-9 px-space-md bg-primary text-on-primary font-label-sm text-label-sm rounded';
-const TAB_INACTIVE =
-    'inline-flex items-center h-9 px-space-md bg-surface-container-lowest text-on-surface-variant border border-outline-variant font-label-sm text-label-sm rounded hover:bg-surface-container';
-
 type Row = SharedGroupPurchaseSummaryResponse & { id: number };
 
 // 내가 만들었거나 참여한 공동물품 공동구매 목록 (최근 만든 순, BE 정렬 그대로)
@@ -38,31 +34,20 @@ export default function MyGroupPurchaseList() {
 
     return (
         <section className="flex flex-col gap-space-md">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
-                <div className="flex items-center gap-space-xs" role="tablist" aria-label="공동구매 종류">
-                    <button className={TAB_ACTIVE} type="button" role="tab" aria-selected>
-                        공동물품
+            <div className="flex items-center gap-space-xs">
+                {FILTERS.map((item) => (
+                    <button
+                        key={item.key}
+                        className={`px-2 py-1 font-label-sm text-label-sm ${
+                            filter === item.key ? 'font-bold text-on-surface border-b border-primary' : 'text-on-surface-variant hover:text-on-surface'
+                        }`}
+                        type="button"
+                        aria-pressed={filter === item.key}
+                        onClick={() => setFilter(item.key)}
+                    >
+                        {item.label}
                     </button>
-                    {/* 개인물품 공동구매는 별도 화면에서 관리한다 */}
-                    <Link className={TAB_INACTIVE} href={ROUTES.groupPurchasesIndividual} role="tab" aria-selected={false}>
-                        개인물품
-                    </Link>
-                </div>
-                <div className="flex items-center gap-space-xs">
-                    {FILTERS.map((item) => (
-                        <button
-                            key={item.key}
-                            className={`px-2 py-1 font-label-sm text-label-sm ${
-                                filter === item.key ? 'font-bold text-on-surface border-b border-primary' : 'text-on-surface-variant hover:text-on-surface'
-                            }`}
-                            type="button"
-                            aria-pressed={filter === item.key}
-                            onClick={() => setFilter(item.key)}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
-                </div>
+                ))}
             </div>
 
             {list.isPending ? (
@@ -114,8 +99,8 @@ function GroupPurchaseCard({ row }: { row: Row }) {
                 <span className="font-caption text-caption text-outline">수정 마감 {formatDateTime(row.editDeadlineAt)}</span>
             </div>
             <div className="flex items-center justify-between gap-space-md">
-                <h3 className="font-label-md text-label-md text-on-surface font-bold group-hover:text-primary truncate">{row.title}</h3>
-                <Icon name="arrow_forward" className="text-outline text-[18px] shrink-0 group-hover:translate-x-1 transition-transform" />
+                <h3 className="font-label-md text-label-md text-on-surface font-bold truncate">{row.title}</h3>
+                <Icon name="arrow_forward" className="text-outline text-[18px] shrink-0 group-hover:text-primary group-hover:translate-x-1 transition-[color,transform]" />
             </div>
             <div className="mt-space-sm flex flex-col gap-1">
                 <div className="w-full h-2 bg-surface-container border border-outline-variant overflow-hidden">
