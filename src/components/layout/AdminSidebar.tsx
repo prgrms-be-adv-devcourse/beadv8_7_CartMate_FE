@@ -1,4 +1,5 @@
 import Icon from '@/components/ui/Icon';
+import { Card, Heading, Text } from '@astryxdesign/core';
 import SidebarNav from '@/components/layout/SidebarNav';
 import { ROUTES } from '@/lib/routes';
 
@@ -12,16 +13,15 @@ const MENU = [
 
 export default function AdminSidebar() {
     return (
-        <aside className="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant z-50 flex flex-col justify-between">
+        <aside className="fixed left-0 top-0 z-50 h-full w-64 border-r border-outline-variant bg-surface-container-lowest">
+            <Card className="flex h-full flex-col justify-between" padding={0}>
             <div className="flex flex-col">
                 <div className="h-16 px-space-lg flex items-center gap-space-sm border-b border-outline-variant">
                     <Icon name="admin_panel_settings" className="text-primary text-[20px]" />
-                    <span className="font-headline-sm text-headline-sm text-primary tracking-tight">관리자 센터</span>
+                    <Heading level={2}>관리자 센터</Heading>
                 </div>
                 <div className="px-space-md py-space-sm">
-                    <div className="px-space-sm py-space-xs font-caption text-caption text-on-surface-variant uppercase tracking-wider">
-                        메뉴 관리
-                    </div>
+                    <Text className="px-space-sm py-space-xs" color="secondary">메뉴 관리</Text>
                 </div>
                 <nav className="flex flex-col gap-space-xs px-space-md">
                     <SidebarNav
@@ -33,12 +33,10 @@ export default function AdminSidebar() {
                     />
                 </nav>
             </div>
-            <div className="p-space-md border-t border-outline-variant bg-surface-container-low">
-                <div className="flex items-center justify-between font-caption text-caption text-on-surface-variant">
-                    <span>SYSTEM v1.0.0</span>
-                    <span className="text-outline">WIREFRAME</span>
-                </div>
+            <div className="border-t border-outline-variant p-space-md">
+                <Text color="secondary">관리자 메뉴</Text>
             </div>
+            </Card>
         </aside>
     );
 }
