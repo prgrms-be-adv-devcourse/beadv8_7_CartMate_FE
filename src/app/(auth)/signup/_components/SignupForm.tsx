@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
+import { Button } from '@astryxdesign/core/Button';
 import {
     checkEmail,
     checkNickname,
@@ -35,9 +36,7 @@ const DEFAULT_VALUES: SignupInput = {
 };
 
 const INPUT_CLASS =
-    'h-[42px] px-3 bg-surface-container-lowest text-on-surface rounded-lg font-body-md text-body-md shadow-sm outline-none focus:bg-surface-container-low transition-colors';
-const SUB_BUTTON_CLASS =
-    'h-[42px] px-4 bg-surface-container-high text-on-surface font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-dim transition-colors whitespace-nowrap active:scale-[0.98]';
+    'h-11 min-w-0 px-3 border border-outline-variant bg-surface text-on-surface rounded-lg font-body-md text-body-md outline-none focus:border-primary transition-colors';
 
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
@@ -200,14 +199,14 @@ export default function SignupForm() {
                         type="email"
                         {...register('email')}
                     />
-                    <button
-                        className={`${SUB_BUTTON_CLASS}${emailVerified ? ' bg-surface-container cursor-default' : ''}`}
-                        type="button"
+                    <Button
+                        label={emailVerified ? '확인완료' : emailCheck.isPending ? '확인 중...' : '중복확인'}
+                        variant="secondary"
+                        size="lg"
                         onClick={() => handleCheck('email', emailCheck, 'verifiedEmail', '이미 사용 중인 이메일입니다.')}
-                        disabled={emailVerified || emailCheck.isPending}
-                    >
-                        {emailVerified ? '확인완료' : emailCheck.isPending ? '확인 중...' : '중복확인'}
-                    </button>
+                        isDisabled={emailVerified || emailCheck.isPending}
+                        isLoading={emailCheck.isPending}
+                    />
                 </div>
                 <FieldError message={errors.email?.message} />
             </div>
@@ -284,14 +283,14 @@ export default function SignupForm() {
                         type="text"
                         {...register('nickname')}
                     />
-                    <button
-                        className={`${SUB_BUTTON_CLASS}${nicknameVerified ? ' bg-surface-container cursor-default' : ''}`}
-                        type="button"
+                    <Button
+                        label={nicknameVerified ? '확인완료' : nicknameCheck.isPending ? '확인 중...' : '중복확인'}
+                        variant="secondary"
+                        size="lg"
                         onClick={() => handleCheck('nickname', nicknameCheck, 'verifiedNickname', '이미 사용 중인 닉네임입니다.')}
-                        disabled={nicknameVerified || nicknameCheck.isPending}
-                    >
-                        {nicknameVerified ? '확인완료' : nicknameCheck.isPending ? '확인 중...' : '중복확인'}
-                    </button>
+                        isDisabled={nicknameVerified || nicknameCheck.isPending}
+                        isLoading={nicknameCheck.isPending}
+                    />
                 </div>
                 <p className="font-caption text-caption text-on-surface-variant">선수단 오더 시트와 로스터 명단에 기본 적용됩니다.</p>
                 <FieldError message={errors.nickname?.message} />
@@ -308,14 +307,14 @@ export default function SignupForm() {
                         type="tel"
                         {...register('phone', { onChange: (e) => setValue('phone', formatPhone(e.target.value)) })}
                     />
-                    <button
-                        className={SUB_BUTTON_CLASS}
-                        type="button"
+                    <Button
+                        label={phoneVerified ? '인증완료' : sendCode.isPending ? '발송 중...' : codeSent ? '재발송' : '인증번호 발송'}
+                        variant="secondary"
+                        size="lg"
                         onClick={handleSendCode}
-                        disabled={phoneVerified || sendCode.isPending}
-                    >
-                        {phoneVerified ? '인증완료' : sendCode.isPending ? '발송 중...' : codeSent ? '재발송' : '인증번호 발송'}
-                    </button>
+                        isDisabled={phoneVerified || sendCode.isPending}
+                        isLoading={sendCode.isPending}
+                    />
                 </div>
                 <FieldError message={errors.phone?.message} />
                 {codeSent && !phoneVerified && (
@@ -330,14 +329,14 @@ export default function SignupForm() {
                                 aria-label="휴대폰 인증번호"
                                 {...register('code')}
                             />
-                            <button
-                                className={SUB_BUTTON_CLASS}
-                                type="button"
+                            <Button
+                                label={verifyCode.isPending ? '확인 중...' : '인증확인'}
+                                variant="secondary"
+                                size="lg"
                                 onClick={handleVerifyCode}
-                                disabled={verifyCode.isPending}
-                            >
-                                {verifyCode.isPending ? '확인 중...' : '인증확인'}
-                            </button>
+                                isDisabled={verifyCode.isPending}
+                                isLoading={verifyCode.isPending}
+                            />
                         </div>
                         <p className="font-caption text-caption text-on-surface-variant">인증번호는 3분간 유효합니다.</p>
                         <FieldError message={errors.code?.message} />
@@ -397,14 +396,16 @@ export default function SignupForm() {
                     {errorMessage(signup.error, '회원가입에 실패했습니다.')}
                 </p>
             )}
-            <button
-                className="w-full h-12 mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg shadow-md hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+            <Button
+                label={signup.isPending ? '가입 처리 중...' : '회원가입 완료'}
+                variant="primary"
+                size="lg"
+                width="100%"
                 type="submit"
-                disabled={signup.isPending}
-            >
-                <span>{signup.isPending ? '가입 처리 중...' : '회원가입 완료'}</span>
-                <Icon name="arrow_forward" className="text-[18px]" />
-            </button>
+                isDisabled={signup.isPending}
+                isLoading={signup.isPending}
+                endContent={<Icon name="arrow_forward" className="text-[18px]" />}
+            />
         </form>
     );
 }

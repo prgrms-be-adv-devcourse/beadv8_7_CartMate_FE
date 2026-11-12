@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { Button } from '@astryxdesign/core/Button';
 import { useLogin } from '@/api/generated/auth-controller/auth-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -11,7 +12,7 @@ import { ROUTES } from '@/lib/routes';
 import { loginSchema, type LoginValues } from '../../_lib/authSchemas';
 
 const INPUT_CLASS =
-    'w-full h-[42px] px-3 border border-outline-variant rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:border-on-surface transition-colors';
+    'w-full h-11 px-3 border border-outline-variant rounded-lg bg-surface text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:border-primary transition-colors';
 
 // 로그인 후 돌아갈 경로. 외부 주소로 튀지 않도록 사이트 내부 경로만 허용한다.
 function nextPath(): string {
@@ -68,9 +69,7 @@ export default function LoginForm() {
                     <label className="font-body-sm text-body-sm text-on-surface font-semibold" htmlFor="user-password">
                         비밀번호
                     </label>
-                    <a className="font-label-sm text-label-sm text-outline hover:text-on-surface hover:underline transition-colors" href="#">
-                        비밀번호 찾기
-                    </a>
+                    <span className="font-caption text-caption text-outline">영문·숫자·특수문자 조합</span>
                 </div>
                 <div className="relative flex items-center">
                     <input
@@ -100,22 +99,22 @@ export default function LoginForm() {
                     />
                     <span className="font-body-sm text-body-sm text-on-surface-variant">로그인 상태 유지</span>
                 </label>
-                <span className="text-caption font-caption text-outline">보안 30일 보관</span>
             </div>
             {login.isError && (
                 <p className="font-caption text-caption text-error" role="alert">
                     {errorMessage(login.error, '로그인에 실패했습니다.')}
                 </p>
             )}
-            {/* Main Action CTA Button */}
-            <button
-                className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60"
+            <Button
+                label={login.isPending ? '로그인 중...' : '로그인'}
+                variant="primary"
+                size="lg"
+                width="100%"
                 type="submit"
-                disabled={login.isPending}
-            >
-                <span>{login.isPending ? '로그인 중...' : '로그인'}</span>
-                <Icon name="arrow_forward" className="text-[16px]" />
-            </button>
+                isLoading={login.isPending}
+                isDisabled={login.isPending}
+                endContent={<Icon name="arrow_forward" className="text-[16px]" />}
+            />
         </form>
     );
 }
