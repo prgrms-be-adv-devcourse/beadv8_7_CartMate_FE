@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/Icon';
 import { apiFetch, ApiError } from '@/lib/api';
@@ -103,7 +104,7 @@ export default function ProfileContent() {
 
     if (!profile) {
         return (
-            <div className="col-span-9 flex flex-col gap-space-xl">
+            <div className="min-w-0 flex flex-col gap-space-xl">
                 <div className="h-[520px] rounded bg-surface-container animate-pulse" />
             </div>
         );
@@ -236,15 +237,13 @@ export default function ProfileContent() {
     const isSeller = profile.role === 'SELLER';
 
     return (
-        <div className="col-span-9 flex flex-col gap-space-xl">
+        <div className="min-w-0 flex flex-col gap-space-xl">
             {/* 회원정보 수정 */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl">
-                <div className="flex items-center justify-between pb-space-md border-b border-surface-container mb-space-xl">
+            <Card padding={4}>
+                <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-md border-b border-surface-container mb-space-xl">
                     <div>
-                        <h2 className="font-headline-md text-headline-md text-on-surface font-bold">회원정보 수정</h2>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                            계정 정보, 비밀번호 및 연락처 정보를 안전하게 관리하세요.
-                        </p>
+                        <Heading level={2}>회원정보 수정</Heading>
+                        <Text color="secondary">계정 정보, 비밀번호 및 연락처 정보를 안전하게 관리하세요.</Text>
                     </div>
                     <span className="font-caption text-caption px-space-sm py-1 bg-surface-container border border-outline-variant text-on-surface-variant">
                         최근 수정: {formatDateTime(profile.updatedAt)}
@@ -252,7 +251,7 @@ export default function ProfileContent() {
                 </div>
 
                 <form className="flex flex-col gap-space-lg" onSubmit={(e) => e.preventDefault()}>
-                    <div className="grid grid-cols-2 gap-gutter">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-gutter">
                         <div className="flex flex-col">
                             <label className={LABEL_CLASS} htmlFor="profile-email">
                                 아이디 (이메일)
@@ -269,7 +268,7 @@ export default function ProfileContent() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-gutter">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-gutter">
                         {/* 닉네임 */}
                         <div className="flex flex-col">
                             <label className={LABEL_CLASS} htmlFor="profile-nickname">
@@ -277,7 +276,7 @@ export default function ProfileContent() {
                             </label>
                             <div className="flex gap-space-xs">
                                 <input
-                                    className={`w-full ${INPUT_CLASS}`}
+                                    className={`min-w-0 w-full ${INPUT_CLASS}`}
                                     id="profile-nickname"
                                     type="text"
                                     value={nickname}
@@ -305,7 +304,7 @@ export default function ProfileContent() {
                             </label>
                             <div className="flex gap-space-xs">
                                 <input
-                                    className={`w-full ${INPUT_CLASS}`}
+                                    className={`min-w-0 w-full ${INPUT_CLASS}`}
                                     id="profile-phone"
                                     type="tel"
                                     inputMode="numeric"
@@ -329,7 +328,7 @@ export default function ProfileContent() {
                             {phoneChanged && codeSent && !phoneVerified && (
                                 <div className="flex gap-space-xs mt-space-xs">
                                     <input
-                                        className={`w-full ${INPUT_CLASS}`}
+                                        className={`min-w-0 w-full ${INPUT_CLASS}`}
                                         placeholder="인증번호 6자리"
                                         inputMode="numeric"
                                         maxLength={6}
@@ -357,7 +356,7 @@ export default function ProfileContent() {
                     <div className="pt-space-md border-t border-surface-container">
                         <div className="font-headline-sm text-headline-sm text-on-surface font-bold mb-1">비밀번호 변경</div>
                         <p className={`${CAPTION} text-outline mb-space-md`}>변경하지 않으려면 비워 두세요.</p>
-                        <div className="grid grid-cols-3 gap-gutter">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
                             <div className="flex flex-col">
                                 <label className={LABEL_CLASS} htmlFor="current-password">
                                     현재 비밀번호
@@ -413,12 +412,12 @@ export default function ProfileContent() {
                     {/* 기본 배송지 */}
                     <div className="pt-space-md border-t border-surface-container">
                         <div className="font-headline-sm text-headline-sm text-on-surface font-bold mb-space-md">배송지 관리</div>
-                        <div className="flex items-center justify-between p-space-md border border-outline-variant bg-surface-container-low rounded">
+                        <div className="flex flex-wrap gap-space-sm items-center justify-between p-space-md border border-outline-variant bg-surface-container-low rounded">
                             {profile.defaultAddress ? (
                                 <div>
                                     <div className="flex items-center gap-space-xs mb-1">
                                         <span className="font-label-sm text-label-sm text-on-surface font-bold">기본 배송지</span>
-                                        <span className="px-1 bg-primary text-on-primary font-caption text-caption">DEFAULT</span>
+                                        <Badge variant="blue" label="기본" />
                                     </div>
                                     <div className="font-body-sm text-body-sm text-on-surface-variant">
                                         [{profile.defaultAddress.zipCode}] {profile.defaultAddress.basicAddress}
@@ -440,28 +439,15 @@ export default function ProfileContent() {
                     {formError && <p className={`${CAPTION} text-error text-right`}>{formError}</p>}
 
                     <div className="flex justify-end gap-space-sm pt-space-md">
-                        <button
-                            className="h-[44px] px-space-xl border border-outline-variant bg-surface hover:bg-surface-container text-on-surface font-label-md rounded transition-colors"
-                            type="button"
-                            onClick={handleReset}
-                        >
-                            취소
-                        </button>
-                        <button
-                            className="h-[44px] px-space-xl bg-primary hover:bg-primary/90 text-on-primary font-label-md rounded transition-colors disabled:opacity-60"
-                            type="button"
-                            onClick={handleSave}
-                            disabled={saving}
-                        >
-                            {saving ? '저장 중...' : '변경사항 저장'}
-                        </button>
+                        <Button label="취소" variant="secondary" type="button" onClick={handleReset} />
+                        <Button label="변경사항 저장" variant="primary" type="button" onClick={handleSave} isLoading={saving} isDisabled={saving} />
                     </div>
                 </form>
-            </div>
+            </Card>
 
             {/* 판매자 등록 및 관리 */}
             <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl flex flex-col gap-space-lg">
-                <div className="flex items-center justify-between pb-space-md border-b border-surface-container">
+                <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-md border-b border-surface-container">
                     <div>
                         <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-space-xs">
                             <Icon name="storefront" className="text-[20px]" />
@@ -482,7 +468,7 @@ export default function ProfileContent() {
                         </span>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 gap-gutter">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-gutter">
                     <div className="p-space-md border border-outline-variant bg-surface-container-low rounded flex flex-col justify-between gap-space-md">
                         <div>
                             <div className="flex items-center gap-space-xs mb-space-xs">

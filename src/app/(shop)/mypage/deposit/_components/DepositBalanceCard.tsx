@@ -1,6 +1,10 @@
 'use client';
 
 import { useGetMyWallet } from '@/api/generated/wallet-controller/wallet-controller';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Text } from '@astryxdesign/core/Text';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 
@@ -15,19 +19,17 @@ export default function DepositBalanceCard() {
 
     if (wallet.isError) {
         return (
-            <div className="bg-surface-container-lowest p-space-xl rounded shadow-sm flex flex-col gap-space-xs mb-space-xl" role="alert">
-                <p className="font-body-md text-body-md text-on-surface">{errorMessage(wallet.error, '예치금 잔액을 불러오지 못했습니다.')}</p>
-                <button className="self-start px-space-md py-1 border border-outline-variant rounded font-label-sm text-label-sm text-on-surface hover:bg-surface-container" type="button" onClick={() => wallet.refetch()}>
-                    다시 시도
-                </button>
-            </div>
+            <Card variant="red" padding={4} className="flex flex-col gap-3" role="alert">
+                <Text>{errorMessage(wallet.error, '예치금 잔액을 불러오지 못했습니다.')}</Text>
+                <Button label="다시 시도" variant="secondary" size="sm" onClick={() => wallet.refetch()} />
+            </Card>
         );
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-space-xl">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {/* Card 1: Total Holding Balance */}
-            <div className="bg-surface-container-lowest p-space-xl rounded shadow-sm flex flex-col justify-between relative overflow-hidden">
+            <Card padding={5} className="relative flex flex-col justify-between overflow-hidden">
                 <div>
                     <div className="flex items-center justify-between text-secondary mb-space-md">
                         <span className="font-caption text-caption tracking-wider uppercase">[전체 보유 잔액]</span>
@@ -40,15 +42,15 @@ export default function DepositBalanceCard() {
                         예치금 총합계 (사용 가능 금액 + 결제 후 정산 전 동결 금액)
                     </p>
                 </div>
-            </div>
+            </Card>
 
             {/* Card 2: Available Amount (Primary Emphasis) */}
-            <div className="bg-primary text-on-primary p-space-xl rounded shadow-md flex flex-col justify-between relative">
+            <Card variant="blue" padding={5} elevation="low" className="relative flex flex-col justify-between">
                 <div>
                     <div className="flex items-center justify-between text-primary-fixed mb-space-md">
                         <div className="flex items-center gap-space-xs">
                             <span className="font-caption text-caption tracking-wider uppercase">[사용 가능 금액]</span>
-                            <span className="px-1.5 py-0.5 bg-primary-container text-on-primary-fixed font-caption text-caption rounded">현재 잔액</span>
+                            <Badge label="현재 잔액" variant="success" />
                         </div>
                         <Icon name="lock_open" className="text-[20px] text-primary-fixed" />
                     </div>
@@ -57,15 +59,15 @@ export default function DepositBalanceCard() {
                     </div>
                     <p className="font-body-sm text-body-sm text-primary-fixed leading-relaxed">주문과 공동구매 결제에 바로 사용할 수 있는 예치금입니다.</p>
                 </div>
-            </div>
+            </Card>
 
             {/* Card 3: Held Escrow Amount */}
-            <div className="bg-surface-container-lowest p-space-xl rounded shadow-sm flex flex-col justify-between relative">
+            <Card padding={5} className="relative flex flex-col justify-between">
                 <div>
                     <div className="flex items-center justify-between text-secondary mb-space-md">
                         <div className="flex items-center gap-space-xs">
                             <span className="font-caption text-caption tracking-wider uppercase">[동결 중 금액]</span>
-                            <span className="px-1.5 py-0.5 bg-surface-container-high text-on-surface-variant font-caption text-caption rounded">결제 보관</span>
+                            <Badge label="결제 보관" variant="neutral" />
                         </div>
                         <Icon name="lock" className="text-[20px] text-secondary" />
                     </div>
@@ -76,7 +78,7 @@ export default function DepositBalanceCard() {
                         결제한 금액 중 판매자 정산이 끝나지 않아 보관 중인 돈입니다. 구매 확정 후 정산 시 판매자에게 지급되며, 환불되면 사용 가능 금액으로 돌아옵니다.
                     </p>
                 </div>
-            </div>
+            </Card>
         </div>
     );
 }

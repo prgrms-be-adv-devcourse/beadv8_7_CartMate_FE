@@ -2,17 +2,20 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { useGetMyDeliveries } from '@/api/generated/delivery-controller/delivery-controller';
 import type { DeliveryResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
-import { formatDate, KIND_LABEL, STATUS_TONE_CLASS } from '../../orders/_lib/orderView';
+import { formatDate, KIND_LABEL } from '../../orders/_lib/orderView';
 import { deliveryStatus, TRACK_STEPS, trackIndex } from '../_lib/deliveryView';
 
 const PAGE_SIZE = 10;
-const SMALL_BUTTON =
-    'h-8 px-3 whitespace-nowrap border border-outline-variant bg-surface hover:bg-surface-container hover:border-primary font-label-sm text-label-sm rounded transition-colors inline-flex items-center justify-center gap-0.5';
+const TONE_VARIANT = { pending: 'warning', done: 'success', muted: 'neutral' } as const;
 const PAGE_BUTTON =
     'h-9 px-3 border border-outline-variant bg-surface text-on-surface rounded font-label-sm text-label-sm inline-flex items-center gap-0.5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-container';
 
@@ -36,27 +39,21 @@ export default function DeliveryList() {
 
     if (query.isError && !data) {
         return (
-            <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-sm text-center" role="alert">
-                <Icon name="error" className="text-[36px] text-outline" />
-                <p className="font-body-md text-body-md text-on-surface font-bold">배송 목록을 불러오지 못했습니다</p>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">{errorMessage(query.error, '잠시 후 다시 시도해주세요.')}</p>
-                <button className={SMALL_BUTTON} type="button" onClick={() => void query.refetch()}>
-                    다시 시도
-                </button>
-            </div>
+            <EmptyState
+                title="배송 목록을 불러오지 못했습니다"
+                description={errorMessage(query.error, '잠시 후 다시 시도해주세요.')}
+                actions={<Button label="다시 시도" variant="secondary" onClick={() => void query.refetch()} />}
+            />
         );
     }
 
     if (rows.length === 0 && page === 0) {
         return (
-            <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-sm text-center" role="status">
-                <Icon name="local_shipping" className="text-[36px] text-outline" />
-                <p className="font-body-md text-body-md text-on-surface font-bold">배송 중인 상품이 없습니다</p>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">결제가 끝난 주문은 판매자별로 배송이 만들어져 여기에 표시됩니다.</p>
-                <Link className={SMALL_BUTTON} href={ROUTES.orders}>
-                    주문 내역 보기
-                </Link>
-            </div>
+            <EmptyState
+                title="배송 중인 상품이 없습니다"
+                description="결제가 끝난 주문은 판매자별 배송으로 만들어져 여기에 표시됩니다."
+                actions={<Button label="주문 내역 보기" variant="secondary" href={ROUTES.orders} as={Link} />}
+            />
         );
     }
 
@@ -67,11 +64,11 @@ export default function DeliveryList() {
                 {query.isFetching && <span className="font-caption text-caption text-outline">새로 고치는 중...</span>}
             </div>
 
-            <ul className="flex flex-col gap-space-sm">
+            <div className="flex flex-col gap-space-sm">
                 {rows.map((row) => (
                     <DeliveryRow key={row.deliveryId} row={row} />
                 ))}
-            </ul>
+            </div>
 
             {totalPages > 1 && (
                 <nav className="flex items-center justify-center gap-space-sm" aria-label="배송 목록 페이지">
@@ -100,14 +97,12 @@ function DeliveryRow({ row }: { row: DeliveryResponse }) {
     const orderLabel = row.orderNumber ?? (shared ? `공동 주문 #${row.orderId}` : `주문 #${row.orderId}`);
 
     return (
-        <li className="bg-surface-container-lowest border border-outline-variant rounded p-space-md flex flex-col gap-space-sm" data-delivery-id={row.deliveryId}>
+        <Card padding={3} className="flex flex-col gap-3" data-delivery-id={row.deliveryId}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
                 <div className="flex flex-wrap items-center gap-space-sm min-w-0">
-                    <span className={`font-caption text-caption px-space-xs py-0.5 rounded font-bold ${STATUS_TONE_CLASS[status.tone]}`}>{status.label}</span>
+                    <Badge label={status.label} variant={TONE_VARIANT[status.tone]} />
                     <span className="font-label-md text-label-md text-on-surface font-bold truncate">{orderLabel}</span>
-                    <span className="font-caption text-caption px-space-xs py-0.5 rounded border border-outline-variant bg-surface-container text-on-surface-variant">
-                        {shared ? KIND_LABEL.SHARED_GROUP : '개인 주문'}
-                    </span>
+                    <Badge label={shared ? KIND_LABEL.SHARED_GROUP : '개인 주문'} variant={shared ? 'purple' : 'neutral'} />
                 </div>
                 <span className="font-caption text-caption text-outline">배송 요청 {formatDate(row.createdAt)}</span>
             </div>
@@ -134,16 +129,11 @@ function DeliveryRow({ row }: { row: DeliveryResponse }) {
                 </div>
                 <div className="flex gap-space-xs">
                     {!shared && row.orderId !== undefined && (
-                        <Link className={SMALL_BUTTON} href={ROUTES.order(row.orderId)}>
-                            주문 상세
-                        </Link>
+                        <Button label="주문 상세" variant="secondary" size="sm" href={ROUTES.order(row.orderId)} as={Link} />
                     )}
-                    <Link className={`${SMALL_BUTTON} border-primary text-primary`} href={ROUTES.delivery(row.deliveryId as number)}>
-                        {row.status === 'DELIVERED' ? '구매 확정하기' : '배송 조회'}
-                        <Icon name="chevron_right" className="text-[16px]" />
-                    </Link>
+                    <Button label={row.status === 'DELIVERED' ? '구매 확정하기' : '배송 조회'} variant="primary" size="sm" href={ROUTES.delivery(row.deliveryId as number)} as={Link} endContent={<Icon name="chevron_right" className="text-[16px]" />} />
                 </div>
             </div>
-        </li>
+        </Card>
     );
 }
