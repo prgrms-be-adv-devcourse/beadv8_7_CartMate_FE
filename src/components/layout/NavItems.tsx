@@ -30,8 +30,15 @@ export default function NavItems({
     iconClassName,
     pathname,
 }: NavItemsProps & { pathname: string | null }) {
+    // 여러 메뉴가 함께 맞으면(/group-purchases 와 /group-purchases/new) 가장 구체적인 하나만 활성으로 둔다.
+    const activeHref =
+        pathname === null
+            ? undefined
+            : items
+                  .filter((item) => isActive(pathname, item.href, exactHref))
+                  .reduce<string | undefined>((best, item) => (!best || item.href.length > best.length ? item.href : best), undefined);
     return items.map((item) => {
-        const active = pathname !== null && isActive(pathname, item.href, exactHref);
+        const active = item.href === activeHref;
         return (
             <Link
                 key={item.href}

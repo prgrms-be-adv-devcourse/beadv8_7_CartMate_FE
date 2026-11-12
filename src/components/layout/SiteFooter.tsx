@@ -14,6 +14,7 @@ const FOOTER_LINKS = [
     {
         title: '고객 센터',
         links: [
+            { label: '공지사항', href: ROUTES.notices },
             { label: '자주 묻는 질문 (FAQ)', href: ROUTES.notices },
             { label: '1:1 문의하기', href: ROUTES.inquiries },
             { label: '배송 및 수선 규정', href: ROUTES.notices },
