@@ -13,14 +13,14 @@ export default function AdminHeader() {
     if (!member) return null;
 
     return (
-        <header className="fixed top-0 left-64 right-0 z-40 flex h-16 items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-space-lg">
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-space-md md:fixed md:left-64 md:right-0 md:px-space-lg">
             <div className="flex items-center gap-space-sm">
                 <Button label="사이트 홈" icon={<Icon name="home" className="text-[18px]" />} href={ROUTES.home} variant="ghost" />
                 <Text color="disabled">/</Text>
                 <Text color="secondary">관리자 콘솔</Text>
             </div>
             <div className="flex items-center gap-space-md">
-                <Card className="flex items-center gap-space-sm" padding={2} variant="muted">
+                <Card className="hidden items-center gap-space-sm sm:flex" padding={2} variant="muted">
                     <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                         <Text color="inherit" className="text-on-primary">{member.nickname.slice(0, 1)}</Text>
                     </div>

@@ -8,10 +8,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return (
         <AdminGuard>
             <AdminSidebar />
-            <div className="pl-64">
+            <div className="md:pl-64">
                 <AdminHeader />
-                <main className="relative min-h-screen bg-surface pt-16">
-                    <div className="mx-auto w-full max-w-[1200px] p-space-lg">{children}</div>
+                <main className="relative min-h-screen bg-surface md:pt-16">
+                    <div className="mx-auto w-full max-w-[1200px] p-space-md md:p-space-lg">{children}</div>
                 </main>
             </div>
         </AdminGuard>
