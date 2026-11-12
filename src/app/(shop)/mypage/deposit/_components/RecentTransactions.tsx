@@ -1,6 +1,10 @@
 'use client';
 
-import Link from 'next/link';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Heading } from '@astryxdesign/core/Heading';
 import { useGetMyWalletTransactions } from '@/api/generated/wallet-controller/wallet-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -26,11 +30,11 @@ export default function RecentTransactions() {
     const rows = query.data?.data?.content ?? [];
 
     return (
-        <div className="bg-surface-container-lowest p-space-xl rounded shadow-sm">
+        <Card padding={4}>
             <div className="flex items-center justify-between pb-space-md mb-space-md">
                 <div className="flex items-center gap-space-sm">
-                    <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">최근 거래 내역</h3>
-                    <span className="px-2 py-0.5 bg-surface-container font-caption text-caption text-secondary rounded">최근 {RECENT_COUNT}건</span>
+                    <Heading level={2}>최근 거래 내역</Heading>
+                    <Badge label={`최근 ${RECENT_COUNT}건`} variant="neutral" />
                 </div>
                 <div className="flex items-center gap-space-xs font-caption text-caption text-secondary">
                     <span>기준 통화: KRW (₩)</span>
@@ -41,12 +45,10 @@ export default function RecentTransactions() {
             ) : query.isError ? (
                 <div className="py-space-lg flex flex-col items-center gap-space-sm text-center" role="alert">
                     <p className="font-body-md text-body-md text-on-surface">{errorMessage(query.error, '거래 내역을 불러오지 못했습니다.')}</p>
-                    <button className="px-space-md py-1.5 border border-outline-variant rounded font-label-sm text-label-sm text-on-surface hover:bg-surface-container" type="button" onClick={() => query.refetch()}>
-                        다시 시도
-                    </button>
+                    <Button label="다시 시도" variant="secondary" onClick={() => query.refetch()} />
                 </div>
             ) : rows.length === 0 ? (
-                <div className="py-space-xl text-center font-body-md text-body-md text-secondary">거래 내역이 없습니다.</div>
+                <EmptyState title="거래 내역이 없습니다" description="예치금 거래가 생기면 이곳에 표시됩니다." />
             ) : (
                 <div className="w-full overflow-x-auto">
                     <table className="w-full text-left font-body-sm text-body-sm">
@@ -74,10 +76,9 @@ export default function RecentTransactions() {
                                             {tx.orderId != null && <div className="font-caption text-caption text-secondary">주문 #{tx.orderId}</div>}
                                         </td>
                                         <td className={`py-space-md px-space-md text-right font-mono font-bold ${info.amountClassName}`}>
-                                            {info.sign}
-                                            {(tx.amount ?? 0).toLocaleString('ko-KR')}원
+                                            {tx.amount == null ? '-' : `${info.sign}${tx.amount.toLocaleString('ko-KR')}원`}
                                         </td>
-                                        <td className="py-space-md px-space-md text-right font-mono font-bold text-on-surface">{(tx.balanceAfter ?? 0).toLocaleString('ko-KR')}원</td>
+                                        <td className="py-space-md px-space-md text-right font-mono font-bold text-on-surface">{tx.balanceAfter == null ? '-' : `${tx.balanceAfter.toLocaleString('ko-KR')}원`}</td>
                                     </tr>
                                 );
                             })}
@@ -88,11 +89,8 @@ export default function RecentTransactions() {
             {/* Table Footer Navigation */}
             <div className="mt-space-lg pt-space-md flex items-center justify-between">
                 <div className="font-caption text-caption text-secondary">[최근 {RECENT_COUNT}건만 보여 줍니다. 전체 내역은 거래 내역 화면에서 확인할 수 있습니다]</div>
-                <Link className="h-10 px-space-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md rounded flex items-center gap-space-xs transition-colors" href={ROUTES.depositHistory}>
-                    <span>전체 거래 내역 보기</span>
-                    <Icon name="chevron_right" className="text-[16px]" />
-                </Link>
+                <Button label="전체 거래 내역" variant="secondary" href={ROUTES.depositHistory} endContent={<Icon name="chevron_right" className="text-[16px]" />} />
             </div>
-        </div>
+        </Card>
     );
 }

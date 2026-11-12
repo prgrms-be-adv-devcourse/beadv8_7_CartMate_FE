@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { Button } from '@astryxdesign/core/Button';
 import { useLoginWithMfa, useResendLoginMfa, useVerifyLoginMfa, type LoginResponse, type MfaChallenge } from '@/api/loginMfa';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -11,15 +12,20 @@ import { ROUTES } from '@/lib/routes';
 import { loginSchema, type LoginValues } from '../../_lib/authSchemas';
 
 const INPUT_CLASS =
-    'w-full h-[42px] px-3 border border-outline-variant rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:border-on-surface transition-colors';
+    'w-full h-11 px-3 border border-outline-variant rounded-lg bg-surface text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:border-primary transition-colors';
 
 // 로그인 후 돌아갈 경로. 외부 주소로 튀지 않도록 사이트 내부 경로만 허용한다.
 function nextPath(): string {
     const next = new URLSearchParams(window.location.search).get('next');
     if (!next?.startsWith('/')) return ROUTES.home;
-    // `//evil.com`, `/\evil.com` 같은 우회를 막기 위해 브라우저와 같은 규칙으로 해석해 출처를 비교한다.
-    const url = new URL(next, window.location.origin);
-    return url.origin === window.location.origin ? `${url.pathname}${url.search}${url.hash}` : ROUTES.home;
+    try {
+        // `//evil.com`, `/\evil.com`, `/.//evil.com` 같은 우회를 브라우저와 같은 규칙으로 해석한다.
+        const url = new URL(next, window.location.origin);
+        // 같은 출처의 절대 URL을 유지해야 reloadTo에서 `//host`로 재해석되는 2차 우회를 막을 수 있다.
+        return url.origin === window.location.origin ? url.href : ROUTES.home;
+    } catch {
+        return ROUTES.home;
+    }
 }
 
 export default function LoginForm() {
@@ -43,9 +49,8 @@ export default function LoginForm() {
                     setChallenge(res.data.mfa);
                     return;
                 }
-            afterLogin(res.data);
+                afterLogin(res.data);
             },
-        
         });
     };
 
@@ -54,7 +59,7 @@ export default function LoginForm() {
     }
 
     return (
-        <form className="flex flex-col gap-4.5" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form className="flex flex-col gap-4.5" method="post" onSubmit={handleSubmit(onSubmit)} noValidate>
             {/* Email Input Field */}
             <div className="flex flex-col gap-1.5">
                 <label className="font-body-sm text-body-sm text-on-surface font-semibold flex items-center justify-between" htmlFor="user-email">
@@ -78,9 +83,7 @@ export default function LoginForm() {
                     <label className="font-body-sm text-body-sm text-on-surface font-semibold" htmlFor="user-password">
                         비밀번호
                     </label>
-                    <a className="font-label-sm text-label-sm text-outline hover:text-on-surface hover:underline transition-colors" href="#">
-                        비밀번호 찾기
-                    </a>
+                    <span className="font-caption text-caption text-outline">영문·숫자·특수문자 조합</span>
                 </div>
                 <div className="relative flex items-center">
                     <input
@@ -91,6 +94,8 @@ export default function LoginForm() {
                         {...register('password')}
                     />
                     <button
+                        aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                        aria-pressed={showPassword}
                         className="absolute right-3 text-outline hover:text-on-surface flex items-center justify-center"
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
@@ -110,22 +115,22 @@ export default function LoginForm() {
                     />
                     <span className="font-body-sm text-body-sm text-on-surface-variant">로그인 상태 유지</span>
                 </label>
-                <span className="text-caption font-caption text-outline">보안 30일 보관</span>
             </div>
             {login.isError && (
                 <p className="font-caption text-caption text-error" role="alert">
                     {errorMessage(login.error, '로그인에 실패했습니다.')}
                 </p>
             )}
-            {/* Main Action CTA Button */}
-            <button
-                className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60"
+            <Button
+                label={login.isPending ? '로그인 중...' : '로그인'}
+                variant="primary"
+                size="lg"
+                width="100%"
                 type="submit"
-                disabled={login.isPending}
-            >
-                <span>{login.isPending ? '로그인 중...' : '로그인'}</span>
-                <Icon name="arrow_forward" className="text-[16px]" />
-            </button>
+                isLoading={login.isPending}
+                isDisabled={login.isPending}
+                endContent={<Icon name="arrow_forward" className="text-[16px]" />}
+            />
         </form>
     );
 }
@@ -183,7 +188,7 @@ function MfaStep({ challenge, onBack }: { challenge: MfaChallenge; onBack: () =>
     const mustRestart = verify.isError && /다시 로그인/.test(errorMessage(verify.error));
 
     return (
-        <form className="flex flex-col gap-4.5" onSubmit={submit} noValidate>
+        <form className="flex flex-col gap-4.5" method="post" onSubmit={submit} noValidate>
             <div className="flex flex-col gap-1">
                <p className="font-body-md text-body-md text-on-surface font-semibold">{isOtp ? 'OTP 인증' : '이메일 인증'}</p>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
@@ -234,22 +239,25 @@ function MfaStep({ challenge, onBack }: { challenge: MfaChallenge; onBack: () =>
                 </p>
             )}
             {mustRestart ? (
-                <button
-                    className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg"
+                <Button
+                    label="다시 로그인"
+                    variant="primary"
+                    size="lg"
+                    width="100%"
                     type="button"
                     onClick={onBack}
-                >
-                    다시 로그인
-                </button>
+                />
             ) : (
-                <button
-                    className="w-full h-[44px] mt-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60"
+                <Button
+                    label={verify.isPending ? '확인 중...' : '인증하고 로그인'}
+                    variant="primary"
+                    size="lg"
+                    width="100%"
                     type="submit"
-                    disabled={verify.isPending || !valid}
-                >
-                    <span>{verify.isPending ? '확인 중...' : '인증하고 로그인'}</span>
-                    <Icon name="arrow_forward" className="text-[16px]" />
-                </button>
+                    isDisabled={verify.isPending || !valid}
+                    isLoading={verify.isPending}
+                    endContent={<Icon name="arrow_forward" className="text-[16px]" />}
+                />
             )}
             <div className="flex items-center justify-between">
                 {isOtp ? (

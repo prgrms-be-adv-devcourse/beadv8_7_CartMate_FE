@@ -24,7 +24,6 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeleteSalesPostParams,
   RegisterSalesPostBody,
   RsDataPageResponseSelectSalesPostResponse,
   RsDataSelectSalesPostResponse,
@@ -564,27 +563,18 @@ export function useSelectSalesPostDetail<TData = Awaited<ReturnType<typeof selec
 
 
 export const getDeleteSalesPostUrl = (sellerId: number,
-    postId: number,
-    params: DeleteSalesPostParams,) => {
-  const normalizedParams = new URLSearchParams();
+    postId: number,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
 
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/sales-posts/sellers/${sellerId}/posts/${postId}?${stringifiedParams}` : `/api/sales-posts/sellers/${sellerId}/posts/${postId}`
+  return `/api/sales-posts/sellers/${sellerId}/posts/${postId}`
 }
 
 export const deleteSalesPost = async (sellerId: number,
-    postId: number,
-    params: DeleteSalesPostParams, options?: Parameters<typeof http>[1]): Promise<void> => {
+    postId: number, options?: Parameters<typeof http>[1]): Promise<void> => {
 
-  return http<void>(getDeleteSalesPostUrl(sellerId,postId,params),
+  return http<void>(getDeleteSalesPostUrl(sellerId,postId),
   {
     ...options,
     method: 'DELETE'
@@ -614,9 +604,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSalesPost>>, DeleteSalesPostMutationVariables> = (props) => {
-          const {sellerId,postId,params} = props ?? {};
+          const {sellerId,postId} = props ?? {};
 
-          return  deleteSalesPost(sellerId,postId,params,requestOptions)
+          return  deleteSalesPost(sellerId,postId,requestOptions)
         }
 
 
@@ -629,7 +619,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteSalesPostMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSalesPost>>>
 
     export type DeleteSalesPostMutationError = unknown
-    export type DeleteSalesPostMutationVariables = {sellerId: number;postId: number;params: DeleteSalesPostParams}
+    export type DeleteSalesPostMutationVariables = {sellerId: number;postId: number}
 
     export const useDeleteSalesPost = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSalesPost>>, TError,DeleteSalesPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}

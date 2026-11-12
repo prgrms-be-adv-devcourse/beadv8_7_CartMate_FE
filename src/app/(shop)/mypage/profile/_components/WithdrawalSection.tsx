@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import {
     getCheckWithdrawalQueryKey,
@@ -73,16 +74,11 @@ export default function WithdrawalSection() {
     const blockers = info?.blockers ?? [];
 
     return (
-        <div className="bg-surface-container-lowest border border-error/50 rounded p-space-xl relative overflow-hidden">
+        <Card padding={4} className="relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-error" />
             <div className="pb-space-md border-b border-surface-container mb-space-md">
-                <h3 className="font-headline-md text-headline-md text-error font-bold flex items-center gap-space-xs">
-                    <Icon name="warning" />
-                    회원 탈퇴
-                </h3>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                    진행 중인 거래가 없어야 신청할 수 있으며, 신청 후 30일이 지나면 탈퇴가 확정됩니다.
-                </p>
+                <Heading level={3}>회원 탈퇴</Heading>
+                <Text color="secondary">진행 중인 거래가 없어야 신청할 수 있으며, 신청 후 30일이 지나면 탈퇴가 확정됩니다.</Text>
             </div>
 
             {check.isPending ? (
@@ -109,16 +105,9 @@ export default function WithdrawalSection() {
                         </div>
                     </div>
                     <div className="flex justify-end">
-                        <button
-                            type="button"
-                            disabled={cancel.isPending}
-                            onClick={() => {
-                                if (confirm('탈퇴를 취소할까요? 판매를 중지했던 판매글은 판매자 센터에서 직접 다시 판매해야 합니다.')) cancel.mutate();
-                            }}
-                            className="h-[44px] px-space-xl bg-primary text-on-primary font-label-md rounded hover:opacity-90 disabled:opacity-50"
-                        >
-                            {cancel.isPending ? '취소 중…' : '탈퇴 취소'}
-                        </button>
+                        <Button label="탈퇴 취소" variant="secondary" type="button" isLoading={cancel.isPending} isDisabled={cancel.isPending} onClick={() => {
+                            if (confirm('탈퇴를 취소할까요? 판매를 중지했던 판매글은 판매자 센터에서 직접 다시 판매해야 합니다.')) cancel.mutate();
+                        }} />
                     </div>
                 </div>
             ) : (
@@ -149,28 +138,21 @@ export default function WithdrawalSection() {
                             </div>
                         </div>
                     )}
-                    <div className="flex items-center justify-between gap-space-md">
+                    <div className="flex flex-wrap items-center justify-between gap-space-md">
                         <div className="flex items-center gap-space-xs font-caption text-caption text-outline">
                             <Icon name="info" className="text-[16px]" />
                             <span>구매확정·취소·환불이 모두 끝나야 진행 중인 거래가 없는 것으로 봅니다.</span>
                         </div>
-                        <button
-                            type="button"
-                            disabled={!info.canWithdraw}
-                            onClick={() => setOpen(true)}
-                            className="h-[44px] px-space-xl border border-error bg-surface text-error hover:bg-error hover:text-on-error font-label-md rounded transition-colors disabled:opacity-40 disabled:hover:bg-surface disabled:hover:text-error disabled:cursor-not-allowed shrink-0"
-                        >
-                            회원 탈퇴 신청
-                        </button>
+                        <Button label="회원 탈퇴 신청" variant="destructive" type="button" isDisabled={!info.canWithdraw} onClick={() => setOpen(true)} />
                     </div>
                 </div>
             )}
 
             {/* 신청 모달 */}
             {open && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
                     <form
-                        className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl max-w-[480px] w-full shadow-xl flex flex-col gap-space-md"
+                        className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl max-w-[480px] w-full max-h-full overflow-y-auto shadow-xl flex flex-col gap-space-md"
                         onSubmit={(e) => {
                             e.preventDefault();
                             setError(null);
@@ -220,20 +202,12 @@ export default function WithdrawalSection() {
                         {error && <p className="font-body-sm text-body-sm text-error" role="alert">{error}</p>}
 
                         <div className="flex justify-end gap-space-sm">
-                            <button type="button" onClick={close} className="h-[40px] px-space-lg border border-outline-variant rounded font-label-md">
-                                취소
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={request.isPending}
-                                className="h-[40px] px-space-lg bg-error text-on-error font-label-md rounded hover:opacity-90 disabled:opacity-50"
-                            >
-                                {request.isPending ? '신청 중…' : '탈퇴 신청'}
-                            </button>
+                            <Button label="취소" variant="secondary" type="button" onClick={close} />
+                            <Button label="탈퇴 신청" variant="destructive" type="submit" isLoading={request.isPending} isDisabled={request.isPending} />
                         </div>
                     </form>
                 </div>
             )}
-        </div>
+        </Card>
     );
 }

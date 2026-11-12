@@ -1,7 +1,7 @@
 // orval이 생성한 API 함수가 공통으로 쓰는 fetch 래퍼.
 // 브라우저에서는 상대 경로(/api/...)로 호출하고 next.config의 rewrites가 BE로 넘긴다.
-// 서버(RSC)에서는 rewrites를 거치지 않으므로 경로에 맞는 BE 서비스 주소를 직접 붙인다
-import { backendBaseUrlFor } from '@/lib/backendRoutes';
+// 서버(RSC)에서는 rewrites를 거치지 않으므로 경로에 맞는 BE 서비스 주소를 직접 붙인다.
+import { serverBaseUrl } from './services';
 
 export type RsData<T> = {
     resultCode: string;
@@ -45,7 +45,7 @@ export const isAuthPath = (url: string) => url.startsWith('/api/auth/');
 
 export async function http<T>(url: string, options: RequestInit = {}, retried = false): Promise<T> {
     const isBrowser = typeof window !== 'undefined';
-    const baseUrl = isBrowser ? '' : backendBaseUrlFor(url);
+    const baseUrl = isBrowser ? '' : serverBaseUrl(url);
 
     let response: Response;
     try {

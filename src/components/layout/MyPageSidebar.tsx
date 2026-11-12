@@ -1,4 +1,6 @@
 import SidebarNav from '@/components/layout/SidebarNav';
+import { Card } from '@astryxdesign/core/Card';
+import { Text } from '@astryxdesign/core/Text';
 import { ROUTES } from '@/lib/routes';
 
 const MENU = [
@@ -13,18 +15,20 @@ const MENU = [
 // 마이페이지 좌측 메뉴 (col-span-3 영역에 배치)
 export default function MyPageSidebar() {
     return (
-        <aside className="col-span-3 flex flex-col gap-space-sm">
-            <div className="p-space-md bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant flex flex-col gap-space-xs">
-                <div className="font-label-md text-label-md font-bold text-primary mb-space-xs">마이페이지</div>
-                <nav className="flex flex-col gap-1 font-body-sm text-body-sm">
+        <aside className="flex min-w-0 flex-col gap-3 lg:col-span-3 lg:sticky lg:top-28">
+            <Card padding={3}>
+                <div className="mb-2 px-2">
+                    <Text type="supporting" weight="semibold" color="accent">내 계정</Text>
+                </div>
+                <nav className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:flex lg:flex-col">
                     <SidebarNav
                         items={MENU}
                         exactHref={ROUTES.myPage}
-                        className="px-space-sm py-2 rounded hover:bg-surface-container text-on-surface-variant"
-                        activeClassName="px-space-sm py-2 rounded bg-primary text-on-primary font-bold"
+                        className="min-w-0 rounded-lg px-3 py-2.5 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container"
+                        activeClassName="min-w-0 rounded-lg bg-primary px-3 py-2.5 font-label-sm text-label-sm font-bold text-on-primary"
                     />
                 </nav>
-            </div>
+            </Card>
         </aside>
     );
 }

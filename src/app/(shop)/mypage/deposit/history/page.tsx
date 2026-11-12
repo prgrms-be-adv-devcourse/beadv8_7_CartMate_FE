@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { Card, Heading, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
-import HistoryFilter from './_components/HistoryFilter';
 import SummaryBar from './_components/SummaryBar';
 import TransactionList from './_components/TransactionList';
 
@@ -20,11 +20,10 @@ const GUIDELINES = [
 
 export default function DepositHistoryPage() {
     return (
-        <div className="max-w-[1200px] mx-auto px-gutter py-space-xl">
+        <main className="max-w-[1200px] mx-auto px-gutter py-space-xl">
             <div className="flex flex-col w-full">
-                {/* Screen Navigation Breadcrumb & Wireframe Metadata Header */}
                 <div className="flex items-center justify-between pb-space-md mb-space-lg border-b border-outline-variant">
-                    <div className="flex items-center gap-space-sm font-caption text-caption text-on-surface-variant">
+                    <nav aria-label="예치금 위치" className="flex flex-wrap items-center gap-space-sm font-caption text-caption text-on-surface-variant">
                         <Link className="hover:text-on-surface" href={ROUTES.myPage}>
                             마이페이지
                         </Link>
@@ -34,28 +33,15 @@ export default function DepositHistoryPage() {
                         </Link>
                         <Icon name="chevron_right" className="text-[14px]" />
                         <span className="text-on-surface font-semibold">거래 내역</span>
-                    </div>
-                    <div className="font-caption text-caption px-space-xs py-0.5 bg-surface-container border border-outline-variant text-on-surface-variant">
-                        VIEWPORT: DESKTOP · REF: WF-TRX-004
-                    </div>
+                    </nav>
                 </div>
 
-                {/* Primary Header & Section Indicator */}
-                <div className="flex items-end justify-between mb-space-xl">
-                    <div>
-                        <div className="font-caption text-caption uppercase tracking-wider text-outline mb-space-xs">[ESCROW LEDGER ARCHIVE]</div>
-                        <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">예치금 거래 내역</h1>
-                    </div>
-                    <div className="flex items-center gap-space-sm font-caption text-caption text-on-surface-variant bg-surface-container px-space-md py-space-xs border border-outline-variant">
-                        <Icon name="sync" className="text-[16px]" />
-                        <span>실시간 정산 기준 (최근 갱신: 2024-11-25 18:00)</span>
-                    </div>
-                </div>
+                <header className="mb-space-xl">
+                    <Text type="supporting" color="accent">WALLET HISTORY</Text>
+                    <Heading level={1} className="mt-1">예치금 거래 내역</Heading>
+                    <Text as="p" color="secondary" className="mt-2">전체 거래를 최신순으로 보여 줍니다.</Text>
+                </header>
 
-                {/* 1. Transaction Type Filter & Date Range Filter Section */}
-                <HistoryFilter />
-
-                {/* 2. Transaction Summary Metric Bar */}
                 <Suspense>
                     <SummaryBar />
                 </Suspense>
@@ -64,21 +50,22 @@ export default function DepositHistoryPage() {
                     <TransactionList />
                 </Suspense>
 
-                {/* Escrow Term & System Guidelines */}
-                <div className="mt-space-xl p-space-md bg-surface-container border border-outline-variant">
-                    <div className="font-label-sm text-label-sm text-on-surface font-bold mb-space-xs flex items-center gap-1">
+                <Card variant="muted" padding={4} className="mt-space-xl">
+                    <div className="mb-space-xs flex items-center gap-1">
                         <Icon name="info" className="text-[16px]" />
-                        [시스템 안내] 예치금 및 거래 유형 규정
+                        <Heading level={2}>예치금 및 거래 유형 안내</Heading>
                     </div>
-                    <ul className="font-caption text-caption text-on-surface-variant space-y-1 list-disc list-inside">
+                    <ul className="space-y-1 list-disc list-inside">
                         {GUIDELINES.map((item) => (
                             <li key={item.term}>
-                                <strong>{item.term}</strong> {item.text}
+                                <Text as="span" type="supporting" color="secondary">
+                                    <strong>{item.term}</strong> {item.text}
+                                </Text>
                             </li>
                         ))}
                     </ul>
-                </div>
+                </Card>
             </div>
-        </div>
+        </main>
     );
 }

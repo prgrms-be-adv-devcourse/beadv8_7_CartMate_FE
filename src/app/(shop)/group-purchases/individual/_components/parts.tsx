@@ -1,4 +1,9 @@
 import Link from 'next/link';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import Icon from '@/components/ui/Icon';
 
 type StatusSource = { status?: 'OPEN' | 'CLOSED'; open?: boolean };
@@ -10,21 +15,21 @@ export function saleState({ status, open }: StatusSource): 'selling' | 'expired'
 }
 
 const STATE_STYLE = {
-    selling: { label: '판매 중', className: 'bg-primary text-on-primary' },
-    expired: { label: '기한 지남', className: 'bg-surface-container-highest text-on-surface' },
-    closed: { label: '마감', className: 'bg-surface-container text-outline' },
+    selling: { label: '판매 중', variant: 'success' },
+    expired: { label: '기한 지남', variant: 'warning' },
+    closed: { label: '마감', variant: 'neutral' },
 } as const;
 
 export function StatusBadge(source: StatusSource) {
     const style = STATE_STYLE[saleState(source)];
-    return <span className={`shrink-0 px-space-xs py-0.5 font-caption text-caption font-semibold ${style.className}`}>{style.label}</span>;
+    return <Badge label={style.label} variant={style.variant} />;
 }
 
 export function SectionTitle({ icon, title }: { icon: string; title: string }) {
     return (
         <div className="flex items-center gap-space-sm">
             <Icon name={icon} className="text-[20px] text-primary" />
-            <h2 className="font-headline-sm text-headline-sm text-primary">{title}</h2>
+            <Heading level={2}>{title}</Heading>
         </div>
     );
 }
@@ -34,23 +39,16 @@ type MessageBoxProps = { message: string; onRetry?: () => void; href?: string; l
 // 에러·빈 상태 안내. 다시 시도 또는 이동 링크를 붙일 수 있다.
 export function MessageBox({ message, onRetry, href, linkLabel }: MessageBoxProps) {
     return (
-        <div className="border border-outline-variant bg-surface-container-low p-space-xl flex flex-col items-center gap-space-md text-center" role={onRetry ? 'alert' : undefined}>
-            <p className="font-body-md text-body-md text-on-surface">{message}</p>
-            {onRetry && (
-                <button
-                    className="h-10 px-space-lg border border-outline-variant bg-surface-container-lowest font-label-md text-label-md hover:bg-surface-container"
-                    type="button"
-                    onClick={onRetry}
-                >
-                    다시 시도
-                </button>
-            )}
-            {href && linkLabel && (
-                <Link className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md flex items-center" href={href}>
-                    {linkLabel}
-                </Link>
-            )}
-        </div>
+        <EmptyState
+            title={message}
+            icon={<Icon name={onRetry ? 'error' : 'inventory_2'} className="text-[36px]" />}
+            actions={
+                <div className="flex flex-wrap justify-center gap-space-sm">
+                    {onRetry && <Button label="다시 시도" variant="secondary" onClick={onRetry} />}
+                    {href && linkLabel && <Button label={linkLabel} href={href} as={Link} variant="primary" />}
+                </div>
+            }
+        />
     );
 }
 
@@ -58,8 +56,8 @@ export function PageHeader({ title, children }: { title: string; children?: Reac
     return (
         <div className="flex flex-wrap items-center justify-between gap-space-md pb-space-lg mb-space-xl border-b border-outline-variant">
             <div className="flex flex-col gap-0.5">
-                <span className="font-caption text-caption uppercase text-outline tracking-wider">개인물품 공동구매</span>
-                <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">{title}</h1>
+                <Text type="supporting" color="accent">INDIVIDUAL GROUP PURCHASE</Text>
+                <Heading level={1}>{title}</Heading>
             </div>
             {children}
         </div>

@@ -1,6 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Heading } from '@astryxdesign/core/Heading';
 import Icon from '@/components/ui/Icon';
 import { useCurrentUser } from '@/lib/auth';
 import { formatDateTime } from '@/lib/format';
@@ -49,14 +54,14 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
 
             {/* 현황판 */}
             <div className="grid grid-cols-12 gap-gutter">
-                <div className="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+                <Card className="col-span-12 lg:col-span-8 flex flex-col gap-space-md">
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-1">
                                 <span className={statusBadgeClass(purchase.status, editableNow)}>{statusLabel(purchase.status, editableNow)}</span>
                                 <span className="font-caption text-caption text-secondary">공동물품 (N빵) · #{id}</span>
                             </div>
-                            <h1 className="font-headline-md text-headline-md text-primary tracking-tight break-all">{purchase.title}</h1>
+                            <Heading level={1}>{purchase.title}</Heading>
                             <p className="font-caption text-caption text-secondary mt-1">
                                 만든 사람 {purchase.creatorNickname ?? '-'}
                                 {purchase.viewerIsCreator ? ' (나)' : ''}
@@ -77,60 +82,56 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
                                 <span className={`font-label-sm text-label-sm font-bold ${chip.warn ? 'text-error' : 'text-primary'}`}>{chip.value}</span>
                             </div>
                         ))}
-                        <button
-                            className="ml-auto flex items-center gap-1 px-2 py-1 rounded text-secondary hover:bg-surface font-caption text-caption disabled:opacity-60"
-                            type="button"
+                        <Button
+                            label="새로고침"
+                            className="ml-auto"
+                            size="sm"
+                            variant="ghost"
+                            icon={<Icon name="sync" className={`text-[16px]${refreshing ? ' animate-spin' : ''}`} />}
                             onClick={refresh}
-                            disabled={refreshing}
-                        >
-                            <Icon name="sync" className={`text-[16px]${refreshing ? ' animate-spin' : ''}`} />
-                            새로고침
-                        </button>
+                            isDisabled={refreshing}
+                        />
                     </div>
-                </div>
-                <div className="col-span-12 lg:col-span-4 bg-surface-container-high rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+                </Card>
+                <Card className="col-span-12 lg:col-span-4 flex flex-col gap-space-md" variant="blue">
                     <div className="flex items-center gap-space-xs text-primary">
                         <Icon name="calculate" className="text-[20px]" />
-                        <h2 className="font-headline-sm text-headline-sm">N빵 예상 금액</h2>
+                        <Heading level={2}>N빵 예상 금액</Heading>
                     </div>
                     <div className="bg-surface-container-lowest p-space-md rounded">
                         <AmountSummary purchase={purchase} />
                     </div>
-                </div>
+                </Card>
             </div>
 
             {/* 담긴 상품 */}
-            <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+            <Card className="flex flex-col gap-space-md">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
                     <div className="flex items-center gap-space-xs">
-                        <h2 className="font-headline-sm text-headline-sm text-primary">공동 장바구니</h2>
-                        <span className="font-caption text-caption text-secondary px-2 py-0.5 bg-surface-container rounded-full">{items.length}종</span>
+                        <Heading level={2}>공동 장바구니</Heading>
+                        <Badge label={`${items.length}종`} variant="neutral" />
                     </div>
                     <div className="flex items-center gap-space-xs">
                         {canAdd && (
-                            <Link
-                                className="h-10 px-space-md rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md flex items-center gap-1.5"
+                            <Button
+                                label="상품 담기"
                                 href={ROUTES.groupPurchaseOptions(id)}
-                            >
-                                <Icon name="add_circle" className="text-[18px]" />
-                                상품 담기
-                            </Link>
+                                as={Link}
+                                variant="secondary"
+                                icon={<Icon name="add_circle" className="text-[18px]" />}
+                            />
                         )}
-                        <Link
-                            className="h-10 px-space-md rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md flex items-center gap-1.5"
+                        <Button
+                            label={canAdd ? '품목 편집' : purchase.status === 'FROZEN' && purchase.viewerIsCreator ? '품목 정리' : '장바구니 보기'}
                             href={ROUTES.groupPurchaseCart(id)}
-                        >
-                            <Icon name={canAdd || purchase.status === 'FROZEN' ? 'edit' : 'shopping_cart'} className="text-[18px]" />
-                            {canAdd ? '품목 편집' : purchase.status === 'FROZEN' && purchase.viewerIsCreator ? '품목 정리' : '장바구니 보기'}
-                        </Link>
+                            as={Link}
+                            variant="primary"
+                            icon={<Icon name={canAdd || purchase.status === 'FROZEN' ? 'edit' : 'shopping_cart'} className="text-[18px]" />}
+                        />
                     </div>
                 </div>
                 {items.length === 0 ? (
-                    <div className="bg-surface-container-low rounded-lg p-space-xl flex flex-col items-center gap-space-sm text-center">
-                        <Icon name="shopping_cart" className="text-[40px] text-outline" />
-                        <p className="font-body-md text-body-md text-on-surface">아직 담긴 상품이 없습니다.</p>
-                        <p className="font-caption text-caption text-secondary">상품이 없으면 수정 기한이 지날 때 공동구매가 취소됩니다.</p>
-                    </div>
+                    <EmptyState title="아직 담긴 상품이 없습니다." description="상품이 없으면 수정 기한이 지날 때 공동구매가 취소됩니다." icon={<Icon name="shopping_cart" className="text-[40px]" />} />
                 ) : (
                     <div className="flex flex-col gap-space-sm">
                         {items.map((item) => (
@@ -138,15 +139,13 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
                         ))}
                     </div>
                 )}
-            </section>
+            </Card>
 
             {/* 참여자 */}
-            <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+            <Card>
                 <div className="flex items-center gap-space-xs pb-space-md">
-                    <h2 className="font-headline-sm text-headline-sm text-primary">참여자</h2>
-                    <span className="font-caption text-caption text-secondary px-2 py-0.5 bg-surface-container rounded-full">
-                        {members.length}명 / 최대 {purchase.maxParticipants ?? '-'}명
-                    </span>
+                    <Heading level={2}>참여자</Heading>
+                    <Badge label={`${members.length}명 / 최대 ${purchase.maxParticipants ?? '-'}명`} variant="neutral" />
                 </div>
                 <div className="w-full overflow-x-auto">
                     <table className="w-full text-left border-collapse">
@@ -208,7 +207,7 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
                     <Icon name="info" className="text-[16px]" />
                     <span>예상 결제액은 지금 담긴 상품 기준이며, 마감 시점의 인원과 품목으로 최종 확정됩니다.</span>
                 </div>
-            </section>
+            </Card>
 
             <SharedManagePanel id={id} purchase={purchase} deadlinePassed={deadlinePassed} actions={actions} />
         </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Badge, Button, Card, EmptyState, Heading } from '@astryxdesign/core';
 import { useQueries } from '@tanstack/react-query';
 import { useGetMyClaims } from '@/api/generated/claim-controller/claim-controller';
 import { getGetDeliveryDetailsQueryOptions } from '@/api/generated/delivery-controller/delivery-controller';
@@ -18,9 +19,6 @@ import { CLAIM_REASON_LABEL, CLAIM_STATUS, CLAIM_TYPE_LABEL, isRefunded, refundA
 
 const PAGE_SIZE = 10;
 const CARD = 'bg-surface-container-lowest border border-outline-variant rounded p-space-md';
-const OUTLINE_BUTTON =
-    'h-9 px-space-md border border-outline-variant bg-surface-container-lowest hover:bg-surface-container font-label-md text-label-md text-on-surface rounded inline-flex items-center justify-center gap-space-xs transition-colors disabled:opacity-50';
-
 // 판매자가 승인·완료하면 상태가 바뀌므로 화면을 보고 있는 동안 가끔 다시 받는다.
 const REFRESH_MS = 15_000;
 
@@ -74,7 +72,7 @@ export default function MyClaimsContent() {
             )}
 
             {/* 예치금 · 최근 환불 */}
-            <section className={`${CARD} grid grid-cols-1 md:grid-cols-[220px_1fr] gap-space-md`} aria-label="예치금 환불 현황">
+            <Card padding={3} className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-space-md" aria-label="예치금 환불 현황">
                 <div className="flex flex-col gap-1 md:border-r md:border-surface-container md:pr-space-md">
                     <span className="font-caption text-caption text-outline">예치금 잔액</span>
                     <span data-testid="wallet-balance" className="font-headline-md text-headline-md text-on-surface font-bold">
@@ -108,35 +106,23 @@ export default function MyClaimsContent() {
                         </ul>
                     )}
                 </div>
-            </section>
+            </Card>
 
             {/* 클레임 목록 */}
             <section aria-label="교환 · 환불 요청 목록" className="flex flex-col gap-space-md">
                 <div className="flex items-center justify-between">
-                    <h2 className="font-label-md text-label-md text-on-surface font-bold">
+                    <Heading level={2}>
                         요청 목록 {claimsQuery.data?.data && <span className="text-outline font-normal">총 {totalElements}건</span>}
-                    </h2>
+                    </Heading>
                     {claimsQuery.isFetching && !claimsQuery.isPending && <span className="font-caption text-caption text-outline">새로 불러오는 중...</span>}
                 </div>
 
                 {claimsQuery.isPending ? (
                     <div className="h-40 bg-surface-container-low border border-outline-variant rounded animate-pulse" aria-busy="true" />
                 ) : claimsQuery.isError ? (
-                    <div className={`${CARD} flex flex-col items-center gap-space-sm text-center py-space-xl`}>
-                        <Icon name="error" className="text-[32px] text-error" />
-                        <p className="font-body-sm text-body-sm text-on-surface">{errorMessage(claimsQuery.error, '교환 · 환불 내역을 불러오지 못했습니다.')}</p>
-                        <button type="button" className={OUTLINE_BUTTON} onClick={() => void claimsQuery.refetch()}>
-                            다시 시도
-                        </button>
-                    </div>
+                    <EmptyState icon={<Icon name="error" />} title="교환 · 환불 내역을 불러오지 못했습니다" description={errorMessage(claimsQuery.error, '잠시 후 다시 시도해 주세요.')} actions={<Button label="다시 시도" variant="secondary" onClick={() => void claimsQuery.refetch()} />} />
                 ) : claims.length === 0 ? (
-                    <div className={`${CARD} flex flex-col items-center gap-space-sm text-center py-space-xl`}>
-                        <Icon name="assignment_return" className="text-[32px] text-outline" />
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">신청한 교환 · 환불이 없습니다.</p>
-                        <Link href={ROUTES.orders} className={OUTLINE_BUTTON}>
-                            주문 내역에서 신청하기
-                        </Link>
-                    </div>
+                    <EmptyState icon={<Icon name="assignment_return" />} title="신청한 교환 · 환불이 없습니다" description="배송 완료된 주문에서 교환이나 환불을 신청할 수 있습니다." actions={<Button label="주문 내역에서 신청하기" variant="secondary" href={ROUTES.orders} />} />
                 ) : (
                     <ul className="flex flex-col gap-space-md">
                         {claims.map((claim) => {
@@ -158,15 +144,11 @@ export default function MyClaimsContent() {
 
                 {totalPages > 1 && (
                     <div className="flex items-center justify-center gap-space-sm">
-                        <button type="button" className={OUTLINE_BUTTON} disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-                            이전
-                        </button>
+                        <Button label="이전" variant="secondary" isDisabled={page === 0} onClick={() => setPage((p) => p - 1)} />
                         <span className="font-body-sm text-body-sm text-on-surface-variant">
                             {page + 1} / {totalPages}
                         </span>
-                        <button type="button" className={OUTLINE_BUTTON} disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>
-                            다음
-                        </button>
+                        <Button label="다음" variant="secondary" isDisabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)} />
                     </div>
                 )}
             </section>
@@ -204,12 +186,8 @@ function ClaimCard({
             <div className="flex flex-wrap items-center justify-between gap-space-sm">
                 <div className="flex flex-wrap items-center gap-space-sm">
                     <span className="font-label-md text-label-md text-on-surface font-bold">요청 #{claim.claimId}</span>
-                    <span className="font-caption text-caption px-space-xs py-0.5 rounded border border-outline-variant bg-surface-container text-on-surface">
-                        {CLAIM_TYPE_LABEL[claim.claimType ?? ''] ?? claim.claimType}
-                    </span>
-                    <span data-testid="claim-status" className={`font-caption text-caption px-space-xs py-0.5 rounded font-bold ${status.className}`}>
-                        {status.label}
-                    </span>
+                    <Badge label={CLAIM_TYPE_LABEL[claim.claimType ?? ''] ?? claim.claimType ?? '-'} variant={refund ? 'purple' : 'blue'} />
+                    <span data-testid="claim-status"><Badge label={status.label} variant={rejected ? 'error' : refunded ? 'success' : 'warning'} /></span>
                 </div>
                 <span className="font-caption text-caption text-outline">신청 {formatDateTime(claim.createdAt)}</span>
             </div>

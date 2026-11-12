@@ -58,4 +58,6 @@ export const ROUTES = {
     adminPosts: '/admin/posts',
     adminPost: (id: string | number = 1) => `/admin/posts/${id}`,
     adminNotices: '/admin/notices',
+    adminCartDemands: '/admin/carts/demands',
+    adminIndividualGroupPurchaseDashboard: (id: string | number) => `/admin/carts/group-purchases/individual/${id}`,
 } as const;

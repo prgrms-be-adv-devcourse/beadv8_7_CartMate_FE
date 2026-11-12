@@ -2,6 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { useGetMyList } from '@/api/generated/order-controller/order-controller';
 import { useGetMyList3 } from '@/api/generated/shared-group-order-controller/shared-group-order-controller';
 import { errorMessage } from '@/api/http';
@@ -15,7 +19,6 @@ import {
     KIND_LABEL,
     personalRow,
     sharedRow,
-    STATUS_TONE_CLASS,
     TAB_KINDS,
     type OrderRow,
     type OrderTab,
@@ -40,8 +43,7 @@ const PERIODS = [
 const TAB_ACTIVE = 'px-space-md py-2 bg-primary text-on-primary font-label-sm text-label-sm rounded transition-colors';
 const TAB_INACTIVE =
     'px-space-md py-2 bg-surface text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-sm text-label-sm rounded transition-colors border border-outline-variant';
-const SMALL_BUTTON =
-    'h-8 px-3 whitespace-nowrap border border-outline-variant bg-surface hover:bg-surface-container hover:border-primary font-label-sm text-label-sm rounded transition-colors inline-flex items-center justify-center';
+const TONE_VARIANT = { pending: 'warning', done: 'success', muted: 'neutral' } as const;
 
 // 주문 내역: 개인 주문과 공동 주문을 합쳐 최신순으로 보여 준다.
 // BE 목록은 페이지 없이 전부 내려오므로 구분·기간·검색·페이지는 화면에서 나눈다.
@@ -86,7 +88,7 @@ export default function OrderList() {
     return (
         <>
             {/* 구분 탭 · 기간 · 검색 */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+            <Card padding={3} className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <div className="flex items-center gap-space-xs border-b md:border-b-0 border-outline-variant pb-space-sm md:pb-0" role="group" aria-label="주문 구분">
                     {TABS.map((item) => (
                         <button
@@ -136,21 +138,19 @@ export default function OrderList() {
                         />
                     </label>
                 </div>
-            </div>
+            </Card>
 
             {failures.map((f) => (
-                <div key={f.label} className="p-space-sm bg-error-container text-on-error-container rounded flex items-center justify-between gap-space-sm font-body-sm text-body-sm" role="alert">
+                <Card key={f.label} variant="red" padding={3} className="flex items-center justify-between gap-3" role="alert">
                     <span>
                         {f.label} 내역을 불러오지 못했습니다. {errorMessage(f.error, '')}
                     </span>
-                    <button className="h-8 px-space-sm border border-outline-variant bg-surface-container-lowest text-on-surface rounded shrink-0" type="button" onClick={f.retry}>
-                        다시 시도
-                    </button>
-                </div>
+                    <Button label="다시 시도" variant="secondary" size="sm" onClick={f.retry} />
+                </Card>
             ))}
 
             {/* 주문 표 */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden">
+            <Card padding={0} className="overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -192,7 +192,7 @@ export default function OrderList() {
                         {pageCount > 1 && <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />}
                     </div>
                 )}
-            </div>
+            </Card>
         </>
     );
 }
@@ -211,16 +211,10 @@ function OrderTableRow({ row }: { row: OrderRow }) {
                 <div className="font-caption text-on-surface-variant mt-0.5">{row.subtitle}</div>
             </td>
             <td className="p-space-md align-top text-center whitespace-nowrap">
-                <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded border text-caption ${
-                        row.kind === 'PERSONAL' ? 'border-outline-variant bg-surface text-on-surface-variant' : 'border-outline font-bold bg-surface-container text-on-surface'
-                    }`}
-                >
-                    {KIND_LABEL[row.kind]}
-                </span>
+                <Badge label={KIND_LABEL[row.kind]} variant={row.kind === 'PERSONAL' ? 'neutral' : 'purple'} />
             </td>
             <td className="p-space-md align-top text-center whitespace-nowrap">
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-caption font-bold ${STATUS_TONE_CLASS[row.status.tone]}`}>{row.status.label}</span>
+                <Badge label={row.status.label} variant={TONE_VARIANT[row.status.tone]} />
             </td>
             <td className="p-space-md align-top text-right whitespace-nowrap">
                 <div className="font-bold font-headline-sm text-headline-sm">{formatPrice(row.amount)}</div>
@@ -228,13 +222,9 @@ function OrderTableRow({ row }: { row: OrderRow }) {
             </td>
             <td className="p-space-md align-top text-center">
                 <div className="flex flex-col items-center gap-1">
-                    <Link href={row.href} className={SMALL_BUTTON}>
-                        {row.kind === 'SHARED_GROUP' ? '주문 현황' : '상세보기'}
-                    </Link>
+                    <Button label={row.kind === 'SHARED_GROUP' ? '주문 현황' : '상세보기'} variant="secondary" size="sm" href={row.href} />
                     {row.payHref && (
-                        <Link href={row.payHref} className="h-8 px-3 whitespace-nowrap bg-primary text-on-primary font-label-sm text-label-sm rounded inline-flex items-center justify-center hover:opacity-90">
-                            결제하기
-                        </Link>
+                        <Button label="결제하기" variant="primary" size="sm" href={row.payHref} />
                     )}
                 </div>
             </td>
@@ -247,11 +237,11 @@ function EmptyMessage({ hasAny, hasFailure }: { hasAny: boolean; hasFailure: boo
     if (hasFailure) return <p>표시할 주문이 없습니다.</p>;
     return (
         <div className="flex flex-col items-center gap-space-sm">
-            <Icon name="receipt_long" className="text-[32px] text-outline" />
-            <p>아직 주문 내역이 없습니다.</p>
-            <Link href={ROUTES.home} className={SMALL_BUTTON}>
-                쇼핑하러 가기
-            </Link>
+            <EmptyState
+                title="아직 주문 내역이 없습니다"
+                description="상품을 둘러보고 첫 주문을 시작해 보세요."
+                actions={<Button label="쇼핑하러 가기" variant="primary" href={ROUTES.home} />}
+            />
         </div>
     );
 }

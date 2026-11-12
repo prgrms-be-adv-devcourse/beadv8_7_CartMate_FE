@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Badge, Button, Card, Heading, type BadgeVariant } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useGetMyClaims } from '@/api/generated/claim-controller/claim-controller';
 import {
@@ -16,14 +16,10 @@ import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { formatDateTime, toKstLocal } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
-import { errorStatus, hasCode, STATUS_TONE_CLASS } from '../../orders/_lib/orderView';
+import { errorStatus, hasCode } from '../../orders/_lib/orderView';
 import { activeClaimOf, AUTO_CONFIRM_DAYS, CLAIM_TYPE_LABEL, deliveryStatus, MY_CLAIMS_PARAMS, TRACK_STEPS, trackIndex } from '../_lib/deliveryView';
 
-const CARD = 'bg-surface-container-lowest border border-outline-variant rounded p-space-md';
-const OUTLINE_BUTTON =
-    'h-10 px-space-md border border-outline-variant bg-surface-container-lowest hover:bg-surface-container font-label-md text-label-md text-on-surface rounded inline-flex items-center justify-center gap-space-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface-container-lowest';
-const PRIMARY_BUTTON =
-    'h-10 px-space-md bg-primary text-on-primary font-label-md text-label-md rounded inline-flex items-center justify-center gap-space-xs hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed';
+const TONE_VARIANT: Record<'pending' | 'done' | 'muted', BadgeVariant> = { pending: 'warning', done: 'success', muted: 'neutral' };
 
 type Props = {
     deliveryId: number;
@@ -45,17 +41,15 @@ export default function DeliveryCard({ deliveryId, title, showItems = false, sho
         const message =
             status === 404 ? '배송 정보를 찾을 수 없습니다.' : status === 403 ? '본인이 받는 배송만 볼 수 있습니다.' : errorMessage(query.error, '배송 정보를 불러오지 못했습니다.');
         return (
-            <div className={`${CARD} flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm`} role="alert">
+            <Card padding={3} className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm" role="alert">
                 <div className="flex items-center gap-space-sm font-body-sm text-body-sm text-on-surface-variant">
                     <Icon name="error" className="text-[20px] text-outline" />
                     {message}
                 </div>
                 {status !== 404 && status !== 403 && (
-                    <button className={OUTLINE_BUTTON} type="button" onClick={() => void query.refetch()}>
-                        다시 시도
-                    </button>
+                    <Button label="다시 시도" variant="secondary" onClick={() => void query.refetch()} />
                 )}
-            </div>
+            </Card>
         );
     }
 
@@ -68,14 +62,12 @@ function DeliveryCardBody({ delivery, deliveryId, title, showItems, showReceiver
     const items = delivery.items ?? [];
 
     return (
-        <section className={`${CARD} flex flex-col gap-space-md`} aria-label={`배송 ${title ?? `#${deliveryId}`}`} data-delivery-id={deliveryId}>
+        <Card padding={3} className="flex flex-col gap-space-md" aria-label={`배송 ${title ?? `#${deliveryId}`}`} data-delivery-id={deliveryId}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs pb-space-xs border-b border-surface-container">
                 <div className="flex flex-wrap items-center gap-space-sm">
                     <Icon name="local_shipping" className="text-[20px] text-primary" />
-                    <h2 className="font-label-md text-label-md text-on-surface font-bold">{title ?? `배송 #${deliveryId}`}</h2>
-                    <span className={`font-caption text-caption px-space-xs py-0.5 rounded font-bold ${STATUS_TONE_CLASS[status.tone]}`} data-delivery-status={delivery.status}>
-                        {status.label}
-                    </span>
+                    <Heading level={2}>{title ?? `배송 #${deliveryId}`}</Heading>
+                    <span data-delivery-status={delivery.status}><Badge label={status.label} variant={TONE_VARIANT[status.tone]} /></span>
                 </div>
                 <span className="font-caption text-caption text-outline">배송 요청 {formatDateTime(delivery.createdAt)}</span>
             </div>
@@ -134,7 +126,7 @@ function DeliveryCardBody({ delivery, deliveryId, title, showItems, showReceiver
             )}
 
             {!canceled && <DeliveryActions delivery={delivery} deliveryId={deliveryId} />}
-        </section>
+        </Card>
     );
 }
 
@@ -309,45 +301,35 @@ function DeliveryActions({ delivery, deliveryId }: { delivery: DeliveryDetailRes
                         상품을 잘 받으셨나요? 구매를 확정하면 <strong>교환 · 환불을 신청할 수 없습니다.</strong>
                     </p>
                     <div className="flex flex-col sm:flex-row gap-space-sm">
-                        <button className={`${PRIMARY_BUTTON} flex-1`} type="button" disabled={confirm.isPending} onClick={() => confirm.mutate({ deliveryId })}>
-                            <Icon name="verified" className="text-[18px]" />
-                            {confirm.isPending ? '확정하는 중...' : '구매 확정하기'}
-                        </button>
-                        <button className={`${OUTLINE_BUTTON} flex-1`} type="button" disabled={confirm.isPending} onClick={() => setAsking(false)}>
-                            돌아가기
-                        </button>
+                        <Button label="구매 확정하기" variant="primary" className="flex-1" icon={<Icon name="verified" className="text-[18px]" />} isLoading={confirm.isPending} isDisabled={confirm.isPending} onClick={() => confirm.mutate({ deliveryId })} />
+                        <Button label="돌아가기" variant="secondary" className="flex-1" isDisabled={confirm.isPending} onClick={() => setAsking(false)} />
                     </div>
                 </div>
             ) : (
                 delivered && (
                     <div className="flex flex-col sm:flex-row gap-space-sm">
-                        <button
-                            className={`${PRIMARY_BUTTON} flex-1`}
-                            type="button"
+                        <Button
+                            label="구매 확정"
+                            variant="primary"
+                            className="flex-1"
+                            icon={<Icon name="verified" className="text-[18px]" />}
                             // 진행 중 클레임 확인이 끝나기 전에는 누르지 못하게 한다(확정 후 409 방지)
-                            disabled={!!activeClaim || claims.isPending}
-                            title={activeClaim ? '처리 중인 교환 · 환불이 있어 구매 확정할 수 없습니다' : undefined}
+                            isDisabled={!!activeClaim || claims.isPending}
                             onClick={() => {
                                 confirm.reset();
                                 setAsking(true);
                             }}
-                        >
-                            <Icon name="verified" className="text-[18px]" />
-                            구매 확정
-                        </button>
+                        />
                         {activeClaim ? (
-                            <button className={`${OUTLINE_BUTTON} flex-1`} type="button" disabled title="이미 처리 중인 교환 · 환불 요청이 있습니다">
-                                교환 · 환불 진행 중
-                            </button>
+                            <div className="flex-1" title="이미 처리 중인 교환 · 환불 요청이 있습니다">
+                                <Button label="교환 · 환불 진행 중" variant="secondary" className="w-full" isDisabled />
+                            </div>
                         ) : claimHref ? (
-                            <Link className={`${OUTLINE_BUTTON} flex-1`} href={claimHref}>
-                                <Icon name="assignment_return" className="text-[18px]" />
-                                교환 · 환불 신청
-                            </Link>
+                            <Button label="교환 · 환불 신청" variant="secondary" className="flex-1" href={claimHref} icon={<Icon name="assignment_return" className="text-[18px]" />} />
                         ) : (
-                            <button className={`${OUTLINE_BUTTON} flex-1`} type="button" disabled title="공동물품 공구 배송의 교환 · 환불 신청은 준비 중입니다">
-                                교환 · 환불 신청 (준비 중)
-                            </button>
+                            <div className="flex-1" title="공동물품 공구 배송의 교환 · 환불 신청은 준비 중입니다">
+                                <Button label="교환 · 환불 신청 (준비 중)" variant="secondary" className="w-full" isDisabled />
+                            </div>
                         )}
                     </div>
                 )

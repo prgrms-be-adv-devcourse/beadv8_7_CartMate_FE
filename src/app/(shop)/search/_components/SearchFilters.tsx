@@ -1,4 +1,6 @@
 import Icon from '@/components/ui/Icon';
+import { Card } from '@astryxdesign/core/Card';
+import { Text } from '@astryxdesign/core/Text';
 
 // 검색 필터 영역. BE 검색이 제목 조건만 지원해서 화면 구성만 남겨 두고 모두 비활성이다. (로드맵 SHOP-3)
 const FILTER_GROUPS = [
@@ -10,7 +12,20 @@ const PRICE_RANGES = ['3만원 이하', '3만원 ~ 5만원', '5만원 ~ 10만원
 
 export function SearchFilters() {
     return (
-        <aside className="w-full lg:w-[240px] shrink-0 bg-surface-container-lowest border border-outline-variant rounded p-space-md flex flex-col gap-space-lg" aria-label="검색 필터 (준비 중)">
+        <aside className="w-full shrink-0 lg:w-[240px]" aria-label="검색 필터 (준비 중)">
+            <div className="lg:hidden">
+                <Card padding={3}>
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                            <Icon name="tune" className="text-[18px]" />
+                            <Text weight="semibold">필터 옵션</Text>
+                        </div>
+                        <Text type="supporting" color="secondary">준비 중</Text>
+                    </div>
+                </Card>
+            </div>
+            <div className="hidden lg:block">
+            <Card padding={4}>
             <div className="flex items-center justify-between pb-space-sm border-b border-outline-variant">
                 <div className="flex items-center gap-1 font-label-md text-label-md text-on-surface">
                     <Icon name="tune" className="text-[18px]" />
@@ -47,13 +62,15 @@ export function SearchFilters() {
                     필터 적용
                 </button>
             </fieldset>
+            </Card>
+            </div>
         </aside>
     );
 }
 
 export function SearchSortBar() {
     return (
-        <div className="flex items-center justify-between bg-surface-container-low border border-outline-variant px-space-md py-2 rounded">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-outline-variant bg-surface-container-low px-4 py-2">
             <label className="flex items-center gap-space-xs font-body-sm text-body-sm">
                 <span className="text-outline">정렬:</span>
                 <select
@@ -68,7 +85,7 @@ export function SearchSortBar() {
                     <option>높은 가격순</option>
                 </select>
             </label>
-            <span className="font-caption text-caption text-outline">정렬 변경은 준비 중입니다</span>
+            <Text type="supporting" color="secondary">정렬 변경은 준비 중입니다</Text>
         </div>
     );
 }

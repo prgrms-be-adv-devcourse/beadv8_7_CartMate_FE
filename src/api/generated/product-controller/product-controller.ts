@@ -28,6 +28,7 @@ import type {
   RegisterProductsBody,
   RestoreProductsRequest,
   RsDataListSelectProductResponse,
+  RsDataListSyncProduct,
   UpdateProductsBody
 } from '../model';
 
@@ -62,7 +63,7 @@ export const getRestoreProductsUrl = (postId: number,) => {
 }
 
 export const restoreProducts = async (postId: number,
-    restoreProductsRequest: RestoreProductsRequest, options?: Parameters<typeof http>[1]): Promise<void> => {
+    restoreProductsRequest: RestoreProductsRequest, options?: Parameters<typeof http>[1]): Promise<RsDataListSyncProduct> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -78,7 +79,7 @@ export const restoreProducts = async (postId: number,
     }
     return headers;
   };
-return http<void>(getRestoreProductsUrl(postId),
+return http<RsDataListSyncProduct>(getRestoreProductsUrl(postId),
   {
     ...options,
     method: 'PUT',
@@ -143,7 +144,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return `/api/products`
 }
 
-export const registerProducts = async (registerProductsBody?: RegisterProductsBody, options?: Parameters<typeof http>[1]): Promise<void> => {
+export const registerProducts = async (registerProductsBody?: RegisterProductsBody, options?: Parameters<typeof http>[1]): Promise<RsDataListSyncProduct> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -159,7 +160,7 @@ export const registerProducts = async (registerProductsBody?: RegisterProductsBo
     }
     return headers;
   };
-return http<void>(getRegisterProductsUrl(),
+return http<RsDataListSyncProduct>(getRegisterProductsUrl(),
   {
     ...options,
     method: 'POST',
@@ -224,7 +225,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return `/api/products`
 }
 
-export const updateProducts = async (updateProductsBody?: UpdateProductsBody, options?: Parameters<typeof http>[1]): Promise<void> => {
+export const updateProducts = async (updateProductsBody?: UpdateProductsBody, options?: Parameters<typeof http>[1]): Promise<RsDataListSyncProduct> => {
     const formData = new FormData();
 if(updateProductsBody?.request !== undefined) {
  formData.append(`request`, JSON.stringify(updateProductsBody.request));
@@ -233,7 +234,7 @@ if(updateProductsBody?.images !== undefined) {
  updateProductsBody?.images.forEach(value => formData.append(`images`, value));
  }
 
-  return http<void>(getUpdateProductsUrl(),
+  return http<RsDataListSyncProduct>(getUpdateProductsUrl(),
   {
     ...options,
     method: 'PATCH'
@@ -472,74 +473,7 @@ export function useSelectProductsByPost<TData = Awaited<ReturnType<typeof select
 
 
 
-export const getDeleteProductByPostUrl = (postId: number,) => {
-
-
-
-
-  return `/api/products/${postId}`
-}
-
-export const deleteProductByPost = async (postId: number, options?: Parameters<typeof http>[1]): Promise<void> => {
-
-  return http<void>(getDeleteProductByPostUrl(postId),
-  {
-    ...options,
-    method: 'DELETE'
-
-
-  }
-);}
-
-
-
-
-
-export const getDeleteProductByPostMutationKey = () => ['deleteProductByPost'] as const;
-
-export const getDeleteProductByPostMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProductByPost>>, TError,DeleteProductByPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteProductByPost>>, TError,DeleteProductByPostMutationVariables, TContext> => {
-
-const mutationKey = getDeleteProductByPostMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProductByPost>>, DeleteProductByPostMutationVariables> = (props) => {
-          const {postId} = props ?? {};
-
-          return  deleteProductByPost(postId,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteProductByPostMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProductByPost>>>
-
-    export type DeleteProductByPostMutationError = unknown
-    export type DeleteProductByPostMutationVariables = {postId: number}
-
-    export const useDeleteProductByPost = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProductByPost>>, TError,DeleteProductByPostMutationVariables, TContext>, request?: SecondParameter<typeof http>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteProductByPost>>,
-        TError,
-        DeleteProductByPostMutationVariables,
-        TContext
-      > => {
-      return useMutation(getDeleteProductByPostMutationOptions(options), queryClient);
-    }
-    export const getDeleteProductsUrl = (sellerId: number,
+export const getDeleteProductsUrl = (sellerId: number,
     productId: number,) => {
 
 

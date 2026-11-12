@@ -3,6 +3,7 @@
 import { useGetSellerClaims } from '@/api/generated/claim-controller/claim-controller';
 import { useGetSellerDeliveries } from '@/api/generated/delivery-controller/delivery-controller';
 import { GetSellerClaimsClaimType, GetSellerClaimsStatusItem, GetSellerDeliveriesStatus } from '@/api/generated/model';
+import { Badge, Card, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 
 type SummaryCardProps = {
@@ -17,20 +18,20 @@ type SummaryCardProps = {
 // 대시보드 요약 카드 한 장. 다른 요약 카드와 같은 모양이다.
 function SummaryCard({ label, icon, value, unit, note, status }: SummaryCardProps) {
     return (
-        <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/40 flex flex-col justify-between relative overflow-hidden group hover:border-outline transition-all">
+        <Card padding={5} className="flex min-h-48 flex-col justify-between">
             <div className="flex items-center justify-between mb-space-md">
-                <span className="text-label-md text-on-surface-variant">{label}</span>
+                <Text type="supporting" color="secondary" weight="semibold">{label}</Text>
                 <Icon name={icon} className="text-on-surface-variant" />
             </div>
             <div className="flex items-baseline gap-space-sm">
                 <span className="text-display-xl font-display-xl text-on-surface">{value}</span>
-                <span className="text-body-sm text-on-surface-variant">{unit}</span>
+                <Text type="supporting" color="secondary">{unit}</Text>
             </div>
-            <div className="mt-space-md pt-space-md border-t border-outline-variant/20 flex items-center justify-between text-caption text-on-surface-variant">
-                <span>{note}</span>
-                <span className="text-on-surface font-label-sm">{status}</span>
+            <div className="mt-space-md flex flex-wrap items-center gap-space-sm border-t border-outline-variant/20 pt-space-md">
+                {note ? <Badge label={note} /> : null}
+                {status ? <Badge label={status} variant="info" /> : null}
             </div>
-        </div>
+        </Card>
     );
 }
 

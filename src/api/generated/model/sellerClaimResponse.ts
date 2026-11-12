@@ -7,6 +7,7 @@
 import type { DeliveryClaimItemResponse } from './deliveryClaimItemResponse';
 import type { SellerClaimResponseClaimType } from './sellerClaimResponseClaimType';
 import type { SellerClaimResponseReason } from './sellerClaimResponseReason';
+import type { SellerClaimResponseRefundStatus } from './sellerClaimResponseRefundStatus';
 import type { SellerClaimResponseStatus } from './sellerClaimResponseStatus';
 
 export interface SellerClaimResponse {
@@ -19,6 +20,7 @@ export interface SellerClaimResponse {
   detail?: string;
   rejectReason?: string;
   status?: SellerClaimResponseStatus;
+  refundStatus?: SellerClaimResponseRefundStatus;
   createdAt?: string;
   items?: DeliveryClaimItemResponse[];
 }

@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Badge, Button, Card, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 
@@ -27,19 +28,6 @@ type Props = {
     onBulkAction: (action: 'SUSPEND' | 'ACTIVATE', memberIds: string[]) => Promise<void>;
 };
 
-const ROLE_CLASS: Record<Member['role'], string> = {
-    일반: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-surface border border-outline-variant text-on-surface-variant',
-    판매자: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-secondary-container text-on-secondary-container',
-    관리자: 'inline-block px-2 py-0.5 rounded text-caption font-caption bg-primary text-on-primary',
-};
-
-const STATUS_CLASS: Record<Member['status'], string> = {
-    정상: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface-container-high text-on-surface-variant border border-outline-variant',
-    정지: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-primary text-on-primary border border-primary',
-    '탈퇴 대기': 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface text-error border border-error/40',
-    탈퇴: 'inline-flex items-center px-2 py-0.5 rounded-full text-caption font-caption bg-surface text-outline border border-outline-variant line-through',
-};
-
 const PAGE_BUTTON =
     'w-8 h-8 rounded border border-outline-variant bg-surface-container-lowest text-on-surface font-label-sm text-label-sm hover:bg-surface-container flex items-center justify-center transition-colors disabled:opacity-40';
 
@@ -58,26 +46,24 @@ export default function MemberTable({
     const [selected, setSelected] = useState<string[]>([]);
     const [processing, setProcessing] = useState(false);
 
-    // 목록이 바뀌면(검색, 페이지 이동) 선택 초기화
-    useEffect(() => {
-        setSelected([]);
-    }, [members]);
-
-    const allChecked = selected.length > 0 && selected.length === members.length;
-    const indeterminate = selected.length > 0 && selected.length < members.length;
+    // 페이지가 바뀐 직후에도 현재 목록에 있는 선택만 작업 대상으로 취급한다.
+    const memberIds = new Set(members.map((member) => member.id));
+    const selectedOnPage = selected.filter((id) => memberIds.has(id));
+    const allChecked = selectedOnPage.length > 0 && selectedOnPage.length === members.length;
+    const indeterminate = selectedOnPage.length > 0 && selectedOnPage.length < members.length;
 
     const toggleAll = (checked: boolean) => setSelected(checked ? members.map((m) => m.id) : []);
     const toggleOne = (id: string, checked: boolean) =>
         setSelected((prev) => (checked ? [...prev, id] : prev.filter((item) => item !== id)));
 
     const runBulk = async (action: 'SUSPEND' | 'ACTIVATE') => {
-        if (selected.length === 0) {
+        if (selectedOnPage.length === 0) {
             alert('회원을 먼저 선택해주세요.');
             return;
         }
         setProcessing(true);
         try {
-            await onBulkAction(action, selected);
+            await onBulkAction(action, selectedOnPage);
         } finally {
             setProcessing(false);
         }
@@ -90,7 +76,7 @@ export default function MemberTable({
 
     return (
         <>
-            <div className="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden flex flex-col">
+            <Card className="overflow-hidden" padding={0}>
                 {/* 일괄 처리 바 */}
                 <div className="px-space-md py-space-sm bg-surface-container-low border-b border-outline-variant flex items-center justify-between">
                     <div className="flex items-center gap-space-sm">
@@ -109,26 +95,12 @@ export default function MemberTable({
                         </label>
                         <span className="text-outline">|</span>
                         <span className="font-caption text-caption text-on-surface-variant">
-                            선택된 항목: <span className="font-label-sm text-label-sm text-primary">{selected.length}</span>건
+                            선택된 항목: <span className="font-label-sm text-label-sm text-primary">{selectedOnPage.length}</span>건
                         </span>
                     </div>
                     <div className="flex items-center gap-space-xs">
-                        <button
-                            className="px-space-sm py-1 rounded border border-outline-variant bg-surface font-caption text-caption text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50"
-                            type="button"
-                            disabled={processing}
-                            onClick={() => runBulk('ACTIVATE')}
-                        >
-                            선택 정상 전환
-                        </button>
-                        <button
-                            className="px-space-sm py-1 rounded border border-outline-variant bg-surface font-caption text-caption text-error hover:bg-error-container transition-colors disabled:opacity-50"
-                            type="button"
-                            disabled={processing}
-                            onClick={() => runBulk('SUSPEND')}
-                        >
-                            선택 계정 정지
-                        </button>
+                        <Button label="선택 정상 전환" size="sm" variant="secondary" type="button" isDisabled={processing} onClick={() => runBulk('ACTIVATE')} />
+                        <Button label="선택 계정 정지" size="sm" variant="destructive" type="button" isDisabled={processing} onClick={() => runBulk('SUSPEND')} />
                     </div>
                 </div>
 
@@ -158,7 +130,7 @@ export default function MemberTable({
                                         <input
                                             className="w-4 h-4 rounded border-outline accent-primary cursor-pointer"
                                             type="checkbox"
-                                            checked={selected.includes(member.id)}
+                                            checked={selectedOnPage.includes(member.id)}
                                             onChange={(e) => toggleOne(member.id, e.target.checked)}
                                         />
                                     </td>
@@ -168,10 +140,10 @@ export default function MemberTable({
                                     </td>
                                     <td className="py-3.5 px-space-md text-on-surface-variant">{member.nickname}</td>
                                     <td className="py-3.5 px-space-md text-center">
-                                        <span className={ROLE_CLASS[member.role]}>{member.role}</span>
+                                        <Badge variant={member.role === '관리자' ? 'info' : member.role === '판매자' ? 'success' : 'neutral'} label={member.role} />
                                     </td>
                                     <td className="py-3.5 px-space-md text-center">
-                                        <span className={STATUS_CLASS[member.status]}>{member.status}</span>
+                                        <Badge variant={member.status === '정상' ? 'success' : member.status === '정지' ? 'error' : member.status === '탈퇴 대기' ? 'warning' : 'neutral'} label={member.status} />
                                     </td>
                                     <td className="py-3.5 px-space-md text-center font-mono text-caption text-on-surface-variant">{member.joinedAt}</td>
                                     <td className="py-3.5 px-space-md text-center" onClick={(e) => e.stopPropagation()}>
@@ -187,14 +159,11 @@ export default function MemberTable({
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </Card>
 
             {/* 하단: 총 인원, 페이지 이동, 페이지당 개수 */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-space-md py-space-xs">
-                <div className="font-body-sm text-body-sm text-on-surface-variant">
-                    총 <span className="font-label-md text-label-md text-primary">{totalElements.toLocaleString('ko-KR')}</span>명 (
-                    <span>선택 {selected.length}명</span>)
-                </div>
+                <Text color="secondary">총 <span className="font-semibold text-primary">{totalElements.toLocaleString('ko-KR')}</span>명 (선택 {selectedOnPage.length}명)</Text>
 
                 <nav aria-label="페이지 이동" className="flex items-center gap-1">
                     <button className={PAGE_BUTTON} type="button" disabled={page === 0} onClick={() => onPageChange(page - 1)}>

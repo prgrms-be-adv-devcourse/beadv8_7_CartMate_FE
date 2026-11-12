@@ -1,6 +1,7 @@
 'use client';
 
 import { formatPrice, type ProductOption } from '@/lib/salesPost';
+import { Text } from '@astryxdesign/core/Text';
 
 const MAX_QUANTITY = 999;
 
@@ -20,10 +21,10 @@ export default function ProductOptions({ products, selectedId, quantity, disable
 
     return (
         <>
-            <div className="flex flex-col gap-1.5 pt-space-xs">
+            <div className="flex flex-col gap-2 pt-1">
                 <div className="flex items-center justify-between">
-                    <span className="font-label-sm text-label-sm text-on-surface font-bold">1) 상품 선택</span>
-                    {selected && <span className="font-caption text-caption text-secondary">선택: {selected.name}</span>}
+                    <Text weight="semibold">상품 선택</Text>
+                    {selected && <Text type="supporting" color="secondary">선택: {selected.name}</Text>}
                 </div>
                 <div className="flex flex-col gap-space-xs" role="radiogroup" aria-label="상품 선택">
                     {products.map((product) => {
@@ -32,9 +33,9 @@ export default function ProductOptions({ products, selectedId, quantity, disable
                         return (
                             <button
                                 key={product.id}
-                                className={`flex items-center justify-between px-space-sm py-space-xs text-left font-label-sm text-label-sm transition-colors ${
+                                className={`flex items-center justify-between rounded-lg px-4 py-3 text-left font-label-sm text-label-sm transition-colors ${
                                     active
-                                        ? 'border-2 border-primary bg-surface-container-high text-primary font-bold'
+                                        ? 'border-2 border-primary bg-primary-container text-primary font-bold'
                                         : 'border border-outline-variant bg-surface-container-lowest text-on-surface hover:border-outline'
                                 } disabled:cursor-not-allowed disabled:opacity-60`}
                                 type="button"
@@ -53,10 +54,10 @@ export default function ProductOptions({ products, selectedId, quantity, disable
                     })}
                 </div>
             </div>
-            <div className="flex items-center justify-between border-t border-b border-surface-container-highest py-space-sm my-space-xs">
-                <span className="font-label-sm text-label-sm text-on-surface font-bold">2) 수량 선택</span>
+            <div className="my-1 flex flex-wrap items-center justify-between gap-3 border-y border-outline-variant py-4">
+                <Text weight="semibold">수량 선택</Text>
                 <div className="flex items-center gap-space-md">
-                    <div className="flex items-center border border-outline bg-surface-container-lowest">
+                    <div className="flex items-center overflow-hidden rounded-lg border border-outline bg-surface-container-lowest">
                         <button
                             className="w-8 h-8 flex items-center justify-center font-bold text-on-surface hover:bg-surface-container-low disabled:opacity-40"
                             type="button"

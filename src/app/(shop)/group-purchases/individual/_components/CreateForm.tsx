@@ -5,6 +5,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
 import { getGetMyList2QueryKey, useCreate1 } from '@/api/generated/individual-group-purchase-controller/individual-group-purchase-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -73,16 +76,16 @@ export default function CreateForm() {
     return (
         <form className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="lg:col-span-8 flex flex-col gap-space-xl">
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+                <Card className="flex flex-col gap-space-md">
                     <SectionTitle icon="edit_note" title="기본 정보" />
                     <label className="flex flex-col gap-space-xs">
                         <span className="font-body-sm text-body-sm text-on-surface-variant">공동구매 제목</span>
                         <input className={INPUT_CLASS} placeholder="예) 풋살팀 트레이닝복 같이 사요" maxLength={50} {...register('title')} />
                         {errors.title && <span className="font-caption text-caption text-error">{errors.title.message}</span>}
                     </label>
-                </section>
+                </Card>
 
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+                <Card className="flex flex-col gap-space-md">
                     <div className="flex items-center justify-between">
                         <SectionTitle icon="inventory_2" title="판매할 상품 고르기" />
                         <span className="font-caption text-caption text-secondary">
@@ -90,11 +93,11 @@ export default function CreateForm() {
                         </span>
                     </div>
                     <ProductPicker selectedIds={selectedIds} onToggle={toggle} full={products.length >= MAX_PRODUCTS} />
-                </section>
+                </Card>
             </div>
 
-            <aside className="lg:col-span-4 lg:sticky lg:top-36 bg-surface-container-lowest border border-primary p-space-lg flex flex-col gap-space-md">
-                <h2 className="font-headline-sm text-headline-sm text-primary">고른 상품</h2>
+            <Card variant="blue" className="lg:col-span-4 lg:sticky lg:top-36 flex flex-col gap-space-md">
+                <Heading level={2}>고른 상품</Heading>
                 {products.length === 0 ? (
                     <p className="p-space-md bg-surface-container-low text-center font-body-sm text-body-sm text-on-surface-variant">아직 고른 상품이 없습니다.</p>
                 ) : (
@@ -129,14 +132,15 @@ export default function CreateForm() {
                         {errorMessage(create.error, '공동구매를 만들지 못했습니다.')}
                     </p>
                 )}
-                <button
-                    className="w-full h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90 disabled:opacity-60"
+                <Button
+                    label={create.isPending || create.isSuccess ? '만드는 중...' : '공동구매 만들기'}
+                    className="w-full"
                     type="submit"
-                    disabled={create.isPending || create.isSuccess}
-                >
-                    {create.isPending || create.isSuccess ? '만드는 중...' : '공동구매 만들기'}
-                </button>
-            </aside>
+                    variant="primary"
+                    isLoading={create.isPending}
+                    isDisabled={create.isPending || create.isSuccess}
+                />
+            </Card>
         </form>
     );
 }

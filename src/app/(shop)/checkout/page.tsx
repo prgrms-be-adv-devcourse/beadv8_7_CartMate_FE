@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import CheckoutForm from './_components/CheckoutForm';
 import CheckoutSteps, { StepList } from './_components/CheckoutSteps';
 
@@ -7,10 +9,13 @@ export const metadata: Metadata = { title: '주문서 | TEAMBUY' };
 
 export default function CheckoutPage() {
     return (
-        <div className="max-w-[1200px] mx-auto px-gutter py-space-xl">
+        <div className="mx-auto max-w-[1200px] px-gutter py-8 sm:py-12">
             <div className="flex flex-col w-full">
-                <div className="flex items-center justify-between pb-space-lg mb-space-xl border-b border-outline-variant">
-                    <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">주문서</h1>
+                <div className="mb-8 flex flex-col gap-3 border-b border-outline-variant pb-5 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <Text type="supporting" color="accent">CHECKOUT</Text>
+                        <Heading level={1}>주문서</Heading>
+                    </div>
                     <Suspense fallback={<StepList current={1} />}>
                         <CheckoutSteps />
                     </Suspense>

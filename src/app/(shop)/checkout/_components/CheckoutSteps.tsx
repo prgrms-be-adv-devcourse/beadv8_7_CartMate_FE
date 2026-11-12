@@ -1,6 +1,7 @@
 'use client';
 
 import { Fragment } from 'react';
+import { Badge } from '@astryxdesign/core/Badge';
 import { useSearchParams } from 'next/navigation';
 import { useGetDetail } from '@/api/generated/order-controller/order-controller';
 
@@ -16,12 +17,12 @@ export default function CheckoutSteps() {
 
 export function StepList({ current }: { current: number }) {
     return (
-        <div className="flex items-center gap-space-sm font-caption text-caption text-secondary">
+        <div className="flex flex-wrap items-center gap-2" aria-label="주문 진행 단계">
             {STEPS.map((label, index) => (
                 <Fragment key={label}>
-                    {index > 0 && <span>&gt;</span>}
-                    <span className={index === current ? 'text-primary font-bold' : 'text-outline'} aria-current={index === current ? 'step' : undefined}>
-                        {label}
+                    {index > 0 && <span className="text-outline">&gt;</span>}
+                    <span aria-current={index === current ? 'step' : undefined}>
+                        <Badge label={label} variant={index === current ? 'blue' : 'neutral'} />
                     </span>
                 </Fragment>
             ))}

@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: '개인물품 공동구매 관리 | T
 
 export default function ManageIndividualGroupPurchasePage() {
     return (
-        <div className="max-w-[1200px] mx-auto px-gutter py-space-xl">
+        <div className="max-w-[1200px] mx-auto px-gutter py-8 sm:py-12">
             <PageHeader title="공동구매 관리">
                 <Link className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary" href={ROUTES.groupPurchasesIndividual}>
                     내가 만든 공동구매
