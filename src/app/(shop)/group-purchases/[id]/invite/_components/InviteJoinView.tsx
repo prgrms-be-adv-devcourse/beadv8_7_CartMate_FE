@@ -23,7 +23,7 @@ import { hasErrorCode, INVITE_CODE_PATTERN } from '../../../_lib/sharedGroupPurc
 const STEPS = [
     { icon: 'group_add', title: '참여 · 상품 담기', desc: '수정 마감 전까지 팀원 누구나 상품을 담고 수량을 바꿀 수 있습니다.' },
     { icon: 'lock_clock', title: '마감', desc: '만든 사람이 마감하거나 수정 기한이 지나면 자동으로 마감되어 공동 주문이 만들어집니다.' },
-    { icon: 'account_balance_wallet', title: 'N빵 결제', desc: '총액을 참여 인원 수로 나눠 각자 예치금으로 결제합니다. 전원이 결제하면 주문이 확정됩니다.' },
+    { icon: 'account_balance_wallet', title: '나눠서 결제', desc: '총액을 참여 인원 수로 나눠 각자 예치금으로 결제합니다. 전원이 결제하면 주문이 확정됩니다.' },
 ];
 
 // 초대 링크(/group-purchases/{id}/invite?code=) 진입 화면.
@@ -89,7 +89,7 @@ function JoinCard({ code }: { code: string }) {
                 </div>
                 <div className="flex flex-col gap-space-xs">
                     <span className="self-center font-caption text-caption px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-bold">
-                        공동물품 (N빵) 공동구매 초대
+                        공동물품 공동구매 초대
                     </span>
                     <Heading level={1}>공동구매에 초대되었습니다</Heading>
                     <Text as="p" color="secondary" className="max-w-[560px]">

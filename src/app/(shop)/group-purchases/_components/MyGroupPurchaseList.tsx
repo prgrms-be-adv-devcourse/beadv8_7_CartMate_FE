@@ -22,9 +22,9 @@ const FILTERS: { key: Filter; label: string }[] = [
     { key: 'joined', label: '참여한' },
 ];
 
-const TAB_ACTIVE = 'h-9 px-space-md bg-primary text-on-primary font-label-sm text-label-sm rounded';
+const TAB_ACTIVE = 'inline-flex items-center h-9 px-space-md bg-primary text-on-primary font-label-sm text-label-sm rounded';
 const TAB_INACTIVE =
-    'h-9 px-space-md bg-surface-container-lowest text-on-surface-variant border border-outline-variant font-label-sm text-label-sm rounded hover:bg-surface-container';
+    'inline-flex items-center h-9 px-space-md bg-surface-container-lowest text-on-surface-variant border border-outline-variant font-label-sm text-label-sm rounded hover:bg-surface-container';
 
 type Row = SharedGroupPurchaseSummaryResponse & { id: number };
 
@@ -41,7 +41,7 @@ export default function MyGroupPurchaseList() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
                 <div className="flex items-center gap-space-xs" role="tablist" aria-label="공동구매 종류">
                     <button className={TAB_ACTIVE} type="button" role="tab" aria-selected>
-                        공동물품 (N빵)
+                        공동물품
                     </button>
                     {/* 개인물품 공동구매는 별도 화면에서 관리한다 */}
                     <Link className={TAB_INACTIVE} href={ROUTES.groupPurchasesIndividual} role="tab" aria-selected={false}>

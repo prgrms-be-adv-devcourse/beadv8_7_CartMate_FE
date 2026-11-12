@@ -59,7 +59,7 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-1">
                                 <span className={statusBadgeClass(purchase.status, editableNow)}>{statusLabel(purchase.status, editableNow)}</span>
-                                <span className="font-caption text-caption text-secondary">공동물품 (N빵) · #{id}</span>
+                                <span className="font-caption text-caption text-secondary">공동물품 · #{id}</span>
                             </div>
                             <Heading level={1}>{purchase.title}</Heading>
                             <p className="font-caption text-caption text-secondary mt-1">
@@ -96,7 +96,7 @@ function DetailContent({ id, purchase, remainingMs, deadlinePassed, refreshing, 
                 <Card className="col-span-12 lg:col-span-4 flex flex-col gap-space-md" variant="blue">
                     <div className="flex items-center gap-space-xs text-primary">
                         <Icon name="calculate" className="text-[20px]" />
-                        <Heading level={2}>N빵 예상 금액</Heading>
+                        <Heading level={2}>예상 금액</Heading>
                     </div>
                     <div className="bg-surface-container-lowest p-space-md rounded">
                         <AmountSummary purchase={purchase} />
