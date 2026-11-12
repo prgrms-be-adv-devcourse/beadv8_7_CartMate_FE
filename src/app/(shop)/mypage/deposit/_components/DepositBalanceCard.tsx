@@ -32,7 +32,7 @@ export default function DepositBalanceCard() {
             <Card padding={5} className="relative flex flex-col justify-between overflow-hidden">
                 <div>
                     <div className="flex items-center justify-between text-secondary mb-space-md">
-                        <span className="font-caption text-caption tracking-wider uppercase">[전체 보유 잔액]</span>
+                        <span className="font-label-sm text-label-sm tracking-wider">[전체 보유 잔액]</span>
                         <Icon name="account_balance" className="text-[20px] text-secondary" />
                     </div>
                     <div className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight mb-space-xs">
@@ -49,8 +49,8 @@ export default function DepositBalanceCard() {
                 <div>
                     <div className="flex items-center justify-between text-secondary mb-space-md">
                         <div className="flex items-center gap-space-xs">
-                            <span className="font-caption text-caption tracking-wider uppercase">[사용 가능 금액]</span>
-                            <Badge label="현재 잔액" variant="success" />
+                            <span className="font-label-sm text-label-sm tracking-wider">[사용 가능 금액]</span>
+                            <Badge label="현재 잔액" variant="success" className="h-5! px-2!" />
                         </div>
                         <Icon name="lock_open" className="text-[20px] text-primary" />
                     </div>
@@ -66,8 +66,8 @@ export default function DepositBalanceCard() {
                 <div>
                     <div className="flex items-center justify-between text-secondary mb-space-md">
                         <div className="flex items-center gap-space-xs">
-                            <span className="font-caption text-caption tracking-wider uppercase">[동결 중 금액]</span>
-                            <Badge label="결제 보관" variant="neutral" />
+                            <span className="font-label-sm text-label-sm tracking-wider">[동결 중 금액]</span>
+                            <Badge label="결제 보관" variant="neutral" className="h-5! px-2!" />
                         </div>
                         <Icon name="lock" className="text-[20px] text-secondary" />
                     </div>

@@ -63,7 +63,7 @@ function DeliveryCardBody({ delivery, deliveryId, title, showItems, showReceiver
 
     return (
         <Card padding={4} className="flex flex-col gap-space-md" aria-label={`배송 ${title ?? `#${deliveryId}`}`} data-delivery-id={deliveryId}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs pb-space-xs border-b border-surface-container">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
                 <div className="flex flex-wrap items-center gap-space-sm">
                     <Icon name="local_shipping" className="text-[20px] text-primary" />
                     <Heading level={2}>{title ?? `배송 #${deliveryId}`}</Heading>

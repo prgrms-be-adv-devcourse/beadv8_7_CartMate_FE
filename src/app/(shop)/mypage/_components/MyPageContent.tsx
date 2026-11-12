@@ -190,7 +190,7 @@ export default function MyPageContent() {
 
                         {/* 참여 중인 공동구매 */}
                         <Card>
-                            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-outline-variant pb-4">
+                            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                                 <div>
                                     <Heading level={2}>참여 중인 공동구매</Heading>
                                     <Text color="secondary">참여 현황과 마감 일정을 확인하세요.</Text>
@@ -247,7 +247,7 @@ export default function MyPageContent() {
 
                         {/* 최근 주문 */}
                         <Card>
-                            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-outline-variant pb-4">
+                            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                                 <div>
                                     <Heading level={2}>최근 주문</Heading>
                                     <Text color="secondary">최근 3개월간 주문 및 배송 내역입니다.</Text>

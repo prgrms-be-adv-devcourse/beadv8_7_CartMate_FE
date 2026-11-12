@@ -27,7 +27,7 @@ export default function OrderClaimPage() {
                     <ClaimContent />
                 </Suspense>
                 <Card>
-                    <div className="font-label-md text-label-md text-on-surface mb-space-md pb-space-xs border-b border-surface-container">신청 안내</div>
+                    <div className="font-label-md text-label-md text-on-surface mb-space-md">신청 안내</div>
                     <ul className="flex flex-col gap-space-sm font-body-sm text-body-sm text-on-surface-variant">
                         {NOTICES.map((notice) => (
                             <li key={notice} className="flex items-start gap-space-xs">

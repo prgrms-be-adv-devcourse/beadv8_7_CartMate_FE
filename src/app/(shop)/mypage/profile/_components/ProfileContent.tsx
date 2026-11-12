@@ -240,12 +240,12 @@ export default function ProfileContent() {
         <div className="min-w-0 flex flex-col gap-space-xl">
             {/* 회원정보 수정 */}
             <Card>
-                <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-md border-b border-surface-container mb-space-xl">
+                <div className="flex flex-wrap gap-space-sm items-center justify-between mb-space-xl">
                     <div>
                         <Heading level={2}>회원정보 수정</Heading>
                         <Text color="secondary">계정 정보, 비밀번호 및 연락처 정보를 안전하게 관리하세요.</Text>
                     </div>
-                    <span className="font-caption text-caption px-space-sm py-1 bg-surface-container border border-outline-variant text-on-surface-variant">
+                    <span className="font-caption text-caption px-space-sm py-1 bg-surface-container border border-outline-variant text-on-surface-variant rounded">
                         최근 수정: {formatDateTime(profile.updatedAt)}
                     </span>
                 </div>
@@ -415,8 +415,8 @@ export default function ProfileContent() {
                         <div className="flex flex-wrap gap-space-sm items-center justify-between p-space-md border border-outline-variant bg-surface-container-low rounded">
                             {profile.defaultAddress ? (
                                 <div>
-                                    <div className="flex items-center gap-space-xs mb-1">
-                                        <span className="font-label-sm text-label-sm text-on-surface font-bold">기본 배송지</span>
+                                    <div className="flex items-center gap-space-xs mb-2">
+                                        <span className="font-body-lg text-body-lg text-on-surface font-semibold">기본 배송지</span>
                                         <Badge variant="blue" label="기본" />
                                     </div>
                                     <div className="font-body-sm text-body-sm text-on-surface-variant">
@@ -447,7 +447,7 @@ export default function ProfileContent() {
 
             {/* 판매자 등록 및 관리 */}
             <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl flex flex-col gap-space-lg">
-                <div className="flex flex-wrap gap-space-sm items-center justify-between pb-space-md border-b border-surface-container">
+                <div className="flex flex-wrap gap-space-sm items-center justify-between">
                     <div>
                         <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-space-xs">
                             <Icon name="storefront" className="text-[20px]" />
@@ -479,7 +479,7 @@ export default function ProfileContent() {
                                 판매자 정보를 등록하면 상품을 직접 올리고 공동구매 주문을 받을 수 있습니다. 만 19세 이상만 가능합니다.
                             </p>
                         </div>
-                        <div className="flex items-center justify-end pt-space-xs border-t border-surface-container">
+                        <div className="flex items-center justify-end pt-space-xs">
                             {isSeller ? (
                                 <span className={`${CAPTION} text-outline`}>이미 판매자로 등록되어 있습니다.</span>
                             ) : (
@@ -503,7 +503,7 @@ export default function ProfileContent() {
                                 주문 접수, 송장 등록 및 정산 관리를 할 수 있습니다.
                             </p>
                         </div>
-                        <div className="flex items-center justify-end pt-space-xs border-t border-surface-container">
+                        <div className="flex items-center justify-end pt-space-xs">
                             {isSeller ? (
                                 <Link
                                     className="h-[38px] px-space-md border border-outline-variant bg-surface hover:bg-surface-container text-on-surface font-label-sm rounded inline-flex items-center gap-space-xs transition-colors"
