@@ -1,10 +1,11 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { Fragment, type Dispatch, type SetStateAction } from 'react';
 import { Button, Card, Heading, Text } from '@astryxdesign/core';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { useProductOptionTypes } from '../_lib/productOptions';
+import type { CreateInventoryRequest } from '../_lib/registerSalesPost';
 
 // 재고 한 행 = 상품옵션 조합 하나 + 추가금액 + 재고 수량 (BE CreateInventory와 같은 단위)
 type InventoryRow = {
@@ -15,11 +16,41 @@ type InventoryRow = {
     stockQuantity: string;
 };
 
-type TableState = {
+// 재고 표 상태. 등록 폼이 들고 있다가 저장할 때 inventoryList로 바꿔 보낸다.
+// 옵션 종류와 재고 행은 서로 맞물려 바뀌므로(종류를 빼면 행의 선택도 빠진다) 한 상태로 묶어
+// 항상 직전 상태를 기준으로 함께 갱신한다. 따로 두면 연달아 바뀔 때 한쪽이 옛 값을 볼 수 있다.
+export type InventoryTableState = {
     typeIds: number[]; // 고른 옵션 종류(열) 순서
     rows: InventoryRow[];
     nextKey: number;
 };
+
+// 처음 상태: 옵션 없는 상품의 "기본" 재고 한 행
+export function createInventoryTable(): InventoryTableState {
+    return { typeIds: [], rows: [emptyRow(1, [])], nextKey: 2 };
+}
+
+// 저장 전 검사: 행마다의 안내 중 첫 번째. 없으면 null
+export function inventoryTableProblem(table: InventoryTableState): string | null {
+    const comboCount = countCombos(table);
+    for (const row of table.rows) {
+        const problem = rowProblem(row, table.typeIds, comboCount);
+        if (problem) return problem;
+    }
+    return null;
+}
+
+// 재고 행 → 등록 요청의 inventoryList. inventoryTableProblem이 null일 때만 부른다
+export function toCreateInventories(table: InventoryTableState): CreateInventoryRequest[] {
+    return table.rows.map((row) => ({
+        optionList: table.typeIds.map((typeId) => ({
+            productTypeId: typeId,
+            productOptionId: row.optionIds[typeId] as number,
+        })),
+        additionalPrice: Number(row.additionalPrice),
+        stockQuantity: Number(row.stockQuantity),
+    }));
+}
 
 const SELECT_CLASS =
     'w-full h-9 px-space-sm bg-surface border border-outline-variant rounded text-on-surface focus:border-primary focus:outline-none disabled:opacity-50';
@@ -59,13 +90,29 @@ function comboKey(row: InventoryRow, typeIds: number[]): string {
     return typeIds.map((typeId) => row.optionIds[typeId] ?? '').join('/');
 }
 
+// 상품옵션을 다 고른 행의 조합별 개수 (2 이상이면 중복)
+function countCombos({ typeIds, rows }: InventoryTableState): Map<string, number> {
+    const comboCount = new Map<string, number>();
+    if (typeIds.length === 0) return comboCount;
+    for (const row of rows) {
+        if (typeIds.every((typeId) => row.optionIds[typeId] != null)) {
+            const key = comboKey(row, typeIds);
+            comboCount.set(key, (comboCount.get(key) ?? 0) + 1);
+        }
+    }
+    return comboCount;
+}
+
+type OptionTableProps = {
+    value: InventoryTableState;
+    onChange: Dispatch<SetStateAction<InventoryTableState>>;
+};
+
 // 재고 표: 옵션 종류를 고르면 열이 생기고, 행마다 그 종류의 상품옵션을 select로 고른다.
 // 옵션 종류를 하나도 고르지 않으면 옵션 없는 상품의 "기본" 재고 한 행만 둔다.
-export default function OptionTable() {
+// 상태는 등록 폼이 들고(value), 바꿀 때는 직전 상태를 받는 갱신 함수로 알린다(onChange = setState).
+export default function OptionTable({ value: table, onChange: setTable }: OptionTableProps) {
     const { types, optionsByTypeId, isLoading, error } = useProductOptionTypes();
-    // 옵션 종류와 재고 행은 서로 맞물려 바뀌므로(종류를 빼면 행의 선택도 빠진다) 한 상태로 묶어
-    // 항상 직전 상태를 기준으로 함께 갱신한다. 따로 두면 연달아 바뀔 때 한쪽이 옛 값을 볼 수 있다.
-    const [table, setTable] = useState<TableState>({ typeIds: [], rows: [emptyRow(1, [])], nextKey: 2 });
     const { typeIds, rows } = table;
     const setRows = (update: (rows: InventoryRow[]) => InventoryRow[]) =>
         setTable((prev) => ({ ...prev, rows: update(prev.rows) }));
@@ -77,16 +124,7 @@ export default function OptionTable() {
         (type) => !typeIds.includes(type.typeId) && !(hasSizeType && SIZE_TYPE_IDS.has(type.typeId)),
     );
     const hasOptions = typeIds.length > 0;
-
-    const comboCount = new Map<string, number>();
-    if (hasOptions) {
-        for (const row of rows) {
-            if (typeIds.every((typeId) => row.optionIds[typeId] != null)) {
-                const key = comboKey(row, typeIds);
-                comboCount.set(key, (comboCount.get(key) ?? 0) + 1);
-            }
-        }
-    }
+    const comboCount = countCombos(table);
 
     function addType(typeId: number) {
         setTable((prev) =>

@@ -9,7 +9,7 @@ import { useCurrentUser } from '@/lib/auth';
 import { ROUTES } from '@/lib/routes';
 import { useProductCategories } from '../_lib/productOptions';
 import { registerSalesPostMultipart } from '../_lib/registerSalesPost';
-import OptionTable from './OptionTable';
+import OptionTable, { createInventoryTable, inventoryTableProblem, toCreateInventories } from './OptionTable';
 
 const EDITOR_TOOLS = ['format_bold', 'format_italic', 'format_underlined'];
 const EDITOR_TOOLS_2 = ['format_list_bulleted', 'image'];
@@ -28,6 +28,7 @@ export default function SalesPostRegisterForm() {
             registerSalesPostMultipart(request, files),
     });
     const [images, setImages] = useState<PickedImage[]>([]);
+    const [inventoryTable, setInventoryTable] = useState(createInventoryTable);
     const imagesRef = useRef(images);
     const [formError, setFormError] = useState<string | null>(null);
 
@@ -65,6 +66,12 @@ export default function SalesPostRegisterForm() {
             setFormError('필수 항목을 확인해주세요.');
             return;
         }
+        // 재고 표의 안내(상품옵션 미선택 · 조합 중복 · 잘못된 금액 / 수량)가 남아 있으면 보내지 않는다
+        const inventoryProblem = inventoryTableProblem(inventoryTable);
+        if (inventoryProblem) {
+            setFormError(`옵션 · 재고: ${inventoryProblem}`);
+            return;
+        }
 
         register.mutate(
             {
@@ -79,6 +86,7 @@ export default function SalesPostRegisterForm() {
                             description: content || `${name} 상세 설명`,
                             basePrice,
                             productImageList: images.map((_, index) => ({ imageSeq: index + 1 })),
+                            inventoryList: toCreateInventories(inventoryTable),
                         },
                     ],
                 },
@@ -235,7 +243,7 @@ export default function SalesPostRegisterForm() {
                     </div>
                 </Card>
 
-                <OptionTable />
+                <OptionTable value={inventoryTable} onChange={setInventoryTable} />
             </div>
 
             <div className="space-y-space-xl">
