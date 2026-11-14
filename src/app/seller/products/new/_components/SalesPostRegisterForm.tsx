@@ -7,18 +7,12 @@ import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { useCurrentUser } from '@/lib/auth';
 import { ROUTES } from '@/lib/routes';
+import { useProductCategories } from '../_lib/productOptions';
 import { registerSalesPostMultipart } from '../_lib/registerSalesPost';
 import OptionTable from './OptionTable';
 
 const EDITOR_TOOLS = ['format_bold', 'format_italic', 'format_underlined'];
 const EDITOR_TOOLS_2 = ['format_list_bulleted', 'image'];
-
-const CATEGORIES = [
-    { id: 1, label: '유니폼 / 의류' },
-    { id: 2, label: '운동 용품' },
-    { id: 3, label: '신발 / 보호구' },
-    { id: 4, label: '단체 액세서리' },
-] as const;
 
 const INPUT_CLASS =
     'h-[42px] px-space-md bg-surface border border-outline-variant rounded text-on-surface placeholder:text-outline focus:border-primary focus:outline-none transition-colors';
@@ -28,6 +22,7 @@ type PickedImage = { file: File; preview: string };
 // 판매글 등록 → POST /api/sales-posts (multipart: request JSON + images)
 export default function SalesPostRegisterForm() {
     const { user, isLoading } = useCurrentUser();
+    const { categories, isLoading: categoriesLoading, error: categoriesError } = useProductCategories();
     const register = useMutation({
         mutationFn: ({ request, images: files }: { request: Parameters<typeof registerSalesPostMultipart>[0]; images: Blob[] }) =>
             registerSalesPostMultipart(request, files),
@@ -151,16 +146,28 @@ export default function SalesPostRegisterForm() {
                                 <label className="text-body-sm font-label-sm text-on-surface" htmlFor="sales-category">
                                     카테고리 선택 <span className="text-error">*</span>
                                 </label>
-                                <select className={INPUT_CLASS} id="sales-category" name="categoryId" defaultValue="" required>
+                                <select
+                                    className={`${INPUT_CLASS} disabled:opacity-50`}
+                                    id="sales-category"
+                                    name="categoryId"
+                                    defaultValue=""
+                                    required
+                                    disabled={categoriesLoading || categories.length === 0}
+                                >
                                     <option value="" disabled>
-                                        카테고리를 선택하세요
+                                        {categoriesLoading ? '불러오는 중...' : '카테고리를 선택하세요'}
                                     </option>
-                                    {CATEGORIES.map((category) => (
-                                        <option key={category.id} value={category.id}>
-                                            {category.label}
+                                    {categories.map((category) => (
+                                        <option key={category.categoryId} value={category.categoryId}>
+                                            {category.name}
                                         </option>
                                     ))}
                                 </select>
+                                {categoriesError && (
+                                    <Text className="text-error" role="alert">
+                                        {errorMessage(categoriesError, '카테고리 목록을 불러오지 못했습니다.')}
+                                    </Text>
+                                )}
                             </div>
                             <div className="flex flex-col space-y-space-xs">
                                 <label className="text-body-sm font-label-sm text-on-surface" htmlFor="sales-product-name">

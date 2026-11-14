@@ -46,6 +46,15 @@ function rowProblem(row: InventoryRow, typeIds: number[], comboCount: Map<string
     return null;
 }
 
+// 사이즈 종류는 한 상품에 하나만 쓴다. BE 옵션 데이터에 종류를 묶는 정보가 없어 typeId로 적어 둔다.
+// BE data.sql 규칙상 이미 쓰는 ID는 바뀌지 않는다. 사이즈 종류가 새로 생기면 여기에 추가한다.
+const SIZE_TYPE_IDS: ReadonlySet<number> = new Set([
+    1, // 의류 사이즈
+    3, // 신발 사이즈
+    4, // 공 사이즈
+    5, // 골키퍼 장갑 사이즈
+]);
+
 function comboKey(row: InventoryRow, typeIds: number[]): string {
     return typeIds.map((typeId) => row.optionIds[typeId] ?? '').join('/');
 }
@@ -62,7 +71,11 @@ export default function OptionTable() {
         setTable((prev) => ({ ...prev, rows: update(prev.rows) }));
 
     const typeName = (typeId: number) => types.find((type) => type.typeId === typeId)?.typeName ?? `옵션 종류 ${typeId}`;
-    const selectableTypes = types.filter((type) => !typeIds.includes(type.typeId));
+    const hasSizeType = typeIds.some((typeId) => SIZE_TYPE_IDS.has(typeId));
+    // 이미 고른 종류는 빼고, 사이즈 종류를 하나 골랐으면 다른 사이즈 종류도 뺀다
+    const selectableTypes = types.filter(
+        (type) => !typeIds.includes(type.typeId) && !(hasSizeType && SIZE_TYPE_IDS.has(type.typeId)),
+    );
     const hasOptions = typeIds.length > 0;
 
     const comboCount = new Map<string, number>();
@@ -77,7 +90,8 @@ export default function OptionTable() {
 
     function addType(typeId: number) {
         setTable((prev) =>
-            prev.typeIds.includes(typeId)
+            prev.typeIds.includes(typeId) ||
+            (SIZE_TYPE_IDS.has(typeId) && prev.typeIds.some((id) => SIZE_TYPE_IDS.has(id)))
                 ? prev
                 : {
                       ...prev,
@@ -142,7 +156,7 @@ export default function OptionTable() {
 
             <div className="flex flex-col gap-space-sm">
                 <label className="text-body-sm font-label-sm text-on-surface" htmlFor="option-type-picker">
-                    옵션 종류
+                    옵션 선택
                 </label>
                 <div className="flex flex-wrap items-center gap-space-sm">
                     <select
