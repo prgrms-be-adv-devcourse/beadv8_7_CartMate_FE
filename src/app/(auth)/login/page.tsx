@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import LoginForm from './_components/LoginForm';
@@ -8,79 +12,45 @@ import SessionExpiredNotice from './_components/SessionExpiredNotice';
 
 export const metadata: Metadata = { title: '로그인 | TEAMBUY' };
 
-const SOCIAL_LOGINS = ['카카오', '네이버', '구글'];
-
 export default function LoginPage() {
     return (
-        <div className="flex flex-col w-full items-center justify-center py-12">
-            {/* System Architecture Breadcrumb / Wireframe Tracker */}
-            <div className="w-full max-w-[480px] mb-4 flex items-center justify-between text-on-surface-variant font-caption text-caption">
-                <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-outline" />
-                    <span>WIREFRAME ID: SCR-AUTH-01</span>
-                </div>
-                <span className="bg-surface-container px-2 py-0.5 rounded text-outline font-label-sm text-label-sm">480px FORM SPEC</span>
+        <div className="flex w-full max-w-[520px] flex-col gap-4">
+            <div className="flex items-center justify-between px-1">
+                <Text type="supporting" color="accent">TEAMBUY ACCOUNT</Text>
+                <Badge label="안전한 로그인" variant="success" icon={<Icon name="verified_user" className="text-[14px]" />} />
             </div>
-            {/* Main 480px Centered Wireframe Form Container */}
-            <div className="w-full max-w-[480px] bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm flex flex-col gap-6">
-                <div className="flex flex-col gap-1 pb-4 border-b border-surface-container-high">
+            <Card padding={6} elevation="low" className="w-full">
+                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2 border-b border-outline-variant pb-5">
                     <div className="flex items-center justify-between">
-                        <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">로그인</h1>
+                        <Heading level={1}>로그인</Heading>
                         <Icon name="lock" className="text-outline text-xl" />
                     </div>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">동호회·팀 유니폼 및 장비 공동구매 서비스</p>
+                    <Text color="secondary">공동구매 현황과 주문을 한 계정에서 관리하세요.</Text>
                 </div>
                 {/* 쿼리스트링을 읽는 부분만 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}
                 <Suspense fallback={null}>
                     <SessionExpiredNotice />
                 </Suspense>
                 <LoginForm />
-                {/* Sign-up Redirect Link */}
-                <div className="flex items-center justify-center gap-2 py-1 text-center font-body-sm text-body-sm text-on-surface-variant border-t border-surface-container-high pt-4">
-                    <span>아직 회원이 아니신가요?</span>
+                <div className="flex flex-wrap items-center justify-center gap-2 border-t border-outline-variant pt-5 text-center">
+                    <Text color="secondary">아직 회원이 아니신가요?</Text>
                     <Link
-                        className="font-label-md text-label-md text-on-surface underline decoration-1 underline-offset-4 hover:text-outline transition-colors"
+                        className="font-label-md text-label-md text-primary underline decoration-1 underline-offset-4 hover:opacity-70"
                         href={ROUTES.signup}
                     >
-                        회원가입하기
+                        회원가입
                     </Link>
                 </div>
-                {/* Social / Simple Login Area */}
-                <div className="flex flex-col gap-3">
-                    <div className="relative flex items-center justify-center">
-                        <div className="w-full border-t border-outline-variant" />
-                        <span className="absolute bg-surface-container-lowest px-3 font-caption text-caption text-outline uppercase tracking-wider">간편 로그인</span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 pt-1">
-                        {SOCIAL_LOGINS.map((name) => (
-                            <button
-                                key={name}
-                                className="h-[40px] border border-outline-variant rounded bg-surface hover:bg-surface-container flex items-center justify-center gap-1.5 transition-colors group"
-                                type="button"
-                            >
-                                <span className="w-2.5 h-2.5 rounded-full bg-outline group-hover:bg-on-surface" />
-                                <span className="font-label-sm text-label-sm text-on-surface-variant group-hover:text-on-surface">{name}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                {/* Team Escrow & Bulk Order Security Notice Box */}
-                <div className="bg-surface-container-low border border-outline-variant/60 rounded p-3.5 flex items-start gap-2.5">
+                <div className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4">
                     <Icon name="verified_user" className="text-outline text-[18px] shrink-0 mt-0.5" />
                     <div className="flex flex-col gap-0.5">
-                        <span className="font-label-sm text-label-sm text-on-surface font-semibold">팀 예치금 및 단체 정산 보안 안내</span>
-                        <p className="font-caption text-caption text-on-surface-variant leading-relaxed">
-                            스포츠 동호회 및 클럽 단체 주문 시, MOQ 달성 전까지 결제 대금은 전용 에스크로 안전 계좌에 보호되며 납품 확정 시 일괄 정산됩니다.
-                        </p>
+                        <Text weight="semibold">예치금 보안 안내</Text>
+                        <Text type="supporting" color="secondary">비밀번호와 인증번호를 다른 사람에게 공유하지 마세요.</Text>
                     </div>
                 </div>
-            </div>
-            {/* Blueprint Layout Footer Spec */}
-            <div className="w-full max-w-[480px] mt-6 flex items-center justify-between text-outline font-caption text-caption px-1">
-                <span>AUTH FLOW: v1.0.4</span>
-                <span>LAYOUT: 480PX FIXED DESKTOP CARD</span>
-                <span>STATUS: ACTIVE BLUEPRINT</span>
-            </div>
+                </div>
+            </Card>
         </div>
     );
 }

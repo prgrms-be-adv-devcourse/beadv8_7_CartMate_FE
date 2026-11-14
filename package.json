@@ -7,14 +7,19 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "astryx": "node node_modules/@astryxdesign/cli/clients/cli/bin/astryx.mjs",
     "api:gen": "orval",
     "api:pull": "node scripts/pull-openapi.mjs",
     "seed:local": "bash scripts/seed-local.sh"
   },
   "dependencies": {
+    "@astryxdesign/core": "0.7.14",
+    "@astryxdesign/theme-neutral": "0.7.14",
     "@hookform/resolvers": "^5.9.2",
+    "@stylexjs/stylex": "0.19.1",
     "@tanstack/react-query": "^5.104.1",
     "next": "16.4.5",
+    "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-hook-form": "^7.89.0",
@@ -22,8 +27,10 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@astryxdesign/cli": "0.7.14",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

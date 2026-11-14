@@ -1,7 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Text } from '@astryxdesign/core/Text';
+import ProductImage from '@/components/ui/ProductImage';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import type { SelectSalesPostResponse } from '@/api/generated/model';
@@ -13,6 +19,7 @@ import { toProductOption } from '@/lib/salesPost';
 import { SellerTrustPanel, toSellerTrust } from '../../../_components/SellerTrust';
 import ProductActions from './ProductActions';
 import ProductOptions from './ProductOptions';
+import ProductPaybackConditions from './ProductPaybackConditions';
 
 // 상품 상세 = BE 판매글 상세(/api/sales-posts/detail). URL의 id 는 판매글 id 다.
 export default function ProductDetail() {
@@ -29,15 +36,9 @@ export default function ProductDetail() {
     if (query.isPending) return <DetailSkeleton />;
     if (query.isError || !post) {
         return (
-            <div className="border border-outline-variant bg-surface-container-low p-space-xl flex flex-col items-center gap-space-sm text-center" role="alert">
-                <p className="font-body-md text-body-md text-on-surface">{errorMessage(query.error, '상품 정보를 불러오지 못했습니다.')}</p>
-                <button
-                    className="h-10 px-space-lg border border-outline-variant bg-surface-container-lowest font-label-md text-label-md hover:bg-surface-container"
-                    type="button"
-                    onClick={() => query.refetch()}
-                >
-                    다시 시도
-                </button>
+            <div className="rounded-lg border border-outline-variant bg-surface-container-low p-8 text-center" role="alert">
+                <Text>{errorMessage(query.error, '상품 정보를 불러오지 못했습니다.')}</Text>
+                <div className="mt-4"><Button label="다시 시도" onClick={() => query.refetch()} /></div>
             </div>
         );
     }
@@ -61,7 +62,7 @@ function DetailContent({ post }: { post: SelectSalesPostResponse }) {
 
     return (
         <div className="flex flex-col w-full">
-            <div className="flex items-center gap-space-sm mb-space-md text-secondary font-label-sm text-label-sm">
+            <nav className="mb-6 flex items-center gap-2 font-label-sm text-label-sm text-secondary" aria-label="현재 위치">
                 <Link className="hover:text-primary hover:underline" href={ROUTES.home}>
                     홈
                 </Link>
@@ -71,40 +72,36 @@ function DetailContent({ post }: { post: SelectSalesPostResponse }) {
                 </Link>
                 <span className="text-outline-variant">/</span>
                 <span className="text-primary font-bold line-clamp-1">{post.title}</span>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-xl items-start pb-space-xl">
+            </nav>
+            <div className="grid grid-cols-1 items-start gap-8 pb-12 lg:grid-cols-2">
                 <div className="flex flex-col gap-space-md">
-                    <div className="relative w-full aspect-square bg-surface-container-low border border-outline-variant flex items-center justify-center overflow-hidden">
-                        {mainImage ? (
-                            <Image src={mainImage} alt={post.title ?? ''} fill unoptimized className="object-contain" />
-                        ) : (
-                            <Icon name="image" className="text-outline text-[48px]" />
-                        )}
+                    <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-surface-container-low">
+                        <ProductImage src={mainImage} alt={post.title ?? ''} className="object-contain" iconClassName="text-[48px]" />
                     </div>
                     {images.length > 1 && (
                         <div className="grid grid-cols-4 gap-space-sm">
                             {images.map((url, i) => (
                                 <button
                                     key={`${i}-${url}`}
-                                    className={`relative aspect-square bg-surface-container-low overflow-hidden ${i === imageIndex ? 'border-2 border-primary' : 'border border-outline-variant hover:border-outline'}`}
+                                    className={`relative aspect-square overflow-hidden rounded-md bg-surface-container-low ${i === imageIndex ? 'border-2 border-primary' : 'border border-outline-variant hover:border-outline'}`}
                                     type="button"
                                     aria-label={`이미지 ${i + 1}`}
                                     onClick={() => setImageIndex(i)}
                                 >
-                                    <Image src={url} alt="" fill unoptimized className="object-cover" />
+                                    <ProductImage src={url} alt="" className="object-cover" />
                                 </button>
                             ))}
                         </div>
                     )}
                 </div>
-                <div className="flex flex-col gap-space-md bg-surface-container-lowest">
-                    <div className="flex items-center justify-between pb-space-xs border-b border-surface-container-highest font-caption text-caption text-secondary">
-                        <span>{onSale ? '판매 중' : '현재 판매하지 않는 상품입니다'}</span>
-                        <span>조회 {post.viewCount ?? 0}</span>
+                <div className="flex flex-col gap-5">
+                    <div className="flex items-center justify-between border-b border-outline-variant pb-3">
+                        <Badge label={onSale ? '판매 중' : '판매 중지'} variant={onSale ? 'blue' : 'neutral'} />
+                        <Text type="supporting" color="secondary">조회 {post.viewCount ?? 0}</Text>
                     </div>
-                    <h1 className="font-headline-md text-headline-md text-on-surface leading-tight font-bold">{post.title}</h1>
+                    <Heading level={1}>{post.title}</Heading>
                     {products.length === 0 ? (
-                        <p className="font-body-md text-body-md text-secondary">등록된 상품이 없습니다.</p>
+                        <Text color="secondary">등록된 상품이 없습니다.</Text>
                     ) : (
                         <ProductOptions
                             products={products}
@@ -115,24 +112,27 @@ function DetailContent({ post }: { post: SelectSalesPostResponse }) {
                             onQuantityChange={setQuantity}
                         />
                     )}
+                    {currentId !== null && <ProductPaybackConditions key={currentId} productId={currentId} />}
                     <SellerTrustPanel sellerId={post.sellerId} fallback={toSellerTrust(post.sellerTrustLevel, post.sellerTrustScore)} />
                     <ProductActions postId={post.id ?? 0} productId={currentId} quantity={quantity} onSale={onSale} />
                 </div>
             </div>
-            <section className="w-full mt-space-lg pt-space-md border-t-2 border-primary flex flex-col gap-space-md">
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold border-l-4 border-primary pl-space-sm">상품 상세 정보</h2>
-                {post.content && <p className="font-body-md text-body-md text-on-surface whitespace-pre-line">{post.content}</p>}
+            <section className="mt-6 flex w-full flex-col gap-5 border-t border-outline-variant pt-10" aria-labelledby="product-information">
+                <Heading id="product-information" level={2}>상품 상세 정보</Heading>
+                {post.content && <Text className="whitespace-pre-line">{post.content}</Text>}
                 {products.length > 0 && (
-                    <div className="border border-outline-variant divide-y divide-outline-variant">
+                    <Card padding={0}>
+                    <div className="divide-y divide-outline-variant">
                         {products.map((product) => (
-                            <div key={product.id} className="p-space-md flex flex-col gap-1">
-                                <span className="font-label-md text-label-md text-on-surface font-bold">{product.name}</span>
+                            <div key={product.id} className="flex flex-col gap-1 p-5">
+                                <Text weight="semibold">{product.name}</Text>
                                 {product.description && (
-                                    <p className="font-body-sm text-body-sm text-secondary whitespace-pre-line">{product.description}</p>
+                                    <Text type="supporting" color="secondary" className="whitespace-pre-line">{product.description}</Text>
                                 )}
                             </div>
                         ))}
                     </div>
+                    </Card>
                 )}
             </section>
         </div>
@@ -141,12 +141,8 @@ function DetailContent({ post }: { post: SelectSalesPostResponse }) {
 
 function NotFound() {
     return (
-        <div className="border border-outline-variant bg-surface-container-low p-space-xl flex flex-col items-center gap-space-md text-center">
-            <Icon name="search_off" className="text-outline text-[32px]" />
-            <p className="font-headline-sm text-headline-sm text-on-surface">상품을 찾을 수 없습니다.</p>
-            <Link className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded flex items-center" href={ROUTES.search}>
-                전체 상품 보기
-            </Link>
+        <div className="rounded-lg border border-outline-variant bg-surface-container-low p-8">
+            <EmptyState title="상품을 찾을 수 없습니다" description="삭제되었거나 잘못된 주소일 수 있어요." icon={<Icon name="search_off" />} actions={<Button label="전체 상품 보기" href={ROUTES.search} as={Link} variant="primary" />} />
         </div>
     );
 }

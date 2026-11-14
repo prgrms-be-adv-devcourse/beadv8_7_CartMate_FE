@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Suspense } from 'react';
+import { Button, Card } from '@astryxdesign/core';
+import MyPageShell from '@/components/layout/MyPageShell';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import ClaimContent from './_components/ClaimContent';
@@ -19,60 +20,28 @@ const NOTICES = [
 
 export default function OrderClaimPage() {
     return (
-        <div className="flex flex-col w-full">
-            <div className="max-w-[1200px] mx-auto w-full px-gutter py-space-xl">
-                <div className="mb-space-xl">
-                    <nav className="flex items-center gap-2 text-secondary font-body-sm text-body-sm mb-space-xs">
-                        <Link className="hover:text-primary" href={ROUTES.myPage}>
-                            마이페이지
-                        </Link>
-                        <Icon name="chevron_right" className="text-[14px] text-outline" />
-                        <Link className="hover:text-primary" href={ROUTES.orders}>
-                            주문 내역
-                        </Link>
-                        <Icon name="chevron_right" className="text-[14px] text-outline" />
-                        <span className="text-on-surface">교환 · 환불 신청</span>
-                    </nav>
-                    <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">교환 및 환불 요청</h1>
-                    <p className="font-body-md text-body-md text-on-surface-variant mt-space-xs">
-                        배송 완료된 상품의 교환 또는 반품(환불)을 접수합니다.
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
-                    <aside className="lg:col-span-3 flex flex-col gap-space-lg lg:sticky lg:top-36">
-                        <div className="bg-surface-container-lowest border border-outline-variant p-space-lg rounded">
-                            <div className="font-label-md text-label-md text-on-surface mb-space-md pb-space-xs border-b border-surface-container">신청 안내</div>
-                            <ul className="flex flex-col gap-space-sm font-body-sm text-body-sm text-on-surface-variant">
-                                {NOTICES.map((notice) => (
-                                    <li key={notice} className="flex items-start gap-space-xs">
-                                        <Icon name="info" className="text-[16px] text-outline mt-0.5" />
-                                        <span>{notice}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <Link
-                            href={ROUTES.myClaims}
-                            className="bg-surface-container-low border border-outline-variant p-space-lg rounded flex items-center justify-between gap-space-sm hover:border-primary transition-colors"
-                        >
-                            <div>
-                                <div className="font-label-md text-label-md text-on-surface">내 교환 · 환불 내역</div>
-                                <div className="font-caption text-caption text-outline mt-1">신청한 요청의 진행 상태와 환불 금액</div>
-                            </div>
-                            <Icon name="chevron_right" className="text-outline" />
-                        </Link>
-                    </aside>
-
-                    {/* 주문 id(동적 경로)를 읽는 부분만 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}
-                    <div className="lg:col-span-9">
-                        <Suspense fallback={<ClaimSkeleton />}>
-                            <ClaimContent />
-                        </Suspense>
-                    </div>
+        <MyPageShell title="교환 및 환불 요청" description="배송 완료된 상품의 교환 또는 반품(환불)을 접수합니다.">
+            <div className="flex flex-col gap-space-lg">
+                {/* 주문 id(동적 경로)를 읽는 부분만 클라이언트에서 렌더링되도록 Suspense로 감싼다 */}
+                <Suspense fallback={<ClaimSkeleton />}>
+                    <ClaimContent />
+                </Suspense>
+                <Card>
+                    <div className="font-label-md text-label-md text-on-surface mb-space-md">신청 안내</div>
+                    <ul className="flex flex-col gap-space-sm font-body-sm text-body-sm text-on-surface-variant">
+                        {NOTICES.map((notice) => (
+                            <li key={notice} className="flex items-start gap-space-xs">
+                                <Icon name="info" className="text-[16px] text-outline mt-0.5" />
+                                <span>{notice}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </Card>
+                <div>
+                    <Button label="내 교환 · 환불 내역" variant="secondary" href={ROUTES.myClaims} endContent={<Icon name="chevron_right" className="text-outline" />} />
                 </div>
             </div>
-        </div>
+        </MyPageShell>
     );
 }
 

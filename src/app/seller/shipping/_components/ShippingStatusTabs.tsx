@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '@astryxdesign/core';
 import { GetSellerDeliveriesStatus } from '@/api/generated/model';
 
 type ShippingStatus = (typeof GetSellerDeliveriesStatus)[keyof typeof GetSellerDeliveriesStatus];
@@ -38,14 +39,7 @@ export default function ShippingStatusTabs() {
             {TABS.map((tab) => {
                 const isActive = tab.status === active;
                 return (
-                    <button
-                        key={tab.status}
-                        type="button"
-                        onClick={() => select(tab.status)}
-                        className={`px-space-md py-space-sm rounded-lg font-label-md transition-all ${isActive ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
-                    >
-                        {tab.label}
-                    </button>
+                    <Button key={tab.status} label={tab.label} variant={isActive ? 'primary' : 'ghost'} onClick={() => select(tab.status)} />
                 );
             })}
         </div>

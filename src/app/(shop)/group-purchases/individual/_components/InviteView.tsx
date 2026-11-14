@@ -6,6 +6,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
 import { useGetByInviteCode } from '@/api/generated/individual-group-purchase-controller/individual-group-purchase-controller';
 import { useProfile } from '@/api/generated/member-controller/member-controller';
 import type { IndividualGroupPurchaseDetailResponse, Option, ProductResponse } from '@/api/generated/model';
@@ -98,9 +101,9 @@ function InviteContent({ detail, refresh }: { detail: Detail; refresh: () => Pro
 
     const intro = (
         <>
-            <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-sm">
+            <Card variant="blue" className="flex flex-col gap-space-sm">
                 <div className="flex items-start justify-between gap-space-md">
-                    <h2 className="font-headline-md text-headline-md text-on-surface break-all">{detail.title}</h2>
+                    <Heading level={2} className="break-all">{detail.title}</Heading>
                     <StatusBadge status={detail.status} open={orderable} />
                 </div>
                 <dl className="grid grid-cols-[auto_1fr] gap-x-space-md gap-y-1 font-body-sm text-body-sm">
@@ -123,9 +126,9 @@ function InviteContent({ detail, refresh }: { detail: Detail; refresh: () => Pro
                         </Link>
                     </p>
                 )}
-            </section>
+            </Card>
 
-            <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+            <Card className="flex flex-col gap-space-md">
                 <div className="flex items-center justify-between gap-space-md">
                     <SectionTitle icon="inventory_2" title="상품 선택" />
                     <span className="font-caption text-caption text-secondary">총 {products.length}개 상품</span>
@@ -140,7 +143,7 @@ function InviteContent({ detail, refresh }: { detail: Detail; refresh: () => Pro
                     </ul>
                 )}
                 {orderable && <p className="font-caption text-caption text-secondary">주문할 상품의 수량을 정해주세요. 상품마다 최대 {MAX_QUANTITY}개까지 주문할 수 있습니다.</p>}
-            </section>
+            </Card>
         </>
     );
 
@@ -155,13 +158,11 @@ function InviteContent({ detail, refresh }: { detail: Detail; refresh: () => Pro
     return (
         <div className={GRID_CLASS}>
             <div className={MAIN_CLASS}>{intro}</div>
-            <aside className={`${ASIDE_CLASS} border-outline-variant gap-space-sm`}>
+            <Card className={`${ASIDE_CLASS} gap-space-sm`}>
                 <SectionTitle icon="block" title="주문 불가" />
                 <p className="font-body-sm text-body-sm text-on-surface-variant">공동구매를 만든 사람에게 새 초대 링크가 있는지 확인해주세요.</p>
-                <Link className="h-10 px-space-lg border border-outline-variant font-label-md text-label-md flex items-center justify-center hover:bg-surface-container" href={ROUTES.home}>
-                    홈으로
-                </Link>
-            </aside>
+                <Button label="홈으로" href={ROUTES.home} as={Link} variant="secondary" />
+            </Card>
         </div>
     );
 }
@@ -169,7 +170,7 @@ function InviteContent({ detail, refresh }: { detail: Detail; refresh: () => Pro
 // 왼쪽에 공동구매·상품·배송지, 오른쪽에 주문 요약을 둔다.
 const GRID_CLASS = 'grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start';
 const MAIN_CLASS = 'lg:col-span-8 flex flex-col gap-space-xl';
-const ASIDE_CLASS = 'lg:col-span-4 lg:sticky lg:top-36 bg-surface-container-lowest border p-space-lg flex flex-col';
+const ASIDE_CLASS = 'lg:col-span-4 lg:sticky lg:top-36 flex flex-col';
 
 type ProductItemProps = { product: ProductResponse; quantities: Quantities; disabled: boolean; onChange: (inventoryId: number, quantity: number) => void };
 
@@ -334,25 +335,25 @@ function OrderForm({ purchaseId, lines, refresh, defaults, children }: OrderSect
         >
             <div className={MAIN_CLASS}>
                 {children}
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">
+                <Card className="flex flex-col gap-space-md">
                     <SectionTitle icon="local_shipping" title="배송지 정보" />
                     <FormProvider {...form}>
                         <DeliveryAddressFields />
                     </FormProvider>
-                </section>
+                </Card>
 
-                <section className="bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-sm">
+                <Card className="flex flex-col gap-space-sm">
                     <SectionTitle icon="payments" title="결제 수단" />
                     <p className="font-body-sm text-body-sm text-on-surface">팀바이 예치금</p>
                     <p className="font-caption text-caption text-secondary">
                         주문을 만든 뒤 30분 안에 예치금으로 결제합니다. 판매 기한이 그보다 먼저 끝나면 판매 기한까지 결제해야 합니다.
                     </p>
-                </section>
+                </Card>
 
             </div>
 
-            <aside className={`${ASIDE_CLASS} border-primary gap-space-md`}>
-                <h2 className="font-headline-sm text-headline-sm text-primary">주문 요약</h2>
+            <Card variant="blue" className={`${ASIDE_CLASS} gap-space-md`}>
+                <Heading level={2}>주문 요약</Heading>
                 {lines.length === 0 ? (
                     <p className="p-space-sm bg-surface-container-low text-center font-body-sm text-body-sm text-on-surface-variant">아직 고른 상품이 없습니다.</p>
                 ) : (
@@ -405,14 +406,15 @@ function OrderForm({ purchaseId, lines, refresh, defaults, children }: OrderSect
                         {errorMessage(createOrder.error, '주문을 만들지 못했습니다.')}
                     </p>
                 )}
-                <button
-                    className="w-full h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90 disabled:opacity-60"
+                <Button
+                    label={createOrder.isPending ? '주문 중...' : `${formatPrice(total)} 주문하기`}
+                    className="w-full"
                     type="submit"
-                    disabled={busy}
-                >
-                    {createOrder.isPending ? '주문 중...' : `${formatPrice(total)} 주문하기`}
-                </button>
-            </aside>
+                    variant="primary"
+                    isLoading={createOrder.isPending}
+                    isDisabled={busy}
+                />
+            </Card>
         </form>
     );
 }

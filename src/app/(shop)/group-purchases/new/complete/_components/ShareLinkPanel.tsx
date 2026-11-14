@@ -1,15 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import Icon from '@/components/ui/Icon';
 
 type ShareLinkPanelProps = { url: string; inviteCode: string };
 
-// 초대 링크 입력창 + 링크·코드 복사 버튼 + 복사 완료 토스트
+// 초대 링크·코드 복사 버튼 + 복사 완료 토스트.
+// 링크 원문은 사용자가 읽을 일이 없어서 보여 주지 않고, 복사가 안 될 때만 직접 복사할 수 있게 펼쳐 준다.
 export default function ShareLinkPanel({ url, inviteCode }: ShareLinkPanelProps) {
     const [toast, setToast] = useState<{ message: string; ok: boolean } | null>(null);
+    const [fallback, setFallback] = useState<string | null>(null);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => () => {
         if (timer.current) clearTimeout(timer.current);
@@ -24,59 +26,52 @@ export default function ShareLinkPanel({ url, inviteCode }: ShareLinkPanelProps)
 
     const copy = (text: string, done: string) => {
         const fail = () => {
-            // 클립보드를 못 쓰면(비 HTTPS·권한 거부) 직접 복사할 수 있게 링크를 선택해 둔다.
-            inputRef.current?.select();
-            show('복사하지 못했습니다. 선택된 링크를 직접 복사해주세요.', false);
+            // 클립보드를 못 쓰면(비 HTTPS·권한 거부) 원문을 펼쳐서 직접 복사하게 한다.
+            setFallback(text);
+            show('복사하지 못했습니다. 아래 내용을 직접 복사해주세요.', false);
         };
         if (!navigator.clipboard) {
             fail();
             return;
         }
-        navigator.clipboard.writeText(text).then(() => show(done, true), fail);
+        navigator.clipboard.writeText(text).then(() => {
+            setFallback(null);
+            show(done, true);
+        }, fail);
     };
 
     return (
         <>
-            <div className="flex flex-col md:flex-row items-stretch gap-space-sm mb-space-sm">
-                <input
-                    ref={inputRef}
-                    className="flex-1 h-11 bg-surface-container-lowest text-primary font-mono text-body-sm px-space-md rounded focus:outline-none"
-                    readOnly
-                    aria-label="초대 링크"
-                    type="text"
-                    value={url}
-                    onFocus={(e) => e.target.select()}
-                />
-                <button
-                    className="h-11 px-space-md bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 transition hover:opacity-90 active:scale-[0.98]"
+            <div className="flex flex-wrap items-center gap-space-sm">
+                <Button
+                    variant="primary"
+                    size="lg"
                     type="button"
                     onClick={() => copy(url, '초대 링크가 복사되었습니다.')}
-                >
-                    <Icon name="content_copy" className="text-[18px]" />
-                    <span>링크 복사</span>
-                </button>
-                <button
-                    className="h-11 px-space-md bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    type="button"
-                    disabled
-                    title="준비 중"
-                >
-                    <Icon name="chat" className="text-[20px]" />
-                    <span>카카오톡 공유 (준비 중)</span>
-                </button>
-            </div>
-            <div className="flex items-center gap-space-sm mb-space-md font-body-sm text-body-sm text-secondary">
-                <span>초대 코드</span>
-                <span className="font-mono font-bold text-primary tracking-wider">{inviteCode}</span>
-                <button
-                    className="h-8 px-space-sm border border-outline-variant bg-surface-container-lowest text-on-surface font-label-sm text-label-sm rounded flex items-center gap-1 hover:bg-surface-container"
+                    icon={<Icon name="link" />}
+                    label="초대 링크 복사"
+                />
+                <Button
+                    variant="secondary"
+                    size="lg"
                     type="button"
                     onClick={() => copy(inviteCode, '초대 코드가 복사되었습니다.')}
-                >
-                    <Icon name="content_copy" className="text-[14px]" />
-                    코드 복사
-                </button>
+                    icon={<Icon name="content_copy" />}
+                    label={`초대 코드 복사 · ${inviteCode}`}
+                />
+                {/* 카카오톡 공유는 BE·SDK 준비 전이라 비활성으로만 보여 준다 */}
+                <Button variant="secondary" size="lg" type="button" isDisabled icon={<Icon name="chat" />} label="카카오톡 공유 (준비 중)" />
             </div>
+            {fallback && (
+                <input
+                    className="mt-space-sm w-full h-9 rounded-lg border border-outline-variant bg-surface-container-lowest px-space-md font-mono text-body-sm text-on-surface focus:outline-none focus:border-primary"
+                    readOnly
+                    aria-label="복사할 내용"
+                    value={fallback}
+                    autoFocus
+                    onFocus={(e) => e.target.select()}
+                />
+            )}
             <div
                 className={`fixed bottom-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-space-md py-space-sm rounded shadow-xl transition-all duration-300 flex items-center gap-2 z-50 ${
                     toast ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none translate-y-4'

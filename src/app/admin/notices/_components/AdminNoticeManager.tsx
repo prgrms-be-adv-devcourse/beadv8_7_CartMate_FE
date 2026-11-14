@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, type FormEvent } from 'react';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import {
     getAdminNotice,
@@ -15,7 +16,7 @@ import { getGetNoticesQueryKey } from '@/api/generated/notice-controller/notice-
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { formatDateTime } from '@/lib/format';
-import { NOTICE_CATEGORIES, noticeBadgeClass, noticeCategoryLabel, type NoticeCategory } from '@/lib/notice';
+import { NOTICE_CATEGORIES, noticeCategoryLabel, type NoticeCategory } from '@/lib/notice';
 
 const PAGE_SIZE = 20;
 
@@ -120,31 +121,29 @@ export default function AdminNoticeManager() {
 
     return (
         <div className="flex flex-col gap-space-lg">
-            <div className="flex items-end justify-between gap-space-md">
+            <div className="flex flex-col items-start justify-between gap-space-md sm:flex-row sm:items-end">
                 <div>
-                    <div className="font-caption text-caption text-outline uppercase tracking-wider mb-1">[ ADMIN / NOTICES ]</div>
-                    <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">공지사항 관리</h1>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+                    <Heading level={1}>공지사항 관리</Heading>
+                    <Text display="block" color="secondary" className="mt-2">
                         등록한 공지는 고객센터 공지사항에 바로 보입니다. 상단 고정한 공지는 목록 맨 위에 나옵니다.
-                    </p>
+                    </Text>
                 </div>
-                <button
+                <Button
+                    label="새 공지 작성"
                     type="button"
+                    variant="primary"
                     onClick={openNew}
-                    className="flex items-center gap-space-xs h-10 px-space-lg rounded bg-primary text-on-primary font-label-md text-label-md hover:opacity-90"
-                >
-                    <Icon name="add" className="text-[18px]" /> 새 공지 작성
-                </button>
+                    icon={<Icon name="add" className="text-[18px]" />}
+                />
             </div>
 
             {/* 작성·수정 폼 */}
             {formOpen && (
-                <form ref={formRef} onSubmit={onSubmit} className="bg-surface-container-lowest border border-primary rounded p-space-lg flex flex-col gap-space-md">
+                <Card className="border border-primary">
+                  <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-space-md">
                     <div className="flex items-center justify-between">
-                        <h2 className="font-headline-sm text-headline-sm font-bold">{editingId === null ? '새 공지 작성' : `공지 수정 #${editingId}`}</h2>
-                        <button type="button" onClick={closeForm} className="text-outline hover:text-on-surface" aria-label="닫기">
-                            <Icon name="close" className="text-[20px]" />
-                        </button>
+                        <Heading level={2}>{editingId === null ? '새 공지 작성' : `공지 수정 #${editingId}`}</Heading>
+                        <Button label="닫기" type="button" variant="ghost" size="sm" onClick={closeForm} icon={<Icon name="close" className="text-[20px]" />} isIconOnly />
                     </div>
 
                     <div className="flex flex-wrap items-center gap-space-md">
@@ -169,6 +168,7 @@ export default function AdminNoticeManager() {
                     </div>
 
                     <input
+                        aria-label="공지 제목"
                         className="h-11 px-space-md border border-outline-variant rounded font-body-md text-body-md outline-none focus:border-primary"
                         placeholder="제목"
                         maxLength={200}
@@ -176,6 +176,7 @@ export default function AdminNoticeManager() {
                         onChange={(e) => setForm({ ...form, title: e.target.value })}
                     />
                     <textarea
+                        aria-label="공지 내용"
                         className="min-h-60 p-space-md border border-outline-variant rounded font-body-md text-body-md outline-none focus:border-primary"
                         placeholder="내용 (줄바꿈이 그대로 보입니다)"
                         maxLength={20000}
@@ -183,34 +184,30 @@ export default function AdminNoticeManager() {
                         onChange={(e) => setForm({ ...form, content: e.target.value })}
                     />
 
-                    {error && <p className="font-body-sm text-body-sm text-error" role="alert">{error}</p>}
+                    {error && <Text className="text-error" role="alert">{error}</Text>}
 
                     <div className="flex justify-end gap-space-sm">
-                        <button type="button" onClick={closeForm} className="h-10 px-space-md border border-outline-variant rounded font-label-md">
-                            취소
-                        </button>
-                        <button type="submit" disabled={saving} className="h-10 px-space-lg bg-primary text-on-primary rounded font-label-md disabled:opacity-50">
-                            {saving ? '저장 중…' : editingId === null ? '등록' : '수정 완료'}
-                        </button>
+                        <Button label="취소" type="button" variant="secondary" onClick={closeForm} />
+                        <Button label={saving ? '저장 중…' : editingId === null ? '등록' : '수정 완료'} type="submit" variant="primary" isDisabled={saving} />
                     </div>
-                </form>
+                  </form>
+                </Card>
             )}
 
             {/* 검색 */}
             <form onSubmit={onSearch} className="flex justify-end gap-space-xs">
                 <input
-                    className="h-9 w-64 px-space-sm border border-outline-variant rounded bg-surface-container-lowest font-body-sm text-body-sm outline-none focus:border-primary"
+                    aria-label="공지 제목 검색"
+                    className="h-9 min-w-0 flex-1 px-space-sm border border-outline-variant rounded bg-surface-container-lowest font-body-sm text-body-sm outline-none focus:border-primary sm:w-64 sm:flex-none"
                     placeholder="제목 검색"
                     value={keywordInput}
                     onChange={(e) => setKeywordInput(e.target.value)}
                 />
-                <button type="submit" className="h-9 px-space-md border border-outline-variant rounded font-label-sm text-label-sm hover:border-primary">
-                    검색
-                </button>
+                <Button label="검색" type="submit" variant="secondary" size="sm" />
             </form>
 
             {/* 목록 */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded overflow-x-auto">
+            <Card padding={0} className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-surface-container-low border-b border-outline-variant text-on-surface-variant font-label-sm text-label-sm">
@@ -235,7 +232,7 @@ export default function AdminNoticeManager() {
                                 <tr key={n.id} className={n.pinned ? 'bg-surface-container-low/40' : 'hover:bg-surface-container-low'}>
                                     <td className="py-space-sm px-space-md text-center font-mono text-outline">{n.id}</td>
                                     <td className="py-space-sm px-space-md text-center">
-                                        <span className={noticeBadgeClass(n.category)}>{noticeCategoryLabel(n.category)}</span>
+                                        <Badge label={noticeCategoryLabel(n.category)} variant={n.category === 'URGENT' ? 'error' : n.category === 'EVENT' ? 'purple' : n.category === 'GUIDE' ? 'blue' : 'neutral'} />
                                     </td>
                                     <td className="py-space-sm px-space-md font-label-md text-label-md text-on-surface">{n.title}</td>
                                     <td className="py-space-sm px-space-md text-center">
@@ -245,22 +242,22 @@ export default function AdminNoticeManager() {
                                     <td className="py-space-sm px-space-md text-outline">{formatDateTime(n.createdAt)}</td>
                                     <td className="py-space-sm px-space-md">
                                         <div className="flex justify-center gap-space-xs">
-                                            <button
+                                            <Button
+                                                label="수정"
                                                 type="button"
-                                                disabled={loadingEdit}
+                                                variant="secondary"
+                                                size="sm"
+                                                isDisabled={loadingEdit}
                                                 onClick={() => void openEdit(n)}
-                                                className="h-8 px-space-sm rounded bg-surface-container text-primary font-label-sm text-label-sm hover:bg-surface-container-high disabled:opacity-50"
-                                            >
-                                                수정
-                                            </button>
-                                            <button
+                                            />
+                                            <Button
+                                                label="삭제"
                                                 type="button"
-                                                disabled={remove.isPending}
+                                                variant="destructive"
+                                                size="sm"
+                                                isDisabled={remove.isPending}
                                                 onClick={() => onDelete(n)}
-                                                className="h-8 px-space-sm rounded border border-error text-error font-label-sm text-label-sm hover:bg-error-container disabled:opacity-50"
-                                            >
-                                                삭제
-                                            </button>
+                                            />
                                         </div>
                                     </td>
                                 </tr>
@@ -268,17 +265,13 @@ export default function AdminNoticeManager() {
                         )}
                     </tbody>
                 </table>
-            </div>
+            </Card>
 
             {totalPages > 1 && (
                 <nav className="flex items-center justify-center gap-space-xs" aria-label="페이지">
-                    <button type="button" className="w-8 h-8 border border-outline-variant rounded disabled:opacity-40" disabled={page === 0} onClick={() => setPage((v) => v - 1)} aria-label="이전 페이지">
-                        <Icon name="chevron_left" className="text-[18px]" />
-                    </button>
-                    <span className="font-label-sm text-label-sm text-on-surface-variant px-space-sm">{page + 1} / {totalPages}</span>
-                    <button type="button" className="w-8 h-8 border border-outline-variant rounded disabled:opacity-40" disabled={page >= totalPages - 1} onClick={() => setPage((v) => v + 1)} aria-label="다음 페이지">
-                        <Icon name="chevron_right" className="text-[18px]" />
-                    </button>
+                    <Button label="이전 페이지" variant="secondary" size="sm" isIconOnly icon={<Icon name="chevron_left" className="text-[18px]" />} isDisabled={page === 0} onClick={() => setPage((v) => v - 1)} />
+                    <Text type="supporting" color="secondary" className="px-space-sm">{page + 1} / {totalPages}</Text>
+                    <Button label="다음 페이지" variant="secondary" size="sm" isIconOnly icon={<Icon name="chevron_right" className="text-[18px]" />} isDisabled={page >= totalPages - 1} onClick={() => setPage((v) => v + 1)} />
                 </nav>
             )}
         </div>

@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Heading } from '@astryxdesign/core/Heading';
 import type { SharedGroupPurchaseDetailItemResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -65,7 +69,7 @@ function CartContent({ id, purchase, remainingMs, deadlinePassed }: SharedDetail
     return (
         <div className="flex flex-col gap-space-lg w-full">
             {/* 제목 · 상품 담기 */}
-            <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+            <Card className="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
                 <div className="flex items-center gap-space-md min-w-0">
                     <div className="w-12 h-12 bg-primary text-on-primary flex items-center justify-center rounded-lg shadow-sm shrink-0">
                         <Icon name="groups_3" className="text-2xl" />
@@ -75,37 +79,37 @@ function CartContent({ id, purchase, remainingMs, deadlinePassed }: SharedDetail
                             <span className={statusBadgeClass(purchase.status, editableNow)}>{statusLabel(purchase.status, editableNow)}</span>
                             <span className="font-caption text-caption text-secondary">#{id} · 만든 사람 {purchase.creatorNickname ?? '-'}</span>
                         </div>
-                        <h1 className="font-headline-md text-headline-md text-primary tracking-tight break-all">
+                        <Heading level={1}>
                             {purchase.title} <span className="text-secondary font-body-md text-body-md">공동 장바구니</span>
-                        </h1>
+                        </Heading>
                         <p className="font-caption text-caption text-secondary mt-1">※ {permissionNote}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-space-sm shrink-0">
-                    <Link
-                        className="flex items-center gap-1.5 px-space-md py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md transition-all shadow-sm"
+                    <Button
+                        label="현황판"
                         href={ROUTES.groupPurchase(id)}
-                    >
-                        <Icon name="dashboard" className="text-[18px]" />
-                        현황판
-                    </Link>
+                        as={Link}
+                        variant="secondary"
+                        icon={<Icon name="dashboard" className="text-[18px]" />}
+                    />
                     {permissions.canAdd && (
-                        <Link
-                            className="flex items-center gap-1.5 px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md transition-all shadow-sm"
+                        <Button
+                            label="상품 담기"
                             href={ROUTES.groupPurchaseOptions(id)}
-                        >
-                            <Icon name="add_circle" className="text-[18px]" />
-                            상품 담기
-                        </Link>
+                            as={Link}
+                            variant="primary"
+                            icon={<Icon name="add_circle" className="text-[18px]" />}
+                        />
                     )}
                 </div>
-            </div>
+            </Card>
 
             {!editableNow && <StateBanner purchase={purchase} deadlinePassed={deadlinePassed} />}
 
             <div className="grid grid-cols-12 gap-gutter items-start">
                 {/* 품목 */}
-                <div className="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl shadow-md p-space-lg flex flex-col gap-space-md">
+                <Card className="col-span-12 lg:col-span-8 flex flex-col gap-space-md">
                     <div className="flex items-center justify-between">
                         <span className="font-label-md text-label-md text-primary font-bold">담긴 상품 {items.length}종</span>
                         {purchase.hasUnavailableItem && (
@@ -120,15 +124,7 @@ function CartContent({ id, purchase, remainingMs, deadlinePassed }: SharedDetail
                         </p>
                     )}
                     {items.length === 0 ? (
-                        <div className="bg-surface-container-low rounded-lg p-space-xl flex flex-col items-center gap-space-md text-center">
-                            <Icon name="shopping_cart" className="text-[40px] text-outline" />
-                            <p className="font-body-md text-body-md text-on-surface">아직 담긴 상품이 없습니다.</p>
-                            {permissions.canAdd && (
-                                <Link className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md flex items-center rounded" href={ROUTES.groupPurchaseOptions(id)}>
-                                    첫 상품 담기
-                                </Link>
-                            )}
-                        </div>
+                        <EmptyState title="아직 담긴 상품이 없습니다." icon={<Icon name="shopping_cart" className="text-[40px]" />} actions={permissions.canAdd ? <Button label="첫 상품 담기" href={ROUTES.groupPurchaseOptions(id)} as={Link} variant="primary" /> : undefined} />
                     ) : (
                         items.map((item) => (
                             <div key={item.itemId} className="flex flex-col gap-1">
@@ -156,18 +152,18 @@ function CartContent({ id, purchase, remainingMs, deadlinePassed }: SharedDetail
                             </div>
                         ))
                     )}
-                </div>
+                </Card>
 
                 {/* 현황 요약 */}
                 <div className="col-span-12 lg:col-span-4 lg:sticky lg:top-32 flex flex-col gap-space-md">
-                    <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-md flex flex-col gap-space-md">
+                    <Card className="flex flex-col gap-space-md">
                         <DeadlineBox purchase={purchase} remainingMs={remainingMs} />
                         <ParticipantProgress purchase={purchase} />
-                    </div>
-                    <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-md flex flex-col gap-space-md">
-                        <h2 className="font-headline-sm text-headline-sm text-primary font-bold">결제 예정 금액 요약</h2>
+                    </Card>
+                    <Card className="flex flex-col gap-space-md" variant="blue">
+                        <Heading level={2}>결제 예정 금액 요약</Heading>
                         <AmountSummary purchase={purchase} />
-                    </div>
+                    </Card>
                 </div>
             </div>
         </div>

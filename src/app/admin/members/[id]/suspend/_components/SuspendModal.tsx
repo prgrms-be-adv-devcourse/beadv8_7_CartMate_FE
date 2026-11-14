@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import { apiFetch, ApiError } from '@/lib/api';
 import {
@@ -92,33 +92,26 @@ export default function SuspendModal({ memberId, backHref }: { memberId: string;
 
     return (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-space-md">
-            <div
+            <Card
                 aria-labelledby="modalTitle"
                 aria-modal="true"
-                className="w-full max-w-[540px] bg-surface-container-lowest border-2 border-primary rounded shadow-xl flex flex-col overflow-hidden"
+                className="w-full max-w-[540px] flex flex-col overflow-hidden"
+                padding={0}
                 role="dialog"
             >
                 {/* 헤더 */}
                 <div className="flex items-center justify-between px-space-xl py-space-lg border-b border-outline-variant bg-surface-container-low">
                     <div className="flex items-center gap-space-sm">
                         <Icon name="gavel" className="text-primary text-[22px]" />
-                        <h2 className="font-headline-md text-headline-md text-primary" id="modalTitle">
-                            회원 정지 처리
-                        </h2>
+                        <Heading level={2} id="modalTitle">회원 정지 처리</Heading>
                     </div>
-                    <Link
-                        aria-label="닫기"
-                        href={backHref}
-                        className="w-8 h-8 rounded border border-outline-variant bg-surface-container-lowest flex items-center justify-center text-primary hover:bg-surface-container transition-colors"
-                    >
-                        <Icon name="close" className="text-[18px]" />
-                    </Link>
+                    <Button aria-label="닫기" label="닫기" href={backHref} variant="ghost" icon={<Icon name="close" className="text-[18px]" />} />
                 </div>
 
                 {!member ? (
                     <div className="p-space-xl">
                         {error ? (
-                            <p className="font-body-sm text-body-sm text-error">{error}</p>
+                            <Text className="text-error">{error}</Text>
                         ) : (
                             <div className="h-40 rounded bg-surface-container animate-pulse" />
                         )}
@@ -126,12 +119,10 @@ export default function SuspendModal({ memberId, backHref }: { memberId: string;
                 ) : (
                     <form className="p-space-xl flex flex-col gap-space-lg overflow-y-auto max-h-[calc(85vh-130px)]" onSubmit={handleSubmit}>
                         {/* 대상 회원 */}
-                        <div className="bg-surface p-space-md border border-outline-variant rounded flex flex-col gap-space-xs">
+                        <Card className="flex flex-col gap-space-xs" padding={4}>
                             <div className="flex items-center justify-between">
-                                <span className="font-caption text-caption text-on-surface-variant uppercase tracking-wider">정지 대상 회원 식별 정보</span>
-                                <span className="font-label-sm text-label-sm bg-primary text-on-primary px-space-sm py-0.5 rounded">
-                                    {ROLE_LABEL[member.role]}
-                                </span>
+                                <Text color="secondary">정지 대상 회원 식별 정보</Text>
+                                <Badge variant="info" label={ROLE_LABEL[member.role]} />
                             </div>
                             <div className="flex items-baseline gap-space-sm mt-space-xs">
                                 <span className="font-headline-sm text-headline-sm text-primary">{member.nickname}</span>
@@ -141,7 +132,7 @@ export default function SuspendModal({ memberId, backHref }: { memberId: string;
                                 <Icon name="mail" className="text-[16px] text-outline" />
                                 <span>{member.email}</span>
                             </div>
-                        </div>
+                        </Card>
 
                         {/* 판매자 주의사항 */}
                         {isSeller && (
@@ -259,28 +250,16 @@ export default function SuspendModal({ memberId, backHref }: { memberId: string;
                             </span>
                         </label>
 
-                        {error && <p className="font-body-sm text-body-sm text-error">{error}</p>}
+                        {error && <Text className="text-error">{error}</Text>}
 
                         {/* 버튼 */}
                         <div className="flex items-center justify-end gap-space-sm pt-space-md border-t border-outline-variant">
-                            <Link
-                                href={backHref}
-                                className="h-11 px-space-lg inline-flex items-center rounded border border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-primary hover:bg-surface-container transition-colors"
-                            >
-                                취소
-                            </Link>
-                            <button
-                                className="h-11 px-space-lg rounded border border-primary bg-primary font-label-md text-label-md text-on-primary hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-space-xs shadow-sm disabled:opacity-50"
-                                disabled={submitting || !agreed}
-                                type="submit"
-                            >
-                                <Icon name={submitting ? 'refresh' : 'block'} className={submitting ? 'text-[18px] animate-spin' : 'text-[18px]'} />
-                                <span>{submitting ? '처리 중...' : '정지 처리 확정'}</span>
-                            </button>
+                            <Button label="취소" href={backHref} variant="secondary" />
+                            <Button label={submitting ? '처리 중...' : '정지 처리 확정'} icon={<Icon name={submitting ? 'refresh' : 'block'} className={submitting ? 'text-[18px] animate-spin' : 'text-[18px]'} />} isDisabled={submitting || !agreed} type="submit" />
                         </div>
                     </form>
                 )}
-            </div>
+            </Card>
         </div>
     );
 }

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Astryx CLI generated declarations. Regeneration restores its triple-slash reference.
+    "src/theme/teambuy.d.ts",
   ]),
 ]);
 

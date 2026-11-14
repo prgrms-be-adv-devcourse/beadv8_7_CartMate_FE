@@ -1,6 +1,7 @@
 'use client';
 
 import { useGetMySettlementInfo } from '@/api/generated/payout-controller/payout-controller';
+import { Badge, Card, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 
 // "2026-11-15" 를 "11월 15일" 로 바꾼다.
@@ -18,18 +19,18 @@ export default function PendingSettlementCard() {
     const ready = info.isSuccess && data !== undefined;
 
     return (
-        <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/40 flex flex-col justify-between relative overflow-hidden group hover:border-outline transition-all">
+        <Card padding={5} className="flex min-h-48 flex-col justify-between">
             <div className="flex items-center justify-between mb-space-md">
-                <span className="text-label-md text-on-surface-variant">이번 정산 예정 금액</span>
+                <Text type="supporting" color="secondary" weight="semibold">이번 정산 예정 금액</Text>
                 <Icon name="payments" className="text-on-surface-variant" />
             </div>
             <div className="flex items-baseline gap-space-sm">
                 <span className="text-display-xl font-display-xl text-on-surface">{ready ? (data.pendingPayoutAmount ?? 0).toLocaleString('ko-KR') : '-'}</span>
-                <span className="text-body-sm text-on-surface-variant">원</span>
+                <Text type="supporting" color="secondary">원</Text>
             </div>
-            <div className="mt-space-md pt-space-md border-t border-outline-variant/20 flex items-center justify-between text-caption text-on-surface-variant">
-                <span>{ready ? `정산 예정일: ${monthDay(data.nextPayoutDate)}` : ''}</span>
+            <div className="mt-space-md flex items-center border-t border-outline-variant/20 pt-space-md">
+                {ready ? <Badge label={`정산 예정일 ${monthDay(data.nextPayoutDate)}`} variant="info" /> : null}
             </div>
-        </div>
+        </Card>
     );
 }

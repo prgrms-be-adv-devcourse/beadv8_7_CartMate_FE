@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useMySeller } from '@/api/generated/seller-controller/seller-controller';
 import type { SellerResponse } from '@/api/generated/model';
 import { ApiError, errorMessage } from '@/api/http';
@@ -45,8 +46,8 @@ export default function SellerAccountContent() {
         <div className="flex flex-col w-full max-w-7xl mx-auto space-y-space-xl">
             <div className="flex flex-col space-y-space-xs">
                 <div className="text-caption uppercase tracking-wider text-on-surface-variant font-caption">Seller Account</div>
-                <h1 className="text-headline-lg font-headline-lg text-on-surface">판매자 정보 · 정산 계좌</h1>
-                <p className="text-body-md text-on-surface-variant">판매자 등록 때 입력한 정보와 판매 대금이 입금될 정산 계좌입니다.</p>
+                <Heading level={1}>판매자 정보 · 정산 계좌</Heading>
+                <Text color="secondary">판매자 등록 때 입력한 정보와 판매 대금이 입금될 정산 계좌입니다.</Text>
             </div>
 
             {query.isPending ? (
@@ -57,16 +58,10 @@ export default function SellerAccountContent() {
             ) : status === 403 || status === 404 ? (
                 <NotSeller />
             ) : !seller ? (
-                <div className="bg-surface-container-low rounded-xl p-space-xl flex flex-col items-center gap-space-md text-center">
-                    <p className="text-body-md text-error">{errorMessage(query.error, '판매자 정보를 불러오지 못했습니다.')}</p>
-                    <button
-                        className="h-10 px-space-lg border border-outline-variant rounded-lg text-label-md hover:bg-surface-container"
-                        type="button"
-                        onClick={() => void query.refetch()}
-                    >
-                        다시 시도
-                    </button>
-                </div>
+                <Card className="flex flex-col items-center gap-space-md text-center" padding={8}>
+                    <Text className="text-error">{errorMessage(query.error, '판매자 정보를 불러오지 못했습니다.')}</Text>
+                    <Button label="다시 시도" onClick={() => void query.refetch()} />
+                </Card>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
                     <div className="lg:col-span-5 flex flex-col space-y-space-md">
@@ -98,7 +93,7 @@ function AccountCard({ seller }: { seller: SellerResponse }) {
     const bankShort = (seller.bankName ?? '').replace('은행', '').slice(0, 2) || '은행';
 
     return (
-        <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant flex flex-col justify-between space-y-space-xl shadow-sm relative overflow-hidden">
+        <Card className="relative flex flex-col justify-between space-y-space-xl overflow-hidden" padding={8} elevation="low">
             <div className="absolute top-0 right-0 w-32 h-32 bg-surface-container-high/30 rounded-bl-full pointer-events-none" />
             <div className="flex justify-between items-start z-10">
                 <div className="flex items-center space-x-space-sm">
@@ -108,7 +103,7 @@ function AccountCard({ seller }: { seller: SellerResponse }) {
                         <div className="text-caption text-on-surface-variant">정산 계좌</div>
                     </div>
                 </div>
-                <span className={`inline-flex items-center px-space-sm py-space-xs rounded-full text-caption ${badge.className}`}>{badge.text}</span>
+                <Badge variant={seller.status === 'SUSPENDED' ? 'error' : 'success'} label={badge.text} />
             </div>
             <div className="space-y-space-xs z-10">
                 <div className="text-caption text-on-surface-variant">계좌번호</div>
@@ -128,7 +123,7 @@ function AccountCard({ seller }: { seller: SellerResponse }) {
                     변경 요청
                 </button>
             </div>
-        </div>
+        </Card>
     );
 }
 
@@ -149,9 +144,9 @@ function SellerInfo({ seller }: { seller: SellerResponse }) {
     ];
 
     return (
-        <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant shadow-sm space-y-space-lg">
+        <Card className="space-y-space-lg" padding={8} elevation="low">
             <div className="border-b border-surface-variant pb-space-md">
-                <h2 className="text-headline-md font-headline-md text-on-surface">판매자 정보</h2>
+                <Heading level={2}>판매자 정보</Heading>
                 <p className="text-body-sm text-on-surface-variant mt-space-xs">판매글과 정산에 표시되는 정보입니다.</p>
             </div>
             <dl className="grid grid-cols-[140px_1fr] gap-y-space-md text-body-md">
@@ -162,7 +157,7 @@ function SellerInfo({ seller }: { seller: SellerResponse }) {
                     </div>
                 ))}
             </dl>
-        </div>
+        </Card>
     );
 }
 

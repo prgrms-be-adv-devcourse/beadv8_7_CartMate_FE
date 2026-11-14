@@ -1,24 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
+import { Button, Card, Heading, Text } from '@astryxdesign/core';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { useCurrentUser } from '@/lib/auth';
 import { ROUTES } from '@/lib/routes';
+import { useProductCategories } from '../_lib/productOptions';
 import { registerSalesPostMultipart } from '../_lib/registerSalesPost';
-import OptionTable from './OptionTable';
+import OptionTable, { createInventoryTable, inventoryTableProblem, toCreateInventories } from './OptionTable';
 
 const EDITOR_TOOLS = ['format_bold', 'format_italic', 'format_underlined'];
 const EDITOR_TOOLS_2 = ['format_list_bulleted', 'image'];
-
-const CATEGORIES = [
-    { id: 1, label: '유니폼 / 의류' },
-    { id: 2, label: '운동 용품' },
-    { id: 3, label: '신발 / 보호구' },
-    { id: 4, label: '단체 액세서리' },
-] as const;
 
 const INPUT_CLASS =
     'h-[42px] px-space-md bg-surface border border-outline-variant rounded text-on-surface placeholder:text-outline focus:border-primary focus:outline-none transition-colors';
@@ -28,14 +22,19 @@ type PickedImage = { file: File; preview: string };
 // 판매글 등록 → POST /api/sales-posts (multipart: request JSON + images)
 export default function SalesPostRegisterForm() {
     const { user, isLoading } = useCurrentUser();
+    const { categories, isLoading: categoriesLoading, error: categoriesError } = useProductCategories();
     const register = useMutation({
         mutationFn: ({ request, images: files }: { request: Parameters<typeof registerSalesPostMultipart>[0]; images: Blob[] }) =>
             registerSalesPostMultipart(request, files),
     });
     const [images, setImages] = useState<PickedImage[]>([]);
+    const [inventoryTable, setInventoryTable] = useState(createInventoryTable);
     const imagesRef = useRef(images);
-    imagesRef.current = images;
     const [formError, setFormError] = useState<string | null>(null);
+
+    useEffect(() => {
+        imagesRef.current = images;
+    }, [images]);
 
     useEffect(() => {
         return () => {
@@ -67,6 +66,12 @@ export default function SalesPostRegisterForm() {
             setFormError('필수 항목을 확인해주세요.');
             return;
         }
+        // 재고 표의 안내(상품옵션 미선택 · 조합 중복 · 잘못된 금액 / 수량)가 남아 있으면 보내지 않는다
+        const inventoryProblem = inventoryTableProblem(inventoryTable);
+        if (inventoryProblem) {
+            setFormError(`옵션 · 재고: ${inventoryProblem}`);
+            return;
+        }
 
         register.mutate(
             {
@@ -81,6 +86,7 @@ export default function SalesPostRegisterForm() {
                             description: content || `${name} 상세 설명`,
                             basePrice,
                             productImageList: images.map((_, index) => ({ imageSeq: index + 1 })),
+                            inventoryList: toCreateInventories(inventoryTable),
                         },
                     ],
                 },
@@ -124,10 +130,10 @@ export default function SalesPostRegisterForm() {
     return (
         <form className="grid grid-cols-1 lg:grid-cols-3 gap-space-xl" onSubmit={onSubmit} noValidate>
             <div className="lg:col-span-2 space-y-space-xl">
-                <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/30 space-y-space-lg">
+                <Card className="space-y-space-lg" padding={8}>
                     <div className="border-b border-outline-variant/30 pb-space-md">
-                        <h2 className="text-headline-sm font-headline-sm text-on-surface">기본 정보</h2>
-                        <p className="text-body-sm text-on-surface-variant">상품의 기본 제목, 카테고리 및 가격을 설정합니다.</p>
+                        <Heading level={2}>기본 정보</Heading>
+                        <Text color="secondary">상품의 기본 제목, 카테고리 및 가격을 설정합니다.</Text>
                     </div>
                     <div className="space-y-space-lg">
                         <div className="flex flex-col space-y-space-xs">
@@ -148,16 +154,28 @@ export default function SalesPostRegisterForm() {
                                 <label className="text-body-sm font-label-sm text-on-surface" htmlFor="sales-category">
                                     카테고리 선택 <span className="text-error">*</span>
                                 </label>
-                                <select className={INPUT_CLASS} id="sales-category" name="categoryId" defaultValue="" required>
+                                <select
+                                    className={`${INPUT_CLASS} disabled:opacity-50`}
+                                    id="sales-category"
+                                    name="categoryId"
+                                    defaultValue=""
+                                    required
+                                    disabled={categoriesLoading || categories.length === 0}
+                                >
                                     <option value="" disabled>
-                                        카테고리를 선택하세요
+                                        {categoriesLoading ? '불러오는 중...' : '카테고리를 선택하세요'}
                                     </option>
-                                    {CATEGORIES.map((category) => (
-                                        <option key={category.id} value={category.id}>
-                                            {category.label}
+                                    {categories.map((category) => (
+                                        <option key={category.categoryId} value={category.categoryId}>
+                                            {category.name}
                                         </option>
                                     ))}
                                 </select>
+                                {categoriesError && (
+                                    <Text className="text-error" role="alert">
+                                        {errorMessage(categoriesError, '카테고리 목록을 불러오지 못했습니다.')}
+                                    </Text>
+                                )}
                             </div>
                             <div className="flex flex-col space-y-space-xs">
                                 <label className="text-body-sm font-label-sm text-on-surface" htmlFor="sales-product-name">
@@ -192,12 +210,12 @@ export default function SalesPostRegisterForm() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </Card>
 
-                <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/30 space-y-space-lg">
+                <Card className="space-y-space-lg" padding={8}>
                     <div className="border-b border-outline-variant/30 pb-space-md">
-                        <h2 className="text-headline-sm font-headline-sm text-on-surface">상세 설명</h2>
-                        <p className="text-body-sm text-on-surface-variant">상품의 상세 스펙, 사이즈 가이드 및 주의사항을 입력하세요.</p>
+                        <Heading level={2}>상세 설명</Heading>
+                        <Text color="secondary">상품의 상세 스펙, 사이즈 가이드 및 주의사항을 입력하세요.</Text>
                     </div>
                     <div className="flex flex-col space-y-space-xs">
                         <div className="flex items-center justify-between border border-outline-variant border-b-0 rounded-t bg-surface-container px-space-md py-space-xs">
@@ -223,16 +241,16 @@ export default function SalesPostRegisterForm() {
                             rows={8}
                         />
                     </div>
-                </div>
+                </Card>
 
-                <OptionTable />
+                <OptionTable value={inventoryTable} onChange={setInventoryTable} />
             </div>
 
             <div className="space-y-space-xl">
-                <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/30 space-y-space-lg sticky top-24">
+                <Card className="sticky top-24 space-y-space-lg" padding={8}>
                     <div className="border-b border-outline-variant/30 pb-space-md">
-                        <h2 className="text-headline-sm font-headline-sm text-on-surface">이미지 업로드</h2>
-                        <p className="text-body-sm text-on-surface-variant">대표 상품 이미지를 등록하세요. (최대 5장)</p>
+                        <Heading level={2}>이미지 업로드</Heading>
+                        <Text color="secondary">대표 상품 이미지를 등록하세요. (최대 5장)</Text>
                     </div>
                     <div className="flex flex-col space-y-space-md">
                         <label
@@ -281,27 +299,13 @@ export default function SalesPostRegisterForm() {
                         )}
                     </div>
                     {(formError || register.isError) && (
-                        <p className="text-caption text-error" role="alert">
-                            {formError ?? errorMessage(register.error, '판매글 등록에 실패했습니다.')}
-                        </p>
+                        <Text className="text-error" role="alert">{formError ?? errorMessage(register.error, '판매글 등록에 실패했습니다.')}</Text>
                     )}
                     <div className="pt-space-md border-t border-outline-variant/30 flex flex-col gap-space-sm">
-                        <button
-                            className="w-full h-12 bg-primary text-on-primary rounded font-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-space-sm disabled:opacity-60"
-                            type="submit"
-                            disabled={register.isPending || isLoading}
-                        >
-                            <Icon name="check" className="text-[18px]" />
-                            {register.isPending ? '등록 중...' : '저장 및 등록 완료'}
-                        </button>
-                        <Link
-                            href={ROUTES.sellerProducts}
-                            className="w-full h-12 bg-surface border border-outline-variant text-on-surface rounded font-label-md hover:bg-surface-container transition-colors flex items-center justify-center gap-space-sm"
-                        >
-                            취소
-                        </Link>
+                        <Button className="w-full" label={register.isPending ? '등록 중...' : '저장 및 등록 완료'} icon={<Icon name="check" className="text-[18px]" />} type="submit" variant="primary" isDisabled={register.isPending || isLoading} />
+                        <Button className="w-full" label="취소" href={ROUTES.sellerProducts} variant="secondary" />
                     </div>
-                </div>
+                </Card>
             </div>
         </form>
     );

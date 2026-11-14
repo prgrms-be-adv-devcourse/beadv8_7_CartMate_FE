@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { Button, Card, Heading, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import { apiFetch, ApiError } from '@/lib/api';
 import MemberTable, { type Member } from './MemberTable';
@@ -121,7 +122,8 @@ export default function MembersContent() {
     }, []);
 
     useEffect(() => {
-        load(applied, page, pageSize);
+        const timer = window.setTimeout(() => void load(applied, page, pageSize), 0);
+        return () => window.clearTimeout(timer);
     }, [applied, page, pageSize, load]);
 
     // 선택 일괄 정지·해제
@@ -196,21 +198,22 @@ export default function MembersContent() {
             {/* 1. Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-sm pb-space-sm border-b border-outline-variant">
                 <div>
-                    <div className="flex items-center gap-space-xs font-caption text-caption text-on-surface-variant uppercase tracking-wider mb-space-xs">
+                    <Text display="block" color="secondary" className="mb-space-xs">
                         <span className="w-2 h-2 rounded-full bg-primary inline-block"></span>
-                        <span>Member Management Core</span>
-                    </div>
-                    <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">회원 목록</h1>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                        <span>회원 관리</span>
+                    </Text>
+                    <Heading level={1}>회원 목록</Heading>
+                    <Text display="block" color="secondary" className="mt-1">
                         전체 등록 회원을 조회하고 상태 및 권한을 관리합니다.
-                        {result && <span className="ml-2 text-on-surface font-semibold">총 {result.totalElements.toLocaleString('ko-KR')}명</span>}
-                    </p>
+                        {result && <span className="ml-2 font-semibold text-primary">총 {result.totalElements.toLocaleString('ko-KR')}명</span>}
+                    </Text>
                 </div>
             </div>
 
             {/* 2. Search & Filter */}
+            <Card padding={6}>
             <form
-                className="bg-surface-container-lowest border border-outline-variant rounded p-space-lg flex flex-col gap-space-md"
+                className="flex flex-col gap-space-md"
                 onSubmit={(e) => {
                     e.preventDefault();
                     applySearch();
@@ -223,7 +226,7 @@ export default function MembersContent() {
                         </label>
                         <div className="relative">
                             <select
-                                className="w-full h-10 px-space-sm pr-8 bg-surface border border-outline-variant rounded font-body-sm text-body-sm text-primary focus:border-primary focus:outline-none appearance-none cursor-pointer"
+                                className="w-full h-10 px-space-sm bg-surface border border-outline-variant rounded font-body-sm text-body-sm text-primary focus:border-primary focus:outline-none cursor-pointer"
                                 id="search-target"
                                 value={form.searchType}
                                 onChange={(e) => update('searchType', e.target.value as SearchType)}
@@ -232,10 +235,6 @@ export default function MembersContent() {
                                 <option value="id">회원번호</option>
                                 <option value="nickname">닉네임</option>
                             </select>
-                            <Icon
-                                name="expand_more"
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none"
-                            />
                         </div>
                     </div>
                     <div className="md:col-span-9 flex flex-col gap-1">
@@ -260,12 +259,7 @@ export default function MembersContent() {
                                 />
                                 <Icon name="search" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[18px]" />
                             </div>
-                            <button
-                                className="h-10 px-space-lg bg-primary text-on-primary font-label-md text-label-md rounded hover:opacity-90 transition-opacity whitespace-nowrap flex items-center gap-1"
-                                type="submit"
-                            >
-                                <span>검색</span>
-                            </button>
+                            <Button label="검색" type="submit" />
                         </div>
                     </div>
                 </div>
@@ -367,35 +361,20 @@ export default function MembersContent() {
                         ))}
                     </div>
                     <div className="flex items-center gap-space-xs w-full sm:w-auto justify-end">
-                        <button
-                            className="px-space-md py-1.5 rounded border border-outline-variant bg-surface-container-lowest font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container transition-colors flex items-center gap-1"
-                            type="button"
-                            onClick={resetFilters}
-                        >
-                            <Icon name="restart_alt" className="text-[16px]" />
-                            <span>필터 초기화</span>
-                        </button>
-                        <button
-                            className="px-space-md py-1.5 rounded bg-primary text-on-primary font-label-sm text-label-sm hover:opacity-90 transition-opacity"
-                            type="submit"
-                        >
-                            <span>조건 검색 적용</span>
-                        </button>
+                        <Button label="필터 초기화" variant="secondary" icon={<Icon name="restart_alt" className="text-[16px]" />} type="button" onClick={resetFilters} />
+                        <Button label="조건 검색 적용" type="submit" />
                     </div>
                 </div>
             </form>
+            </Card>
 
             {/* 3. 결과 */}
             {error ? (
-                <div className="bg-surface-container-lowest border border-error/40 rounded p-space-lg text-center font-body-sm text-body-sm text-error">
-                    {error}
-                </div>
+                <Card className="text-center"><Text className="text-error">{error}</Text></Card>
             ) : loading && !result ? (
                 <div className="h-64 rounded bg-surface-container animate-pulse" />
             ) : members.length === 0 ? (
-                <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl text-center font-body-sm text-body-sm text-outline">
-                    조건에 맞는 회원이 없습니다.
-                </div>
+                <Card className="text-center"><Text color="secondary">조건에 맞는 회원이 없습니다.</Text></Card>
             ) : (
                 <div className={loading ? 'opacity-60 transition-opacity' : ''}>
                     <MemberTable

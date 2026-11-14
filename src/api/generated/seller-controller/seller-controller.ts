@@ -27,6 +27,8 @@ import type {
   CheckBusinessNumberParams,
   RsDataAvailabilityResponse,
   RsDataSellerResponse,
+  RsDataVoid,
+  SellerAccountVerifyRequest,
   SellerRegisterRequest
 } from '../model';
 
@@ -226,6 +228,87 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getRegisterMutationOptions(options), queryClient);
+    }
+    export const getVerifyAccountUrl = () => {
+
+
+
+
+  return `/api/members/me/seller/account/verify`
+}
+
+export const verifyAccount = async (sellerAccountVerifyRequest: SellerAccountVerifyRequest, options?: Parameters<typeof http>[1]): Promise<RsDataVoid> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return http<RsDataVoid>(getVerifyAccountUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sellerAccountVerifyRequest)
+  }
+);}
+
+
+
+
+
+export const getVerifyAccountMutationKey = () => ['verifyAccount'] as const;
+
+export const getVerifyAccountMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyAccount>>, TError,VerifyAccountMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyAccount>>, TError,VerifyAccountMutationVariables, TContext> => {
+
+const mutationKey = getVerifyAccountMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyAccount>>, VerifyAccountMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  verifyAccount(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyAccountMutationResult = NonNullable<Awaited<ReturnType<typeof verifyAccount>>>
+    export type VerifyAccountMutationBody = SellerAccountVerifyRequest
+    export type VerifyAccountMutationError = unknown
+    export type VerifyAccountMutationVariables = {data: SellerAccountVerifyRequest}
+
+    export const useVerifyAccount = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyAccount>>, TError,VerifyAccountMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof verifyAccount>>,
+        TError,
+        VerifyAccountMutationVariables,
+        TContext
+      > => {
+      return useMutation(getVerifyAccountMutationOptions(options), queryClient);
     }
     export const getCheckBusinessNumberUrl = (params: CheckBusinessNumberParams,) => {
   const normalizedParams = new URLSearchParams();

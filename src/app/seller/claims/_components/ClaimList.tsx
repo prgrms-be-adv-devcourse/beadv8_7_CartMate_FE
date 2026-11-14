@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Badge, Button, Card } from '@astryxdesign/core';
 import { useGetSellerClaims } from '@/api/generated/claim-controller/claim-controller';
 import type { SellerClaimResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
@@ -26,7 +27,6 @@ const REASON_LABEL: Record<string, string> = {
     OTHER: '기타',
 };
 
-const BADGE = 'inline-flex items-center whitespace-nowrap px-space-sm py-0.5 rounded-full text-caption font-label-sm';
 
 // URL 의 page 는 사람이 보는 1부터, BE 요청은 0부터다.
 function readPage(raw: string | null): number {
@@ -41,10 +41,10 @@ function formatDate(value: string | undefined): string {
 }
 
 function StatusBadge({ status }: { status: string | undefined }) {
-    if (status === 'COMPLETED') return <span className={`${BADGE} bg-surface-container-high text-on-surface-variant`}>완료</span>;
-    if (status === 'APPROVED') return <span className={`${BADGE} bg-primary-fixed text-on-primary-fixed`}>처리 중</span>;
-    if (status === 'REJECTED') return <span className={`${BADGE} bg-surface-container-high text-on-surface-variant`}>거절됨</span>;
-    return <span className={`${BADGE} bg-primary-fixed text-on-primary-fixed`}>처리 대기</span>;
+    if (status === 'COMPLETED') return <Badge label="완료" />;
+    if (status === 'APPROVED') return <Badge variant="info" label="처리 중" />;
+    if (status === 'REJECTED') return <Badge variant="neutral" label="거절됨" />;
+    return <Badge variant="warning" label="처리 대기" />;
 }
 
 function ClaimRow({ claim }: { claim: SellerClaimResponse }) {
@@ -120,15 +120,13 @@ export default function ClaimList() {
     return (
         <>
             {/* Requests Table */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
+            <Card className="overflow-hidden" padding={0}>
                 {query.isPending ? (
                     <TableSkeleton />
                 ) : query.isError ? (
                     <div className="py-space-xl px-space-lg flex flex-col items-center gap-space-sm text-center" role="alert">
                         <p className="text-body-md text-on-surface">{errorMessage(query.error, '교환·환불 목록을 불러오지 못했습니다.')}</p>
-                        <button className="bg-surface border border-outline-variant text-on-surface text-label-sm px-space-md py-space-xs rounded font-label-sm hover:bg-surface-container transition-all" type="button" onClick={() => query.refetch()}>
-                            다시 시도
-                        </button>
+                        <Button label="다시 시도" onClick={() => query.refetch()} />
                     </div>
                 ) : rows.length === 0 ? (
                     <div className="py-space-xl px-space-lg text-center text-body-md text-on-surface-variant">
@@ -191,7 +189,7 @@ export default function ClaimList() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </Card>
         </>
     );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
 import { useGetMyList2 } from '@/api/generated/individual-group-purchase-controller/individual-group-purchase-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -22,25 +23,27 @@ export default function MyList() {
     }
 
     return (
-        <ul className="flex flex-col border border-outline-variant bg-surface-container-lowest divide-y divide-outline-variant">
-            {items.map((item) =>
-                item.id === undefined ? null : (
-                    <li key={item.id}>
-                        <Link className="px-space-lg py-space-md flex items-center gap-space-md hover:bg-surface-container-low" href={ROUTES.groupPurchaseIndividual(item.id)}>
-                            <div className="min-w-0 flex-1 flex flex-col gap-0.5">
-                                <div className="flex items-center gap-space-sm">
-                                    <StatusBadge status={item.status} open={item.open} />
-                                    <span className="font-body-md text-body-md font-semibold text-on-surface truncate">{item.title}</span>
+        <Card padding={0} className="overflow-hidden">
+            <ul className="flex flex-col divide-y divide-outline-variant">
+                {items.map((item) =>
+                    item.id === undefined ? null : (
+                        <li key={item.id}>
+                            <Link className="px-space-lg py-space-md flex items-center gap-space-md hover:bg-surface-container-low" href={ROUTES.groupPurchaseIndividual(item.id)}>
+                                <div className="min-w-0 flex-1 flex flex-col gap-0.5">
+                                    <div className="flex items-center gap-space-sm">
+                                        <StatusBadge status={item.status} open={item.open} />
+                                        <span className="font-body-md text-body-md font-semibold text-on-surface truncate">{item.title}</span>
+                                    </div>
+                                    <span className="font-caption text-caption text-secondary">
+                                        상품 {item.productCount ?? 0}개 · 판매 기한 {formatDateTime(item.deadlineAt)}
+                                    </span>
                                 </div>
-                                <span className="font-caption text-caption text-secondary">
-                                    상품 {item.productCount ?? 0}개 · 판매 기한 {formatDateTime(item.deadlineAt)}
-                                </span>
-                            </div>
-                            <Icon name="chevron_right" className="text-[20px] text-outline" />
-                        </Link>
-                    </li>
-                ),
-            )}
-        </ul>
+                                <Icon name="chevron_right" className="text-[20px] text-outline" />
+                            </Link>
+                        </li>
+                    ),
+                )}
+            </ul>
+        </Card>
     );
 }

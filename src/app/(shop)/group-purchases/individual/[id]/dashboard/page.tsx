@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: '개인물품 공동구매 주문 현
 
 export default function IndividualGroupPurchaseDashboardPage() {
     return (
-        <div className="max-w-[1200px] mx-auto px-gutter py-space-xl">
+        <div className="max-w-[1200px] mx-auto px-gutter py-8 sm:py-12">
             <PageHeader title="주문 현황판">
                 {/* 관리 화면 주소에 공동구매 id 가 들어가 링크도 클라이언트에서 그린다 */}
                 <Suspense>

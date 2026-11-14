@@ -1,75 +1,85 @@
-@import 'tailwindcss';
+/* Astryx와 Tailwind가 함께 동작하도록 낮은 우선순위부터 layer 순서를 고정한다. */
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
 
-/* Stitch 와이어프레임 디자인 토큰 (팀 스포츠 공동구매 플랫폼) */
-@theme {
-  /* Primary: 인디고 → 바이올렛 계열 (버튼은 아래 .bg-primary 에서 그라데이션 처리) */
-  --color-primary: #4f46e5;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #312e81;
-  --color-on-primary-container: #e0e7ff;
-  --color-primary-fixed: #e0e7ff;
-  --color-primary-fixed-dim: #c7d2fe;
-  --color-on-primary-fixed: #1e1b4b;
-  --color-on-primary-fixed-variant: #3730a3;
-  --color-inverse-primary: #c7d2fe;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import '@astryxdesign/core/reset.css';
+@import '@astryxdesign/core/astryx.css';
+@import '@astryxdesign/theme-neutral/theme.css';
+@import '../theme/teambuy.css';
+@import 'tailwindcss/utilities.css' layer(utilities);
 
-  --color-secondary: #5b6280;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: rgb(221 214 254 / 0.6);
-  --color-on-secondary-container: #4c4f6b;
-  --color-secondary-fixed: #ede9fe;
-  --color-secondary-fixed-dim: #ddd6fe;
-  --color-on-secondary-fixed: #2e1065;
-  --color-on-secondary-fixed-variant: #5b21b6;
+/*
+ * 기존 화면을 단계적으로 옮기는 동안 사용하는 호환 토큰이다.
+ * 새 공통 컴포넌트는 Astryx 컴포넌트와 원본 토큰을 직접 사용한다.
+ */
+@theme inline {
+  --color-primary: var(--color-accent);
+  --color-on-primary: var(--color-on-accent);
+  --color-primary-container: var(--color-accent-muted);
+  --color-on-primary-container: var(--color-text-accent);
+  --color-primary-fixed: var(--color-accent-muted);
+  --color-primary-fixed-dim: var(--color-accent-muted);
+  --color-on-primary-fixed: var(--color-text-accent);
+  --color-on-primary-fixed-variant: var(--color-text-accent);
+  --color-inverse-primary: var(--color-accent-muted);
 
-  --color-tertiary: #db2777;
-  --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #500724;
-  --color-on-tertiary-container: #f9a8d4;
-  --color-tertiary-fixed: #fce7f3;
-  --color-tertiary-fixed-dim: #fbcfe8;
-  --color-on-tertiary-fixed: #500724;
-  --color-on-tertiary-fixed-variant: #9d174d;
+  --color-secondary: var(--color-text-secondary);
+  --color-on-secondary: var(--color-on-accent);
+  --color-secondary-container: var(--color-background-muted);
+  --color-on-secondary-container: var(--color-text-secondary);
+  --color-secondary-fixed: var(--color-background-muted);
+  --color-secondary-fixed-dim: var(--color-border);
+  --color-on-secondary-fixed: var(--color-text-primary);
+  --color-on-secondary-fixed-variant: var(--color-text-secondary);
 
-  --color-error: #dc2626;
+  --color-tertiary: var(--color-text-purple);
+  --color-on-tertiary: var(--color-on-accent);
+  --color-tertiary-container: var(--color-background-purple);
+  --color-on-tertiary-container: var(--color-text-purple);
+  --color-tertiary-fixed: var(--color-background-purple);
+  --color-tertiary-fixed-dim: var(--color-border-purple);
+  --color-on-tertiary-fixed: var(--color-text-purple);
+  --color-on-tertiary-fixed-variant: var(--color-text-purple);
+
+  --color-error: #c9303a;
   --color-on-error: #ffffff;
-  --color-error-container: rgb(254 226 226 / 0.75);
-  --color-on-error-container: #991b1b;
+  --color-error-container: var(--color-error-muted);
+  --color-on-error-container: var(--color-on-error-muted);
 
-  /* Surface: 반투명 유리 레이어. 배경 그라데이션이 비쳐 보이도록 알파값을 둔다 */
-  --color-background: rgb(255 255 255 / 0.2);
-  --color-on-background: #1a1d2e;
-  --color-surface: rgb(255 255 255 / 0.2);
-  --color-surface-bright: rgb(255 255 255 / 0.7);
-  --color-surface-dim: rgb(199 210 254 / 0.5);
-  --color-surface-tint: #6366f1;
-  --color-surface-variant: rgb(224 231 255 / 0.6);
-  --color-on-surface: #1a1d2e;
-  --color-on-surface-variant: #4a4f66;
-  --color-surface-container-lowest: rgb(255 255 255 / 0.62);
-  --color-surface-container-low: rgb(255 255 255 / 0.45);
-  --color-surface-container: rgb(238 242 255 / 0.6);
-  --color-surface-container-high: rgb(224 231 255 / 0.6);
-  --color-surface-container-highest: rgb(214 222 255 / 0.7);
-  --color-inverse-surface: #1e1b4b;
-  --color-inverse-on-surface: #eef2ff;
-  --color-outline: #7a80a0;
-  --color-outline-variant: rgb(129 140 196 / 0.28);
+  --color-background: var(--color-background-body);
+  --color-on-background: var(--color-text-primary);
+  --color-surface: var(--color-background-surface);
+  --color-surface-bright: var(--color-background-card);
+  --color-surface-dim: var(--color-background-muted);
+  --color-surface-tint: var(--color-accent);
+  --color-surface-variant: var(--color-background-muted);
+  --color-on-surface: var(--color-text-primary);
+  --color-on-surface-variant: var(--color-text-secondary);
+  --color-surface-container-lowest: var(--color-background-card);
+  --color-surface-container-low: var(--color-background-surface);
+  --color-surface-container: var(--color-background-muted);
+  --color-surface-container-high: var(--color-background-muted);
+  --color-surface-container-highest: var(--color-border);
+  --color-inverse-surface: var(--color-text-primary);
+  --color-inverse-on-surface: var(--color-background-surface);
+  --color-outline: var(--color-border-emphasized);
+  --color-outline-variant: var(--color-border);
 
-  --radius: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1.25rem;
+  --radius: var(--radius-inner);
+  --radius-lg: var(--radius-element);
+  --radius-xl: var(--radius-container);
   --radius-full: 9999px;
 
-  --spacing-space-xs: 0.25rem;
-  --spacing-space-sm: 0.5rem;
-  --spacing-space-md: 1rem;
-  --spacing-space-lg: 1.5rem;
-  --spacing-space-xl: 2rem;
-  --spacing-gutter: 1.5rem;
+  --spacing-space-xs: var(--spacing-1);
+  --spacing-space-sm: var(--spacing-2);
+  --spacing-space-md: var(--spacing-4);
+  --spacing-space-lg: var(--spacing-6);
+  --spacing-space-xl: var(--spacing-8);
+  --spacing-gutter: var(--spacing-6);
   --spacing-margin: 7.5rem;
 
-  --font-sans: var(--font-inter), -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-sans: var(--font-inter), var(--font-family-body), -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   --font-display-xl: var(--font-sans);
   --font-headline-lg: var(--font-sans);
   --font-headline-md: var(--font-sans);
@@ -117,10 +127,13 @@
   html,
   body {
     margin: 0;
+    min-height: 100%;
     padding: 0;
   }
 
   body {
+    background: var(--color-background-body);
+    color: var(--color-text-primary);
     overscroll-behavior: none;
   }
 
@@ -130,135 +143,33 @@
   }
 }
 
-/* ───────────── Glassmorphism ───────────── */
-
-/* 배경: 파스텔 메시 그라데이션 (유리 패널 뒤로 비쳐 보이는 색) */
-body {
-  background-color: #f4f6ff;
-  background-image:
-    radial-gradient(at 8% 12%, rgb(165 180 252 / 0.55) 0, transparent 45%),
-    radial-gradient(at 92% 6%, rgb(249 168 212 / 0.45) 0, transparent 40%),
-    radial-gradient(at 85% 78%, rgb(103 232 249 / 0.35) 0, transparent 45%),
-    radial-gradient(at 4% 92%, rgb(196 181 253 / 0.5) 0, transparent 45%),
-    radial-gradient(at 50% 50%, rgb(224 231 255 / 0.6) 0, transparent 60%);
-  background-attachment: fixed;
+/* 브라우저 기본 select 화살표는 오른쪽 테두리에 붙어 그려지고 padding 으로 옮길 수 없다.
+   기본 화살표를 끄고, 테두리에서 12px 띄운 화살표를 배경으로 그린다.
+   레이어 밖에 두어 각 화면의 px-*·pr-* 보다 우선하게 한다(오른쪽 여백을 모든 select 에서 같게). */
+select:not([multiple]):not([size]) {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239e9e9e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  padding-right: 36px;
 }
 
-@layer components {
-  /* 유리 패널: 카드·사이드바·헤더 등 가장 바깥 레이어만 블러 처리 (중첩 블러는 비용 대비 효과가 없음).
-     모달(fixed)을 품은 요소는 backdrop-filter 가 fixed 기준을 바꿔버리므로 제외한다. */
-  :is(.bg-surface-container-lowest, .bg-surface-container-low, .bg-surface-bright):not(:has(.fixed)):not(tr, th, td, thead, tbody) {
-    -webkit-backdrop-filter: blur(18px) saturate(170%);
-    backdrop-filter: blur(18px) saturate(170%);
-  }
-
-  :is(.bg-surface-container-lowest, .bg-surface-container-low)
-    :is(.bg-surface-container-lowest, .bg-surface-container-low, .bg-surface-bright) {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
-  /* 테두리는 있는데 모서리 지정이 없는 박스(칩·태그·버튼·패널)는 기본 둥근 모서리 */
-  :is(.border, .border-2):not([class*='rounded'], tr, td, th, table, thead, tbody, tfoot, hr, header, aside, footer, main) {
-    border-radius: var(--radius-lg);
-  }
-
-  /* 폼 컨트롤 기본 모서리 */
-  :is(input:not([type='checkbox'], [type='radio']), select, textarea, button) {
-    border-radius: var(--radius-lg);
-  }
+/* 날짜 입력의 달력 아이콘도 오른쪽 끝에 붙지 않게 띄운다. */
+input::-webkit-calendar-picker-indicator {
+  margin-inline-start: 8px;
+  margin-inline-end: 4px;
 }
 
-/* 유리 카드의 하이라이트 테두리 + 부드러운 그림자 (레이어 밖: 유틸리티 border 색보다 우선) */
-.bg-surface-container-lowest:is([class*='border-outline'], .border):not(tr, th, td, header, aside, footer, input, select, textarea, button) {
-  border-color: rgb(255 255 255 / 0.75);
-  box-shadow:
-    0 8px 32px rgb(49 46 129 / 0.08),
-    inset 0 1px 0 rgb(255 255 255 / 0.7);
-}
-
-/* 모서리 클래스가 없는 패널에도 둥근 모서리 부여 (고정 헤더·사이드바·표 요소 제외) */
-.bg-surface-container-lowest:not([class*='rounded'], .fixed, tr, th, td, thead, header, aside, footer, nav, a) {
-  border-radius: var(--radius-xl);
-}
-
-/* 고정 헤더/사이드바: 유리 질감 + 하이라이트 경계선 */
-:is(header, aside).fixed {
-  background-color: rgb(255 255 255 / 0.55);
-  border-color: rgb(255 255 255 / 0.7);
-  box-shadow: 0 4px 30px rgb(49 46 129 / 0.06);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-}
-
-/* Primary 버튼/배지: 그라데이션 (그림자는 버튼·링크에만 줘서 ring 유틸리티와 충돌하지 않게 함) */
-.bg-primary {
-  background-image: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%);
-}
-
-:is(button, a).bg-primary {
-  box-shadow: 0 6px 20px rgb(99 102 241 / 0.28);
-}
-
-/* 어두운 강조 박스: 단색 대신 짙은 인디고 그라데이션 유리 */
-.bg-inverse-surface {
-  background-image: linear-gradient(135deg, rgb(30 27 75 / 0.92) 0%, rgb(76 29 149 / 0.88) 100%);
-}
-
-/* 브랜드 로고 그라데이션 텍스트 */
+/* 기존 이름을 쓰는 공통 셸은 UI-3에서 Astryx 컴포넌트로 교체한다. */
 .brand-gradient-text {
-  background-image: linear-gradient(120deg, #4338ca 0%, #7c3aed 50%, #db2777 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-accent);
 }
 
-/* 떠 있는 유리 알약 바 (서브 내비 등) */
 .glass-pill {
-  background-color: rgb(255 255 255 / 0.5);
-  border: 1px solid rgb(255 255 255 / 0.8);
-  box-shadow:
-    0 8px 28px rgb(49 46 129 / 0.08),
-    inset 0 1px 0 rgb(255 255 255 / 0.8);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  backdrop-filter: blur(18px) saturate(170%);
-}
-
-.bg-primary:hover {
-  filter: brightness(1.08);
-}
-
-.bg-primary-container {
-  background-image: linear-gradient(135deg, #312e81 0%, #4c1d95 100%);
-}
-
-/* 와이어프레임 X자 이미지 placeholder → 은은한 그라데이션 이미지 자리 */
-svg.absolute.inset-0:has(line) {
-  display: none;
-}
-
-:has(> svg.absolute.inset-0 line) {
-  background-image:
-    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.85) 0, transparent 55%),
-    linear-gradient(135deg, rgb(224 231 255 / 0.9) 0%, rgb(237 233 254 / 0.85) 50%, rgb(252 231 243 / 0.8) 100%);
-  border-color: rgb(255 255 255 / 0.8);
-}
-
-/* 진한 강조 테두리는 살짝 부드럽게 */
-.border-2.border-primary {
-  border-color: rgb(99 102 241 / 0.6);
-}
-
-/* 모달 오버레이 뒤 배경 흐림 */
-.fixed.inset-0 {
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-}
-
-/* 입력 포커스 링 */
-:is(input, select, textarea):focus-visible {
-  outline: 2px solid rgb(129 140 248 / 0.55);
-  outline-offset: 1px;
+  background: var(--color-background-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-low);
 }
 
 .material-symbols-outlined {

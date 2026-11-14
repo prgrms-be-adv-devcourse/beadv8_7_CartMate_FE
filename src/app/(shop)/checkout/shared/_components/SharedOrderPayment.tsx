@@ -4,16 +4,17 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '@astryxdesign/core/Button';
+import { Card as AstryxCard } from '@astryxdesign/core/Card';
+import { Heading as AstryxHeading } from '@astryxdesign/core/Heading';
 import { useProfile } from '@/api/generated/member-controller/member-controller';
 import type { MemberProfileResponse, ParticipantResponse, SharedGroupOrderDetailResponse, TeamDeliveryAddress } from '@/api/generated/model';
-import {
-    getGetBySharedGroupOrderQueryKey,
-    usePaySharedGroupOrder,
-} from '@/api/generated/payment-controller/payment-controller';
+import { getGetBySharedGroupOrderQueryKey } from '@/api/generated/payment-controller/payment-controller';
 import {
     getGetDetail3QueryKey,
     getGetMyList3QueryKey,
     useGetDetail3,
+    usePaySharedGroupOrder,
 } from '@/api/generated/shared-group-order-controller/shared-group-order-controller';
 import {
     getGetMyWalletQueryKey,
@@ -99,14 +100,14 @@ function SharedPayment({ orderId, order }: { orderId: number; order: SharedGroup
 
     const submit = () => {
         pay.mutate({
-            sharedGroupOrderId: orderId,
+            id: orderId,
             data: needsAddress ? { teamDeliveryAddress: trimAddress(current) } : undefined,
         });
     };
 
     return (
-        <Card>
-            <Heading icon="account_balance_wallet" title="내 몫을 결제해주세요" />
+        <StatusCard>
+            <StatusHeading icon="account_balance_wallet" title="내 몫을 결제해주세요" />
             <OrderSummary order={order}>
                 <dt className="text-secondary">결제 기한</dt>
                 <dd className="text-on-surface">{formatDateTime(order.paymentDeadlineAt)} 까지</dd>
@@ -195,24 +196,25 @@ function SharedPayment({ orderId, order }: { orderId: number; order: SharedGroup
                 <p className="font-caption text-caption text-secondary">받는 분, 연락처(010-0000-0000), 우편번호, 주소를 입력하면 결제할 수 있습니다.</p>
             )}
 
-            <button
-                className="w-full h-12 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-space-xs hover:opacity-90 disabled:opacity-50"
-                type="button"
-                disabled={!canPay}
+            <Button
+                label={busy ? '결제 중...' : `${formatPrice(amount)} 결제하기`}
+                className="w-full"
+                variant="primary"
+                size="lg"
+                isLoading={pay.isPending}
+                isDisabled={!canPay}
                 onClick={submit}
-            >
-                <Icon name="account_balance_wallet" className="text-[18px]" />
-                {busy ? '결제 중...' : `${formatPrice(amount)} 결제하기`}
-            </button>
-        </Card>
+                icon={<Icon name="account_balance_wallet" className="text-[18px]" />}
+            />
+        </StatusCard>
     );
 }
 
 // ===== 내 결제는 끝났고 다른 참여자를 기다리는 중 =====
 function SharedWaiting({ order }: { order: SharedGroupOrderDetailResponse }) {
     return (
-        <Card>
-            <Heading icon="hourglass_top" title="결제가 완료되었습니다" />
+        <StatusCard>
+            <StatusHeading icon="hourglass_top" title="결제가 완료되었습니다" />
             <p className="font-body-sm text-body-sm text-secondary">
                 다른 참여자가 모두 결제하면 주문이 확정됩니다. 결제 기한 {formatDateTime(order.paymentDeadlineAt)} 까지 모이지 않으면 낸 분담금은 자동
                 환불됩니다.
@@ -223,15 +225,15 @@ function SharedWaiting({ order }: { order: SharedGroupOrderDetailResponse }) {
             </OrderSummary>
             <Participants order={order} />
             <BackToGroupPurchase order={order} />
-        </Card>
+        </StatusCard>
     );
 }
 
 // ===== 전원 결제로 확정 =====
 function SharedConfirmed({ order }: { order: SharedGroupOrderDetailResponse }) {
     return (
-        <Card>
-            <Heading icon="check_circle" title="전원 결제 완료! 주문이 확정되었습니다" />
+        <StatusCard>
+            <StatusHeading icon="check_circle" title="전원 결제 완료! 주문이 확정되었습니다" />
             <OrderSummary order={order}>
                 <dt className="text-secondary">확정 시각</dt>
                 <dd className="text-on-surface">{formatDateTime(order.confirmedAt)}</dd>
@@ -245,7 +247,7 @@ function SharedConfirmed({ order }: { order: SharedGroupOrderDetailResponse }) {
                 </p>
             )}
             <BackToGroupPurchase order={order} />
-        </Card>
+        </StatusCard>
     );
 }
 
@@ -253,8 +255,8 @@ function SharedConfirmed({ order }: { order: SharedGroupOrderDetailResponse }) {
 function SharedCanceled({ order }: { order: SharedGroupOrderDetailResponse }) {
     const iPaid = order.myPaymentStatus === 'PAID';
     return (
-        <Card>
-            <Heading icon="cancel" title="취소된 공동 주문입니다" muted />
+        <StatusCard>
+            <StatusHeading icon="cancel" title="취소된 공동 주문입니다" muted />
             <p className="font-body-sm text-body-sm text-secondary">
                 {CANCEL_REASON_LABEL[order.cancelReason ?? ''] ?? '공동 주문이 취소되었습니다.'}
             </p>
@@ -268,7 +270,7 @@ function SharedCanceled({ order }: { order: SharedGroupOrderDetailResponse }) {
                 </div>
             )}
             <BackToGroupPurchase order={order} />
-        </Card>
+        </StatusCard>
     );
 }
 
@@ -310,24 +312,25 @@ function Participants({ order }: { order: SharedGroupOrderDetailResponse }) {
 function BackToGroupPurchase({ order }: { order: SharedGroupOrderDetailResponse }) {
     if (!order.sharedGroupPurchaseId) return null;
     return (
-        <Link
-            className="w-full h-11 border border-outline-variant font-label-md text-label-md flex items-center justify-center hover:bg-surface-container"
+        <Button
+            label="공동구매로 돌아가기"
+            className="w-full"
             href={ROUTES.groupPurchase(order.sharedGroupPurchaseId)}
-        >
-            공동구매로 돌아가기
-        </Link>
+            as={Link}
+            variant="secondary"
+        />
     );
 }
 
-function Card({ children }: { children: React.ReactNode }) {
-    return <div className="max-w-[640px] w-full mx-auto bg-surface-container-lowest border border-outline-variant p-space-lg flex flex-col gap-space-md">{children}</div>;
+function StatusCard({ children }: { children: React.ReactNode }) {
+    return <AstryxCard maxWidth={640} width="100%" className="mx-auto flex flex-col gap-space-md" variant="blue">{children}</AstryxCard>;
 }
 
-function Heading({ icon, title, muted = false }: { icon: string; title: string; muted?: boolean }) {
+function StatusHeading({ icon, title, muted = false }: { icon: string; title: string; muted?: boolean }) {
     return (
         <div className="flex items-center gap-space-sm">
             <Icon name={icon} className={`text-[24px] ${muted ? 'text-outline' : 'text-primary'}`} />
-            <h2 className="font-headline-sm text-headline-sm text-primary">{title}</h2>
+            <AstryxHeading level={2}>{title}</AstryxHeading>
         </div>
     );
 }
@@ -395,6 +398,6 @@ function payErrorMessage(error: unknown): string {
     const code = error instanceof ApiError ? error.resultCode : undefined;
     if (code?.endsWith('WALLET_INSUFFICIENT_BALANCE')) return '예치금이 부족합니다. 충전한 뒤 다시 결제해주세요.';
     if (code?.endsWith('ORDER_TEAM_ADDRESS_REQUIRED')) return '만든 사람은 팀 배송지를 입력해야 결제할 수 있습니다.';
-    if (code?.endsWith('PAYMENT_ORDER_NOT_PAYABLE')) return '결제할 수 없는 상태입니다. 결제 기한이 지났거나 이미 처리된 공동 주문입니다.';
+    if (code?.endsWith('ORDER_NOT_PAYABLE')) return '결제할 수 없는 상태입니다. 결제 기한이 지났거나 이미 처리된 공동 주문입니다.';
     return errorMessage(error, '결제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
 }

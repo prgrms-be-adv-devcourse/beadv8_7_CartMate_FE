@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import {
     getGetMyAddressesQueryKey,
@@ -15,7 +16,7 @@ import { getProfileQueryKey } from '@/api/generated/member-controller/member-con
 import type { MemberAddressResponse } from '@/api/generated/model';
 import { ApiError, errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
-import MyPageSidebar from '@/components/layout/MyPageSidebar';
+import MyPageShell from '@/components/layout/MyPageShell';
 import { formatPhone } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 
@@ -43,8 +44,6 @@ const MAX_ADDRESS_COUNT = 10; // BE MemberPolicy.MAX_ADDRESS_COUNT 와 같은 �
 
 const INPUT_CLASS =
     'w-full h-[42px] border border-outline-variant rounded px-space-md text-body-sm outline-none focus:border-primary bg-surface-container-lowest text-on-surface';
-const ACTION_BUTTON_CLASS =
-    'h-8 px-space-sm border border-outline-variant bg-surface hover:border-primary text-on-surface-variant text-label-sm rounded transition-colors disabled:opacity-50';
 
 type ModalState = { mode: 'add' } | { mode: 'edit'; address: MemberAddressResponse } | null;
 
@@ -222,138 +221,104 @@ export default function AddressBook() {
     const editing = modal?.mode === 'edit' ? modal.address : null;
 
     return (
-        <div className="flex flex-col w-full">
-            <div className="max-w-[1200px] mx-auto w-full px-gutter py-space-xl">
-                {/* 상단 */}
-                <div className="flex items-center justify-between mb-space-xl">
-                    <div>
-                        <div className="font-caption text-caption text-outline uppercase tracking-wider mb-1">[ MY PAGE / SHIPPING ]</div>
-                        <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">배송지 관리</h1>
+        <>
+            <MyPageShell
+                title="배송지 관리"
+                description="주문할 때 받을 곳을 등록하고 기본 배송지를 정합니다."
+                headerActions={
+                    <div title={full ? `배송지는 최대 ${MAX_ADDRESS_COUNT}개까지 등록할 수 있습니다.` : undefined}>
+                        <Button label="새 배송지 추가" variant="primary" type="button" onClick={openAdd} isDisabled={query.isPending || full} />
                     </div>
-                    <button
-                        className="h-10 px-space-md bg-primary text-on-primary font-label-md text-label-md rounded flex items-center gap-space-xs hover:bg-on-background transition-colors disabled:opacity-50"
-                        type="button"
-                        onClick={openAdd}
-                        disabled={query.isPending || full}
-                        title={full ? `배송지는 최대 ${MAX_ADDRESS_COUNT}개까지 등록할 수 있습니다.` : undefined}
-                    >
-                        <Icon name="add" className="text-[18px]" />
-                        새 배송지 추가
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-12 gap-gutter items-start">
-                    <div className="col-span-3 flex flex-col gap-space-md">
-                        <MyPageSidebar />
-                        <div className="p-space-sm bg-surface-container border border-outline-variant rounded text-caption">
-                            <div className="font-bold text-on-surface mb-1">단체 주문 안내</div>
-                            <p className="text-on-surface-variant">대량 배송지 분할 등록 및 화물 택배 문의는 고객센터(1644-0000)를 이용해주세요.</p>
+                }
+            >
+                {/* 회원정보 수정 화면과 같은 틀: 카드 하나 + 제목 줄 + 안쪽 상자 목록 */}
+                <Card>
+                    <div className="flex flex-wrap gap-space-sm items-center justify-between mb-space-xl">
+                        <div>
+                            <Heading level={2}>등록된 배송지</Heading>
+                            <Text color="secondary">기본 배송지는 주문할 때 자동으로 선택됩니다.</Text>
                         </div>
+                        <span className="font-caption text-caption px-space-sm py-1 bg-surface-container border border-outline-variant text-on-surface-variant rounded">
+                            {query.isPending ? '-' : addresses.length} / {MAX_ADDRESS_COUNT}개
+                        </span>
                     </div>
 
-                    <section className="col-span-9 flex flex-col gap-space-md">
-                        {/* 개수 */}
-                        <div className="bg-surface-container-lowest border border-outline-variant p-space-md rounded flex items-center justify-between">
-                            <div className="font-body-sm text-body-sm text-on-surface-variant">
-                                등록된 배송지 <span className="font-bold text-primary">{addresses.length}</span>개{' '}
-                                <span className="text-outline">(최대 {MAX_ADDRESS_COUNT}개까지 등록 가능)</span>
-                            </div>
-                            <div className="flex items-center gap-space-xs text-caption text-outline">
-                                <Icon name="info" className="text-[14px]" />
-                                기본 배송지는 주문 시 자동 선택됩니다.
-                            </div>
+                    {query.isPending ? (
+                        <div className="h-32 rounded bg-surface-container animate-pulse" aria-hidden />
+                    ) : query.isError ? (
+                        <div className="flex flex-wrap gap-space-sm items-center justify-between p-space-md border border-outline-variant bg-surface-container-low rounded">
+                            <p className="font-body-sm text-body-sm text-error">{errorMessage(query.error, '배송지를 불러오지 못했습니다.')}</p>
+                            <Button label="다시 시도" variant="secondary" size="sm" type="button" onClick={() => void query.refetch()} />
                         </div>
-
-                        {/* 목록 */}
-                        {query.isPending ? (
-                            <div className="h-48 rounded bg-surface-container animate-pulse" aria-hidden />
-                        ) : query.isError ? (
-                            <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-md">
-                                <p className="font-body-sm text-body-sm text-error">{errorMessage(query.error, '배송지를 불러오지 못했습니다.')}</p>
-                                <button className={ACTION_BUTTON_CLASS} type="button" onClick={() => void query.refetch()}>
-                                    다시 시도
-                                </button>
-                            </div>
-                        ) : addresses.length === 0 ? (
-                            <div className="bg-surface-container-lowest border border-outline-variant rounded p-space-xl flex flex-col items-center gap-space-md">
-                                <Icon name="location_off" className="text-[32px] text-outline" />
-                                <p className="font-body-sm text-body-sm text-outline">등록된 배송지가 없습니다.</p>
-                                <button className={ACTION_BUTTON_CLASS} type="button" onClick={openAdd}>
-                                    첫 배송지 등록하기
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col gap-space-md">
-                                {addresses.map((item) => {
-                                    const isDefault = item.defaultAddress === true;
-                                    const busy = busyId === item.id;
-                                    return (
-                                        <div
-                                            key={item.id}
-                                            className={`bg-surface-container-lowest border p-space-lg rounded relative flex flex-col gap-space-md ${
-                                                isDefault ? 'border-primary' : 'border-outline-variant'
-                                            }`}
-                                        >
-                                            <div className="flex items-center justify-between border-b border-surface-container pb-space-sm">
-                                                <div className="flex items-center gap-space-sm">
-                                                    <span className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                                                        {item.addressName ?? item.receiverName}
-                                                    </span>
-                                                    {isDefault && (
-                                                        <span className="font-caption text-caption px-2 py-0.5 bg-primary text-on-primary rounded-full">기본 배송지</span>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-space-xs">
-                                                    {!isDefault && (
-                                                        <button
-                                                            className={ACTION_BUTTON_CLASS}
-                                                            type="button"
-                                                            disabled={busy}
-                                                            onClick={() => item.id !== undefined && makeDefault.mutate({ addressId: item.id })}
-                                                        >
-                                                            기본배송지 지정
-                                                        </button>
-                                                    )}
-                                                    <button className={ACTION_BUTTON_CLASS} type="button" disabled={busy} onClick={() => openEdit(item)}>
-                                                        수정
-                                                    </button>
-                                                    <button
-                                                        className="h-8 px-space-sm border border-outline-variant bg-surface hover:border-error hover:text-error text-on-surface-variant text-label-sm rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-outline-variant disabled:hover:text-on-surface-variant"
-                                                        disabled={isDefault || busy}
-                                                        title={isDefault ? '기본 배송지는 다른 배송지를 기본으로 지정한 뒤 삭제할 수 있습니다.' : undefined}
-                                                        type="button"
-                                                        onClick={() => handleDelete(item)}
-                                                    >
-                                                        삭제
-                                                    </button>
-                                                </div>
+                    ) : addresses.length === 0 ? (
+                        <div className="flex flex-wrap gap-space-sm items-center justify-between p-space-md border border-outline-variant bg-surface-container-low rounded">
+                            <div className="font-body-sm text-body-sm text-outline">등록된 배송지가 없습니다.</div>
+                            <Button label="등록" variant="secondary" size="sm" type="button" onClick={openAdd} />
+                        </div>
+                    ) : (
+                        <ul className="flex flex-col gap-space-md">
+                            {addresses.map((item) => {
+                                const isDefault = item.defaultAddress === true;
+                                const busy = busyId === item.id;
+                                return (
+                                    <li
+                                        key={item.id}
+                                        className="flex flex-wrap gap-space-md items-start justify-between p-space-md border border-outline-variant bg-surface-container-low rounded"
+                                    >
+                                        <div className="flex min-w-0 flex-col gap-1">
+                                            <div className="flex items-center gap-space-xs mb-1">
+                                                <span className="font-body-lg text-body-lg text-on-surface font-semibold">
+                                                    {item.addressName ?? item.receiverName}
+                                                </span>
+                                                {isDefault && <Badge variant="blue" label="기본" />}
                                             </div>
-                                            <div className="grid grid-cols-2 gap-space-md font-body-sm text-body-sm text-on-surface-variant">
-                                                <div>
-                                                    <span className="text-outline block mb-1">수령인 / 연락처</span>
-                                                    <span className="font-bold text-on-surface">{item.receiverName}</span> / {item.receiverPhone}
-                                                </div>
-                                                <div>
-                                                    <span className="text-outline block mb-1">배송 주소</span>
-                                                    <span className="text-on-surface">
-                                                        [{item.zipCode}] {item.basicAddress}
-                                                        {item.detailAddress ? `, ${item.detailAddress}` : ''}
-                                                    </span>
-                                                </div>
+                                            <div className="font-body-sm text-body-sm text-on-surface-variant">
+                                                {item.receiverName} · {item.receiverPhone}
+                                            </div>
+                                            <div className="font-body-sm text-body-sm text-on-surface-variant">
+                                                [{item.zipCode}] {item.basicAddress}
+                                                {item.detailAddress ? `, ${item.detailAddress}` : ''}
                                             </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </section>
-                </div>
-            </div>
+                                        <div className="flex flex-wrap items-center gap-space-xs">
+                                            {!isDefault && (
+                                                <Button
+                                                    label="기본으로 지정"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    type="button"
+                                                    isDisabled={busy}
+                                                    onClick={() => item.id !== undefined && makeDefault.mutate({ addressId: item.id })}
+                                                />
+                                            )}
+                                            <Button label="수정" variant="secondary" size="sm" type="button" isDisabled={busy} onClick={() => openEdit(item)} />
+                                            <span title={isDefault ? '기본 배송지는 다른 배송지를 기본으로 지정한 뒤 삭제할 수 있습니다.' : undefined}>
+                                                <Button
+                                                    label="삭제"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    type="button"
+                                                    isDisabled={isDefault || busy}
+                                                    onClick={() => handleDelete(item)}
+                                                />
+                                            </span>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
+
+                    <p className="mt-space-xl pt-space-md border-t border-surface-container font-caption text-caption text-outline">
+                        대량 배송지 분할 등록이나 화물 택배는 고객센터(1644-0000)로 문의해주세요.
+                    </p>
+                </Card>
+            </MyPageShell>
 
             {/* 추가·수정 모달 */}
             {modal && (
-                <div className="fixed inset-0 z-50 bg-[#111827]/40 backdrop-blur-sm flex items-center justify-center">
-                    <div className="bg-surface-container-lowest border border-outline-variant rounded-lg w-[480px] p-space-xl shadow-xl flex flex-col gap-space-lg">
+                <div className="fixed inset-0 z-50 bg-[#111827]/40 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-surface-container-lowest border border-outline-variant rounded-lg w-full max-w-[480px] max-h-full overflow-y-auto p-space-xl shadow-xl flex flex-col gap-space-lg">
                         <div className="flex items-center justify-between border-b border-surface-container pb-space-md">
                             <h3 className="font-headline-md text-headline-md text-on-surface font-bold">{editing ? '배송지 수정' : '새 배송지 추가'}</h3>
                             <button className="text-outline hover:text-on-surface" type="button" onClick={() => setModal(null)} aria-label="닫기">
@@ -374,7 +339,7 @@ export default function AddressBook() {
                                     onChange={(e) => set('addressName', e.target.value)}
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-space-md">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
                                 <div>
                                     <label className="block font-body-sm text-body-sm text-on-surface-variant mb-space-xs" htmlFor="input-recipient">
                                         수령인
@@ -460,25 +425,13 @@ export default function AddressBook() {
                             )}
 
                             <div className="flex items-center justify-end gap-space-sm pt-space-md border-t border-surface-container">
-                                <button
-                                    className="h-10 px-space-md border border-outline-variant text-on-surface-variant font-label-md text-label-md rounded hover:bg-surface transition-colors"
-                                    type="button"
-                                    onClick={() => setModal(null)}
-                                >
-                                    취소
-                                </button>
-                                <button
-                                    className="h-10 px-space-md bg-primary text-on-primary font-label-md text-label-md rounded hover:bg-on-background transition-colors disabled:opacity-60"
-                                    type="submit"
-                                    disabled={saving}
-                                >
-                                    {saving ? '저장 중...' : '저장하기'}
-                                </button>
+                                <Button label="취소" variant="secondary" type="button" onClick={() => setModal(null)} />
+                                <Button label="저장하기" variant="primary" type="submit" isLoading={saving} isDisabled={saving} />
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 }
