@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
+import { Button, Card, Heading, Text } from '@astryxdesign/core';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { useCurrentUser } from '@/lib/auth';
@@ -34,8 +34,11 @@ export default function SalesPostRegisterForm() {
     });
     const [images, setImages] = useState<PickedImage[]>([]);
     const imagesRef = useRef(images);
-    imagesRef.current = images;
     const [formError, setFormError] = useState<string | null>(null);
+
+    useEffect(() => {
+        imagesRef.current = images;
+    }, [images]);
 
     useEffect(() => {
         return () => {
@@ -124,10 +127,10 @@ export default function SalesPostRegisterForm() {
     return (
         <form className="grid grid-cols-1 lg:grid-cols-3 gap-space-xl" onSubmit={onSubmit} noValidate>
             <div className="lg:col-span-2 space-y-space-xl">
-                <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/30 space-y-space-lg">
+                <Card className="space-y-space-lg" padding={8}>
                     <div className="border-b border-outline-variant/30 pb-space-md">
-                        <h2 className="text-headline-sm font-headline-sm text-on-surface">기본 정보</h2>
-                        <p className="text-body-sm text-on-surface-variant">상품의 기본 제목, 카테고리 및 가격을 설정합니다.</p>
+                        <Heading level={2}>기본 정보</Heading>
+                        <Text color="secondary">상품의 기본 제목, 카테고리 및 가격을 설정합니다.</Text>
                     </div>
                     <div className="space-y-space-lg">
                         <div className="flex flex-col space-y-space-xs">
@@ -192,12 +195,12 @@ export default function SalesPostRegisterForm() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </Card>
 
-                <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/30 space-y-space-lg">
+                <Card className="space-y-space-lg" padding={8}>
                     <div className="border-b border-outline-variant/30 pb-space-md">
-                        <h2 className="text-headline-sm font-headline-sm text-on-surface">상세 설명</h2>
-                        <p className="text-body-sm text-on-surface-variant">상품의 상세 스펙, 사이즈 가이드 및 주의사항을 입력하세요.</p>
+                        <Heading level={2}>상세 설명</Heading>
+                        <Text color="secondary">상품의 상세 스펙, 사이즈 가이드 및 주의사항을 입력하세요.</Text>
                     </div>
                     <div className="flex flex-col space-y-space-xs">
                         <div className="flex items-center justify-between border border-outline-variant border-b-0 rounded-t bg-surface-container px-space-md py-space-xs">
@@ -223,16 +226,16 @@ export default function SalesPostRegisterForm() {
                             rows={8}
                         />
                     </div>
-                </div>
+                </Card>
 
                 <OptionTable />
             </div>
 
             <div className="space-y-space-xl">
-                <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-outline-variant/30 space-y-space-lg sticky top-24">
+                <Card className="sticky top-24 space-y-space-lg" padding={8}>
                     <div className="border-b border-outline-variant/30 pb-space-md">
-                        <h2 className="text-headline-sm font-headline-sm text-on-surface">이미지 업로드</h2>
-                        <p className="text-body-sm text-on-surface-variant">대표 상품 이미지를 등록하세요. (최대 5장)</p>
+                        <Heading level={2}>이미지 업로드</Heading>
+                        <Text color="secondary">대표 상품 이미지를 등록하세요. (최대 5장)</Text>
                     </div>
                     <div className="flex flex-col space-y-space-md">
                         <label
@@ -281,27 +284,13 @@ export default function SalesPostRegisterForm() {
                         )}
                     </div>
                     {(formError || register.isError) && (
-                        <p className="text-caption text-error" role="alert">
-                            {formError ?? errorMessage(register.error, '판매글 등록에 실패했습니다.')}
-                        </p>
+                        <Text className="text-error" role="alert">{formError ?? errorMessage(register.error, '판매글 등록에 실패했습니다.')}</Text>
                     )}
                     <div className="pt-space-md border-t border-outline-variant/30 flex flex-col gap-space-sm">
-                        <button
-                            className="w-full h-12 bg-primary text-on-primary rounded font-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-space-sm disabled:opacity-60"
-                            type="submit"
-                            disabled={register.isPending || isLoading}
-                        >
-                            <Icon name="check" className="text-[18px]" />
-                            {register.isPending ? '등록 중...' : '저장 및 등록 완료'}
-                        </button>
-                        <Link
-                            href={ROUTES.sellerProducts}
-                            className="w-full h-12 bg-surface border border-outline-variant text-on-surface rounded font-label-md hover:bg-surface-container transition-colors flex items-center justify-center gap-space-sm"
-                        >
-                            취소
-                        </Link>
+                        <Button className="w-full" label={register.isPending ? '등록 중...' : '저장 및 등록 완료'} icon={<Icon name="check" className="text-[18px]" />} type="submit" variant="primary" isDisabled={register.isPending || isLoading} />
+                        <Button className="w-full" label="취소" href={ROUTES.sellerProducts} variant="secondary" />
                     </div>
-                </div>
+                </Card>
             </div>
         </form>
     );

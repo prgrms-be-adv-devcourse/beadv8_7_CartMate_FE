@@ -14,5 +14,6 @@ export const AdminSalesPostDetailResponseStatus = {
   SUSPENDED: 'SUSPENDED',
   CLOSED: 'CLOSED',
   DELETED: 'DELETED',
+  DELETING: 'DELETING',
   PENDING: 'PENDING',
 } as const;

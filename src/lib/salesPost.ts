@@ -11,12 +11,12 @@ export type SalesPostCardModel = {
     imageUrl: string | null;
 };
 
-// BE 응답에는 이미지 주소가 아니라 저장 키(s3key)만 온다. 주소를 만들 기준 경로가 설정돼 있을 때만 이미지를 보여 준다.
-// (로컬 BE는 업로드 파일을 정적으로 제공하지 않아 지금은 비워 둔다 → 자리 표시 이미지)
-const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_IMAGE_BASE_URL;
+// 로컬 BE는 /images/**로 파일을 제공하고, 다른 저장소는 완성된 URL 또는 저장 키를 돌려줄 수 있다.
+const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_IMAGE_BASE_URL ?? '/images';
 
 export function imageUrl(s3key: string | undefined): string | null {
-    if (!IMAGE_BASE_URL || !s3key) return null;
+    if (!s3key) return null;
+    if (/^https?:\/\//.test(s3key) || s3key.startsWith('/images/')) return s3key;
     return `${IMAGE_BASE_URL.replace(/\/$/, '')}/${s3key.replace(/^\//, '')}`;
 }
 

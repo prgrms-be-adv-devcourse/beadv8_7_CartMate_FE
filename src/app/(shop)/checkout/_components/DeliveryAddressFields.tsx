@@ -2,6 +2,7 @@
 
 import { useFormContext } from 'react-hook-form';
 import { z } from 'zod';
+import { Text } from '@astryxdesign/core/Text';
 import type { DeliveryAddressRequest, MemberProfileResponse } from '@/api/generated/model';
 import { formatPhone } from '@/lib/format';
 
@@ -21,7 +22,7 @@ export const deliveryAddressSchema = z.object({
 export type DeliveryAddressInput = z.input<typeof deliveryAddressSchema>;
 
 export const INPUT_CLASS =
-    'w-full h-10 px-space-md border border-outline-variant bg-surface-container-lowest font-body-sm text-body-sm text-on-surface focus:border-primary outline-none';
+    'w-full h-11 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20';
 
 // 회원 정보(연락처·기본 배송지)로 배송지 칸을 미리 채운다.
 export function deliveryAddressDefaults(me: MemberProfileResponse | undefined): DeliveryAddressInput {
@@ -86,9 +87,9 @@ export default function DeliveryAddressFields() {
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
     return (
         <label className="flex flex-col gap-space-xs">
-            <span className="font-body-sm text-body-sm text-on-surface-variant">{label}</span>
+            <Text type="supporting" color="secondary">{label}</Text>
             {children}
-            {error && <span className="font-caption text-caption text-error">{error}</span>}
+            {error && <Text type="supporting" className="text-error">{error}</Text>}
         </label>
     );
 }

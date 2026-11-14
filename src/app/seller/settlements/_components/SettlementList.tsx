@@ -1,16 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { Badge, Button, Card, Heading } from '@astryxdesign/core';
 import { useGetMySettlementInfo, useGetMySettlements } from '@/api/generated/payout-controller/payout-controller';
 import { errorMessage } from '@/api/http';
-import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import { dotDate, won } from './settlementFormat';
 
 function StatusBadge({ status }: { status: string | undefined }) {
-    if (status === 'COMPLETED') return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-primary text-on-primary">정산 완료</span>;
-    if (status === 'PENDING') return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-surface-container border border-outline-variant text-on-surface">정산 예정</span>;
-    return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-surface-container border border-outline-variant text-on-surface">{status ?? '-'}</span>;
+    if (status === 'COMPLETED') return <Badge variant="success" label="정산 완료" />;
+    if (status === 'PENDING') return <Badge variant="warning" label="정산 예정" />;
+    return <Badge label={status ?? '-'} />;
 }
 
 function TableSkeleton() {
@@ -32,21 +32,15 @@ export default function SettlementList() {
     const feeRate = info.data?.data?.feeRatePercent;
 
     return (
-        <div className="bg-surface-container-lowest rounded-xl border border-surface-container-high overflow-hidden">
-            <div className="px-space-lg py-space-md border-b border-surface-container-high flex items-center justify-between">
+        <Card className="overflow-hidden" padding={0}>
+            <div className="px-space-lg py-space-md border-b border-surface-container-high">
                 <div className="flex items-center gap-space-md">
-                    <h2 className="text-headline-sm text-on-surface">정산 내역 목록</h2>
+                    <Heading level={2}>정산 내역 목록</Heading>
                     {list.isSuccess && (
                         <span className="text-body-sm text-on-surface-variant">
                             총 <strong className="text-on-surface">{rows.length}</strong>건
                         </span>
                     )}
-                </div>
-                <div className="flex items-center gap-space-sm">
-                    <button className="px-space-md py-1.5 border border-outline-variant rounded text-label-sm text-on-surface flex items-center gap-space-xs hover:bg-surface-container-high" type="button">
-                        <Icon name="download" className="text-[16px]" />
-                        엑셀 다운로드
-                    </button>
                 </div>
             </div>
             {list.isPending ? (
@@ -54,9 +48,7 @@ export default function SettlementList() {
             ) : list.isError ? (
                 <div className="py-space-xl px-space-lg flex flex-col items-center gap-space-sm text-center" role="alert">
                     <p className="text-body-md text-on-surface">{errorMessage(list.error, '정산 내역을 불러오지 못했습니다.')}</p>
-                    <button className="px-space-md py-1.5 border border-outline-variant rounded text-label-sm text-on-surface hover:bg-surface-container-high" type="button" onClick={() => list.refetch()}>
-                        다시 시도
-                    </button>
+                    <Button label="다시 시도" size="sm" onClick={() => list.refetch()} />
                 </div>
             ) : rows.length === 0 ? (
                 <div className="py-space-xl px-space-lg text-center text-body-md text-on-surface-variant">정산 내역이 없습니다.</div>
@@ -102,15 +94,6 @@ export default function SettlementList() {
                     </table>
                 </div>
             )}
-            {/* Pagination Footer: BE 정산 목록은 페이징이 없어 한 번에 모두 보여 준다. */}
-            <div className="px-space-lg py-space-md border-t border-surface-container-high flex items-center justify-between bg-surface-container-low/30">
-                <span className="text-body-sm text-on-surface-variant">{rows.length === 0 ? '0 items' : `1-${rows.length} of ${rows.length} items`}</span>
-                <div className="flex items-center gap-space-xs">
-                    <button className="px-space-md py-1 border border-outline-variant rounded text-label-sm text-outline cursor-not-allowed bg-surface" disabled type="button">이전</button>
-                    <button className="px-space-md py-1 bg-primary text-on-primary rounded text-label-sm" type="button">1</button>
-                    <button className="px-space-md py-1 border border-outline-variant rounded text-label-sm text-outline cursor-not-allowed bg-surface" disabled type="button">다음</button>
-                </div>
-            </div>
-        </div>
+        </Card>
     );
 }

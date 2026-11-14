@@ -2,10 +2,13 @@
 
 import Link from 'next/link';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
 import { getGetCartQueryKey } from '@/api/generated/cart-controller/cart-controller';
 import type { OrderDetailItemResponse, OrderDetailResponse } from '@/api/generated/model';
-import { getGetDetailQueryKey, getGetMyListQueryKey, useGetDetail } from '@/api/generated/order-controller/order-controller';
-import { getGetByOrderQueryKey, getPreviewQueryKey, usePayOrder, usePreview } from '@/api/generated/payment-controller/payment-controller';
+import { getGetDetailQueryKey, getGetMyListQueryKey, getPreviewQueryKey, useGetDetail, usePayOrder, usePreview } from '@/api/generated/order-controller/order-controller';
+import { getGetByOrderQueryKey } from '@/api/generated/payment-controller/payment-controller';
 import {
     getGetMyWalletQueryKey,
     getGetMyWalletTransactionsQueryKey,
@@ -43,7 +46,7 @@ export default function OrderStatus({ orderId }: { orderId: number }) {
 function OrderPayment({ orderId, order }: { orderId: number; order: OrderDetailResponse }) {
     const queryClient = useQueryClient();
     // 잔액은 다른 탭에서 바뀔 수 있어 화면에 들어올 때마다 새로 받는다.
-    const preview = usePreview(orderId, { query: { staleTime: 0 } });
+    const preview = usePreview(orderId, undefined, { query: { staleTime: 0 } });
     const info = preview.data?.data;
 
     const refreshOrder = () =>
@@ -85,8 +88,8 @@ function OrderPayment({ orderId, order }: { orderId: number; order: OrderDetailR
     const canPay = info?.payable === true && (info.walletBalance ?? 0) >= (info.amount ?? 0) && !busy;
 
     return (
-        <Card>
-            <Heading icon="check_circle" title="주문이 접수되었습니다" />
+        <StatusCard>
+            <StatusHeading icon="check_circle" title="주문이 접수되었습니다" />
             <OrderSummary order={order}>
                 <dt className="text-secondary">결제 기한</dt>
                 <dd className="text-on-surface">{formatDateTime(order.paymentDeadlineAt)} 까지</dd>
@@ -99,9 +102,7 @@ function OrderPayment({ orderId, order }: { orderId: number; order: OrderDetailR
                 ) : !info ? (
                     <div className="flex items-center justify-between gap-space-sm font-body-sm text-body-sm">
                         <span className="text-error">{errorMessage(preview.error, '결제 정보를 불러오지 못했습니다.')}</span>
-                        <button className="h-8 px-space-sm border border-outline-variant hover:bg-surface-container shrink-0" type="button" onClick={() => void preview.refetch()}>
-                            다시 시도
-                        </button>
+                        <Button label="다시 시도" size="sm" variant="secondary" onClick={() => void preview.refetch()} />
                     </div>
                 ) : (
                     <>
@@ -118,30 +119,30 @@ function OrderPayment({ orderId, order }: { orderId: number; order: OrderDetailR
             {paidButNotShown && (
                 <div className="flex items-center justify-between gap-space-sm p-space-xs bg-surface-container font-body-sm text-body-sm" role="status">
                     <span>결제가 완료되었습니다. 결제 결과를 불러오지 못했습니다.</span>
-                    <button
-                        className="h-8 px-space-sm border border-outline-variant hover:bg-surface-container-high shrink-0"
-                        type="button"
+                    <Button
+                        label="다시 확인"
+                        size="sm"
+                        variant="secondary"
                         onClick={() => void queryClient.invalidateQueries({ queryKey: getGetDetailQueryKey(orderId) })}
-                    >
-                        다시 확인
-                    </button>
+                    />
                 </div>
             )}
             {info?.payable !== false && <p className="font-body-sm text-body-sm text-secondary">결제 기한이 지나면 주문은 자동으로 취소됩니다.</p>}
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                <button
-                    className="flex-1 h-11 bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                    type="button"
-                    disabled={!canPay}
+                <Button
+                    label={pay.isSuccess ? '결제 완료' : busy ? '결제 중...' : `${formatPrice(info?.amount ?? order.totalAmount ?? 0)} 예치금으로 결제하기`}
+                    className="flex-1"
+                    size="lg"
+                    variant="primary"
+                    isLoading={pay.isPending}
+                    isDisabled={!canPay}
                     onClick={() => {
                         if (canPay) pay.mutate({ orderId });
                     }}
-                >
-                    {pay.isSuccess ? '결제 완료' : busy ? '결제 중...' : `${formatPrice(info?.amount ?? order.totalAmount ?? 0)} 예치금으로 결제하기`}
-                </button>
+                />
                 <ContinueShopping />
             </div>
-        </Card>
+        </StatusCard>
     );
 }
 
@@ -151,8 +152,8 @@ function OrderPaid({ order }: { order: OrderDetailResponse }) {
     const balance = wallet.isFetching ? undefined : wallet.data?.data?.balance;
 
     return (
-        <Card>
-            <Heading icon="task_alt" title="결제가 완료되었습니다" />
+        <StatusCard>
+            <StatusHeading icon="task_alt" title="결제가 완료되었습니다" />
             <OrderSummary order={order}>
                 <dt className="text-secondary">결제 수단</dt>
                 <dd className="text-on-surface">팀바이 예치금</dd>
@@ -188,17 +189,16 @@ function OrderPaid({ order }: { order: OrderDetailResponse }) {
                 </p>
             )}
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                <Link
-                    className="flex-1 h-11 border border-outline-variant font-label-md text-label-md flex items-center justify-center hover:bg-surface-container"
+                <Button
+                    label="주문 내역 보기"
+                    className="flex-1"
                     href={order.id !== undefined ? ROUTES.order(order.id) : ROUTES.orders}
-                >
-                    주문 내역 보기
-                </Link>
-                <Link className="flex-1 h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90" href={ROUTES.home}>
-                    쇼핑 계속하기
-                </Link>
+                    as={Link}
+                    variant="secondary"
+                />
+                <Button label="쇼핑 계속하기" className="flex-1" href={ROUTES.home} as={Link} variant="primary" />
             </div>
-        </Card>
+        </StatusCard>
     );
 }
 
@@ -211,8 +211,8 @@ function itemAmount(item: OrderDetailItemResponse): number | null {
 
 function OrderCanceled({ order }: { order: OrderDetailResponse }) {
     return (
-        <Card>
-            <Heading icon="cancel" title="취소된 주문입니다" muted />
+        <StatusCard>
+            <StatusHeading icon="cancel" title="취소된 주문입니다" muted />
             <OrderSummary order={order}>
                 <dt className="text-secondary">취소 일시</dt>
                 <dd className="text-on-surface">{formatDateTime(order.canceledAt)}</dd>
@@ -231,24 +231,22 @@ function OrderCanceled({ order }: { order: OrderDetailResponse }) {
                 </div>
             )}
             <div className="flex flex-col sm:flex-row gap-space-sm">
-                <Link className="flex-1 h-11 bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center hover:opacity-90" href={ROUTES.cart}>
-                    장바구니로 가기
-                </Link>
+                <Button label="장바구니로 가기" className="flex-1" href={ROUTES.cart} as={Link} variant="primary" />
                 <ContinueShopping />
             </div>
-        </Card>
+        </StatusCard>
     );
 }
 
-function Card({ children }: { children: React.ReactNode }) {
-    return <div className="max-w-[640px] mx-auto bg-surface-container-lowest border border-primary p-space-xl flex flex-col gap-space-md">{children}</div>;
+function StatusCard({ children }: { children: React.ReactNode }) {
+    return <Card maxWidth={640} className="mx-auto flex flex-col gap-space-md" variant="blue">{children}</Card>;
 }
 
-function Heading({ icon, title, muted = false }: { icon: string; title: string; muted?: boolean }) {
+function StatusHeading({ icon, title, muted = false }: { icon: string; title: string; muted?: boolean }) {
     return (
         <div className="flex items-center gap-space-sm">
             <Icon name={icon} className={`text-[28px] ${muted ? 'text-outline' : 'text-primary'}`} />
-            <h2 className="font-headline-md text-headline-md text-on-surface font-bold">{title}</h2>
+            <Heading level={2}>{title}</Heading>
         </div>
     );
 }
@@ -267,8 +265,6 @@ function OrderSummary({ order, children }: { order: OrderDetailResponse; childre
 
 function ContinueShopping() {
     return (
-        <Link className="flex-1 h-11 border border-outline-variant font-label-md text-label-md flex items-center justify-center hover:bg-surface-container" href={ROUTES.home}>
-            쇼핑 계속하기
-        </Link>
+        <Button label="쇼핑 계속하기" className="flex-1" href={ROUTES.home} as={Link} variant="secondary" />
     );
 }

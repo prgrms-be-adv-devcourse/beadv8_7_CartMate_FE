@@ -12,5 +12,6 @@ export const SharedGroupPurchaseDetailResponseStatus = {
   OPEN: 'OPEN',
   FROZEN: 'FROZEN',
   CLOSED: 'CLOSED',
+  ORDER_CREATED: 'ORDER_CREATED',
   CANCELED: 'CANCELED',
 } as const;

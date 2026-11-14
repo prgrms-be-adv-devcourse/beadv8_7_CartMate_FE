@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import { Badge, Button, Card, Heading, Text } from '@astryxdesign/core';
 import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/Icon';
 import { apiFetch, ApiError } from '@/lib/api';
@@ -25,6 +26,7 @@ type Seller = {
 };
 
 type CheckState = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
+type AccountCheckState = 'idle' | 'checking' | 'verified' | 'failed';
 
 const INPUT_CLASS =
     'h-10 px-space-md border border-outline-variant rounded bg-surface-container-lowest font-body-sm text-on-surface focus:border-primary outline-none transition-colors disabled:bg-surface-container disabled:text-outline';
@@ -71,6 +73,8 @@ export default function SellerApplyForm() {
     const [bankName, setBankName] = useState('');
     const [accountHolder, setAccountHolder] = useState('');
     const [accountNumber, setAccountNumber] = useState('');
+    const [accountCheck, setAccountCheck] = useState<AccountCheckState>('idle');
+    const [accountMessage, setAccountMessage] = useState<string | null>(null); // 계좌 확인 실패 시 서버가 준 안내 문구
     const [agreed, setAgreed] = useState(false);
 
     const [submitting, setSubmitting] = useState(false);
@@ -112,6 +116,46 @@ export default function SellerApplyForm() {
         }
     };
 
+    // 계좌 확인과 판매자 등록이 같은 값을 보내야 서버가 확인 결과를 등록과 이어 준다.
+    const accountFields = () => ({
+        sellerType,
+        businessName: isBusiness ? businessName.trim() : null,
+        representativeName: isBusiness ? representativeName.trim() : null,
+        businessNumber: isBusiness ? businessNumber : null,
+        bankName,
+        accountHolder: accountHolder.trim(),
+        accountNumber,
+    });
+
+    const handleCheckAccount = async () => {
+        setFormError(null);
+        if (isBusiness && (!businessName.trim() || !representativeName.trim() || !BUSINESS_NUMBER_REGEX.test(businessNumber))) {
+            setFormError('상호명, 대표자명, 사업자등록번호를 먼저 입력해주세요.');
+            return;
+        }
+        if (!bankName || !accountHolder.trim()) {
+            setFormError('정산 은행과 예금주를 먼저 입력해주세요.');
+            return;
+        }
+        if (!ACCOUNT_REGEX.test(accountNumber)) {
+            setFormError('계좌번호는 숫자만 10~16자리로 입력해주세요.');
+            return;
+        }
+        setAccountCheck('checking');
+        setAccountMessage(null);
+        try {
+            await apiFetch<null>('/api/members/me/seller/account/verify', {
+                method: 'POST',
+                body: JSON.stringify(accountFields()),
+            });
+            setAccountCheck('verified');
+        } catch (e) {
+            // 불일치(400)·입력 오류(400)·횟수 초과(429)·일시 장애(503) 모두 서버가 사용자용 문구를 준다.
+            setAccountCheck('failed');
+            setAccountMessage(errorMessage(e, '계좌 확인 중 오류가 발생했습니다.'));
+        }
+    };
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setFormError(null);
@@ -138,6 +182,10 @@ export default function SellerApplyForm() {
             setFormError('계좌번호는 숫자만 10~16자리로 입력해주세요.');
             return;
         }
+        if (accountCheck !== 'verified') {
+            setFormError('정산 계좌 확인을 해주세요.');
+            return;
+        }
         if (!agreed) {
             setFormError('판매자 이용약관에 동의해주세요.');
             return;
@@ -147,22 +195,15 @@ export default function SellerApplyForm() {
         try {
             const res = await apiFetch<Seller>('/api/members/me/seller', {
                 method: 'POST',
-                body: JSON.stringify({
-                    sellerType,
-                    businessName: isBusiness ? businessName.trim() : null,
-                    representativeName: isBusiness ? representativeName.trim() : null,
-                    businessNumber: isBusiness ? businessNumber : null,
-                    phoneNumber,
-                    bankName,
-                    accountHolder: accountHolder.trim(),
-                    accountNumber,
-                    agreed,
-                }),
+                body: JSON.stringify({ ...accountFields(), phoneNumber, agreed }),
             });
             alert('판매자 등록이 완료되었습니다. 이제 판매자 센터를 이용할 수 있습니다.');
             setSeller(res.data);
             router.refresh();
         } catch (e) {
+            if (e instanceof ApiError && e.resultCode === '400-SELLER_ACCOUNT_NOT_VERIFIED') {
+                setAccountCheck('idle'); // 통과 표시가 만료(10분)됐으면 다시 확인할 수 있게 버튼을 되돌린다
+            }
             setFormError(errorMessage(e, '판매자 등록 중 오류가 발생했습니다.'));
         } finally {
             setSubmitting(false);
@@ -170,7 +211,7 @@ export default function SellerApplyForm() {
     };
 
     if (loading) {
-        return <section className="col-span-9 h-[560px] rounded-lg bg-surface-container animate-pulse" />;
+        return <section className="h-[560px] rounded-lg bg-surface-container animate-pulse" />;
     }
 
     // ===== 이미 등록된 판매자 =====
@@ -190,25 +231,20 @@ export default function SellerApplyForm() {
         ];
 
         return (
-            <section className="col-span-9 bg-surface-container-lowest rounded-lg p-space-xl border border-outline-variant">
-                <div className="flex items-center justify-between pb-space-lg mb-space-lg border-b border-outline-variant">
+            <Card>
+                <div className="flex flex-wrap gap-space-sm items-center justify-between mb-space-lg">
                     <div>
-                        <h2 className="font-headline-md text-headline-md text-on-surface font-bold">판매자 정보</h2>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">등록된 판매자 정보와 정산 계좌입니다.</p>
+                        <Heading level={2}>판매자 정보</Heading>
+                        <Text color="secondary">등록된 판매자 정보와 정산 계좌입니다.</Text>
                     </div>
-                    <div className="px-space-sm py-1 bg-surface-container text-on-surface font-caption text-caption rounded border border-outline-variant">
-                        상태:{' '}
-                        <span className={`font-bold ${seller.status === 'ACTIVE' ? 'text-primary' : 'text-error'}`}>
-                            {seller.status === 'ACTIVE' ? '판매자 (활성)' : '판매 정지'}
-                        </span>
-                    </div>
+                    <Badge variant={seller.status === 'ACTIVE' ? 'success' : 'error'} label={seller.status === 'ACTIVE' ? '판매자 (활성)' : '판매 정지'} />
                 </div>
 
                 <div className="border border-outline-variant rounded divide-y divide-outline-variant">
                     {rows.map((row) => (
-                        <div key={row.label} className="flex items-center px-space-lg py-space-md">
+                        <div key={row.label} className="flex flex-wrap gap-space-xs items-center px-space-lg py-space-md break-words">
                             <span className="w-36 font-label-md text-label-md text-on-surface-variant">{row.label}</span>
-                            <span className="font-body-md text-body-md text-on-surface">{row.value}</span>
+                            <span className="min-w-0 break-all font-body-md text-body-md text-on-surface">{row.value}</span>
                         </div>
                     ))}
                 </div>
@@ -222,7 +258,7 @@ export default function SellerApplyForm() {
                         <Icon name="arrow_forward" className="text-[18px]" />
                     </Link>
                 </div>
-            </section>
+            </Card>
         );
     }
 
@@ -235,25 +271,30 @@ export default function SellerApplyForm() {
         invalid: { text: '000-00-00000 형식으로 입력해주세요', cls: 'text-error' },
     }[businessCheck];
 
+    const accountStatus = {
+        idle: { text: '등록 전에 계좌 확인이 필요합니다', cls: 'text-outline' },
+        checking: { text: '은행에 확인하고 있습니다...', cls: 'text-outline' },
+        verified: { text: '계좌 확인이 완료되었습니다', cls: 'text-on-surface font-semibold' },
+        failed: { text: accountMessage ?? '계좌 확인에 실패했습니다', cls: 'text-error' },
+    }[accountCheck];
+
     return (
-        <section className="col-span-9 bg-surface-container-lowest rounded-lg p-space-xl border border-outline-variant">
-            <div className="flex items-center justify-between pb-space-lg mb-space-lg border-b border-outline-variant">
+        <Card>
+            <div className="flex flex-wrap gap-space-sm items-center justify-between mb-space-lg">
                 <div>
-                    <h2 className="font-headline-md text-headline-md text-on-surface font-bold">판매자 파트너 신청서</h2>
+                    <Heading level={2}>판매자 파트너 신청서</Heading>
                     <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
                         판매자 정보와 정산 계좌를 정확히 입력해 주세요. 만 19세 이상만 등록할 수 있습니다.
                     </p>
                 </div>
-                <div className="px-space-sm py-1 bg-surface-container text-on-surface font-caption text-caption rounded border border-outline-variant">
-                    상태: <span className="font-bold text-primary">미등록</span>
-                </div>
+                <Badge variant="neutral" label="미등록" />
             </div>
 
             <form className="flex flex-col gap-space-lg" onSubmit={handleSubmit} noValidate>
                 {/* 판매자 유형 */}
                 <div className="flex flex-col gap-space-xs">
                     <span className={LABEL_CLASS}>판매자 유형</span>
-                    <div className="grid grid-cols-2 gap-space-sm" role="radiogroup">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm" role="radiogroup">
                         {(
                             [
                                 { value: 'INDIVIDUAL', title: '개인 판매자', desc: '동호회·팀 단위로 직접 제작한 상품 판매' },
@@ -275,6 +316,7 @@ export default function SellerApplyForm() {
                                         checked={active}
                                         onChange={() => {
                                             setSellerType(opt.value);
+                                            setAccountCheck('idle');
                                             setFormError(null);
                                         }}
                                     />
@@ -289,7 +331,7 @@ export default function SellerApplyForm() {
                 {/* 사업자 정보 */}
                 {isBusiness && (
                     <>
-                        <div className="grid grid-cols-2 gap-gutter">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-gutter">
                             <div className="flex flex-col gap-space-xs">
                                 <label htmlFor="seller-company" className={LABEL_CLASS}>
                                     상호명 (법인명)
@@ -300,7 +342,10 @@ export default function SellerApplyForm() {
                                     placeholder="예: (주)팀바이 스포츠"
                                     maxLength={100}
                                     value={businessName}
-                                    onChange={(e) => setBusinessName(e.target.value)}
+                                    onChange={(e) => {
+                                        setBusinessName(e.target.value);
+                                        setAccountCheck('idle');
+                                    }}
                                 />
                             </div>
                             <div className="flex flex-col gap-space-xs">
@@ -313,7 +358,10 @@ export default function SellerApplyForm() {
                                     placeholder="예: 홍길동"
                                     maxLength={50}
                                     value={representativeName}
-                                    onChange={(e) => setRepresentativeName(e.target.value)}
+                                    onChange={(e) => {
+                                        setRepresentativeName(e.target.value);
+                                        setAccountCheck('idle');
+                                    }}
                                 />
                             </div>
                         </div>
@@ -324,13 +372,14 @@ export default function SellerApplyForm() {
                             <div className="flex gap-space-xs max-w-[480px]">
                                 <input
                                     id="seller-biz-no"
-                                    className={`${INPUT_CLASS} w-full`}
+                                    className={`${INPUT_CLASS} min-w-0 w-full`}
                                     placeholder="000-00-00000"
                                     inputMode="numeric"
                                     value={businessNumber}
                                     onChange={(e) => {
                                         setBusinessNumber(formatBusinessNumber(e.target.value));
                                         setBusinessCheck('idle');
+                                        setAccountCheck('idle');
                                     }}
                                 />
                                 <button
@@ -364,12 +413,20 @@ export default function SellerApplyForm() {
                 </div>
 
                 {/* 정산 계좌 */}
-                <div className="grid grid-cols-3 gap-gutter">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
                     <div className="flex flex-col gap-space-xs">
                         <label htmlFor="seller-bank" className={LABEL_CLASS}>
                             정산 은행
                         </label>
-                        <select id="seller-bank" className={INPUT_CLASS} value={bankName} onChange={(e) => setBankName(e.target.value)}>
+                        <select
+                            id="seller-bank"
+                            className={INPUT_CLASS}
+                            value={bankName}
+                            onChange={(e) => {
+                                setBankName(e.target.value);
+                                setAccountCheck('idle');
+                            }}
+                        >
                             <option value="">은행 선택</option>
                             {BANKS.map((bank) => (
                                 <option key={bank} value={bank}>
@@ -388,7 +445,10 @@ export default function SellerApplyForm() {
                             placeholder="예: 홍길동"
                             maxLength={50}
                             value={accountHolder}
-                            onChange={(e) => setAccountHolder(e.target.value)}
+                            onChange={(e) => {
+                                setAccountHolder(e.target.value);
+                                setAccountCheck('idle');
+                            }}
                         />
                     </div>
                     <div className="flex flex-col gap-space-xs">
@@ -402,9 +462,23 @@ export default function SellerApplyForm() {
                             inputMode="numeric"
                             maxLength={16}
                             value={accountNumber}
-                            onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
+                            onChange={(e) => {
+                                setAccountNumber(e.target.value.replace(/\D/g, ''));
+                                setAccountCheck('idle');
+                            }}
                         />
                     </div>
+                </div>
+                <div className="flex items-center gap-space-sm -mt-space-sm">
+                    <button
+                        className={SUB_BUTTON}
+                        type="button"
+                        onClick={handleCheckAccount}
+                        disabled={accountCheck === 'checking' || accountCheck === 'verified'}
+                    >
+                        {accountCheck === 'verified' ? '확인완료' : accountCheck === 'checking' ? '확인 중...' : '계좌 확인'}
+                    </button>
+                    <span className={`${CAPTION} ${accountStatus.cls}`}>{accountStatus.text}</span>
                 </div>
                 <p className={`${CAPTION} text-outline -mt-space-sm`}>정산 계좌는 공동구매 판매 대금 정산에 사용되며, 화면에는 뒤 4자리만 표시됩니다.</p>
 
@@ -424,16 +498,9 @@ export default function SellerApplyForm() {
                 {formError && <p className="font-body-sm text-body-sm text-error">{formError}</p>}
 
                 <div className="pt-space-md border-t border-outline-variant flex justify-end">
-                    <button
-                        className="h-12 px-space-xl bg-primary text-on-primary rounded font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-space-xs shadow-sm disabled:opacity-60"
-                        type="submit"
-                        disabled={submitting}
-                    >
-                        <span>{submitting ? '등록 중...' : '판매자 등록하기'}</span>
-                        <Icon name="arrow_forward" className="text-[18px]" />
-                    </button>
+                    <Button label="판매자 등록하기" variant="primary" type="submit" isLoading={submitting} isDisabled={submitting} />
                 </div>
             </form>
-        </section>
+        </Card>
     );
 }

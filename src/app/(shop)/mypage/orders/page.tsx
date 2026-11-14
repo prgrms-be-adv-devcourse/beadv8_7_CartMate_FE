@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import MyPageSidebar from '@/components/layout/MyPageSidebar';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Text } from '@astryxdesign/core/Text';
+import MyPageShell from '@/components/layout/MyPageShell';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import OrderList from './_components/OrderList';
@@ -11,55 +13,32 @@ export const metadata: Metadata = {
 
 export default function OrdersPage() {
     return (
-        <div className="flex flex-col w-full bg-surface">
-            <div className="max-w-[1200px] mx-auto px-gutter py-space-xl w-full">
-                {/* Page Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between pb-space-lg mb-space-xl border-b border-surface-container-highest">
-                    <div>
-                        <div className="flex items-center gap-space-xs font-caption text-caption text-outline uppercase tracking-wider mb-space-xs">
-                            <span>MY PAGE</span>
-                            <span>/</span>
-                            <span>주문 관리</span>
-                        </div>
-                        <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface">주문 내역 조회</h1>
-                    </div>
-                    <div className="mt-space-md md:mt-0 flex items-center gap-space-sm font-body-sm text-on-surface-variant">
-                        <span>개인 주문과 공동구매 주문을 함께 보여 드립니다.</span>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
-                    <div className="lg:col-span-3 flex flex-col gap-space-md">
-                        <MyPageSidebar />
-                    </div>
-
-                    <section className="lg:col-span-9 flex flex-col gap-space-md">
+        <MyPageShell title="주문 내역" description="개인 주문과 공동구매 주문을 한곳에서 확인합니다.">
+                    <div className="flex flex-col gap-5">
                         <div className="flex gap-space-sm">
-                            <span className="px-space-md py-2 bg-primary text-on-primary font-label-sm text-label-sm rounded" aria-current="page">
-                                주문 내역
-                            </span>
-                            <Link
-                                className="px-space-md py-2 bg-surface text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-sm text-label-sm rounded transition-colors border border-outline-variant inline-flex items-center gap-0.5"
+                            <Button label="주문 내역" variant="primary" size="sm" isDisabled />
+                            <Button
+                                label="배송 조회"
+                                variant="secondary"
+                                size="sm"
                                 href={ROUTES.deliveries}
-                            >
-                                <Icon name="local_shipping" className="text-[16px]" />
-                                배송 조회
-                            </Link>
+                                icon={<Icon name="local_shipping" className="text-[16px]" />}
+                            />
                         </div>
 
                         <OrderList />
 
-                        <div className="p-space-md bg-surface-container border border-outline-variant rounded flex items-start gap-space-md">
+                        <Card variant="muted" padding={4}>
+                          <div className="flex items-start gap-3">
                             <Icon name="info" className="text-outline text-[20px] mt-0.5" />
-                            <div className="font-body-sm text-on-surface-variant space-y-1">
-                                <div className="font-bold text-on-surface">주문 취소 안내</div>
-                                <p>결제 대기 중인 주문은 주문 상세에서 바로 취소할 수 있습니다. 결제가 끝난 주문의 취소 · 환불은 준비 중입니다.</p>
-                                <p>공동물품 공구 주문은 공동구매 주문 현황에서 결제와 취소를 진행합니다.</p>
+                            <div className="flex flex-col gap-1">
+                                <Text weight="semibold">주문 취소 안내</Text>
+                                <Text type="supporting" color="secondary">결제 대기 주문은 상세에서 취소할 수 있습니다. 결제 완료 후 취소·환불은 준비 중입니다.</Text>
+                                <Text type="supporting" color="secondary">공동물품 공구 주문은 공동구매 주문 현황에서 처리합니다.</Text>
                             </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </div>
+                          </div>
+                        </Card>
+                    </div>
+        </MyPageShell>
     );
 }

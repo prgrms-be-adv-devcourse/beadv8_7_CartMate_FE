@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '@astryxdesign/core';
 import { GetSellerClaimsStatusItem } from '@/api/generated/model';
 
 export type ClaimTab = 'all' | 'pending' | 'progress' | 'done';
@@ -47,18 +48,7 @@ export default function ClaimStatusTabs() {
     return (
         <div className="flex bg-surface-container rounded-lg p-space-xs border border-outline-variant">
             {TABS.map((tab) => (
-                <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => select(tab.key)}
-                    className={
-                        tab.key === active
-                            ? 'px-space-md py-space-xs text-label-sm font-label-sm bg-primary text-on-primary rounded-lg transition-all'
-                            : 'px-space-md py-space-xs text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface transition-all'
-                    }
-                >
-                    {tab.label}
-                </button>
+                <Button key={tab.key} label={tab.label} size="sm" variant={tab.key === active ? 'primary' : 'ghost'} onClick={() => select(tab.key)} />
             ))}
         </div>
     );

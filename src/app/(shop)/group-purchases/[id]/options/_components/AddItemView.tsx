@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
@@ -108,13 +111,13 @@ function AddItemContent({ id, purchase, remainingMs, deadlinePassed }: SharedDet
             </section>
 
             <div className="grid grid-cols-12 gap-gutter items-start">
-                <section className="col-span-12 lg:col-span-7 bg-surface-container-lowest border border-outline-variant rounded p-space-lg flex flex-col gap-space-md">
+                <Card className="col-span-12 lg:col-span-7 flex flex-col gap-space-md">
                     <div className="flex flex-col gap-1">
-                        <h1 className="font-headline-md text-headline-md text-primary">상품 고르기</h1>
+                        <Heading level={1}>상품 고르기</Heading>
                         <p className="font-body-sm text-body-sm text-secondary">판매 중인 상품을 골라 공동 장바구니에 담습니다. 담은 상품은 모든 참여자가 함께 봅니다.</p>
                     </div>
                     <SalesProductPicker selectedId={picked?.inventoryId ?? null} inCartIds={inCartIds} onSelect={onSelect} />
-                </section>
+                </Card>
 
                 <section className="col-span-12 lg:col-span-5 lg:sticky lg:top-32 flex flex-col gap-space-md">
                     <form
@@ -122,7 +125,7 @@ function AddItemContent({ id, purchase, remainingMs, deadlinePassed }: SharedDet
                         onSubmit={handleSubmit(onSubmit)}
                         noValidate
                     >
-                        <h2 className="font-headline-sm text-headline-sm text-primary">담을 상품</h2>
+                        <Heading level={2}>담을 상품</Heading>
                         {picked ? (
                             <>
                                 <div className="flex items-start gap-space-md">
@@ -166,14 +169,16 @@ function AddItemContent({ id, purchase, remainingMs, deadlinePassed }: SharedDet
                                         {errorMessage(add.error, '상품을 담지 못했습니다.')}
                                     </p>
                                 )}
-                                <button
-                                    className="h-12 bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 shadow-sm disabled:opacity-60"
+                                <Button
+                                    label={add.isPending ? '담는 중...' : '공동 장바구니에 담기'}
+                                    className="w-full"
                                     type="submit"
-                                    disabled={add.isPending}
-                                >
-                                    <Icon name="add_shopping_cart" className="text-[20px]" />
-                                    {add.isPending ? '담는 중...' : '공동 장바구니에 담기'}
-                                </button>
+                                    size="lg"
+                                    variant="primary"
+                                    isLoading={add.isPending}
+                                    isDisabled={add.isPending}
+                                    icon={<Icon name="add_shopping_cart" className="text-[20px]" />}
+                                />
                             </>
                         ) : (
                             <p className="p-space-lg bg-surface-container-low text-center font-body-sm text-body-sm text-on-surface-variant rounded">

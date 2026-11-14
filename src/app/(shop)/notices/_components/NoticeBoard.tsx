@@ -51,12 +51,13 @@ export default function NoticeBoard() {
                         팀바이커머스의 주요 소식과 단체주문 안내, 정책 변경 사항을 알려 드립니다.
                     </p>
                 </div>
-                <form onSubmit={onSearch} className="flex items-center gap-space-sm">
-                    <div className="w-64 h-10 border border-outline-variant bg-surface-container-lowest flex items-center px-space-md focus-within:border-primary">
+                <form onSubmit={onSearch} className="flex w-full items-center gap-space-sm md:w-auto">
+                    <div className="h-10 flex-1 border border-outline-variant bg-surface-container-lowest flex items-center px-space-md focus-within:border-primary md:w-64 md:flex-none">
                         <Icon name="search" className="text-outline text-[18px] mr-space-sm" />
                         <input
                             className="w-full bg-transparent border-none outline-none font-body-sm text-body-sm placeholder:text-outline text-on-surface"
                             placeholder="공지사항 검색"
+                            aria-label="공지사항 검색"
                             value={keywordInput}
                             onChange={(e) => setKeywordInput(e.target.value)}
                         />

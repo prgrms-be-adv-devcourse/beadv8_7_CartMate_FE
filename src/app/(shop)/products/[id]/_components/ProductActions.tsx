@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '@astryxdesign/core/Button';
+import { Text } from '@astryxdesign/core/Text';
 import { getGetCartQueryKey, useAddItem1 } from '@/api/generated/cart-controller/cart-controller';
 import { ApiError, errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -15,8 +17,6 @@ type Props = {
     quantity: number;
     onSale: boolean;
 };
-
-const DISABLED_CLASS = 'disabled:cursor-not-allowed disabled:opacity-50';
 
 // 상품 상세의 구매 버튼 영역.
 // - 장바구니 담기: BE는 inventoryId 를 받지만 "상품 1개 = 재고 단위 1개"로 정해져 있어 상품 id 를 그대로 넣는다.
@@ -50,62 +50,35 @@ export default function ProductActions({ postId, productId, quantity, onSale }: 
     };
 
     return (
-        <div className="flex flex-col gap-space-sm pt-space-xs">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
-                <div className="flex gap-space-xs">
-                    <button
-                        className={`flex-1 h-11 border border-primary bg-surface-container-lowest text-primary hover:bg-surface-container-low font-label-sm text-label-sm flex items-center justify-center gap-1 transition-colors ${DISABLED_CLASS}`}
-                        type="button"
-                        disabled={!canBuy || addToCart.isPending}
-                        onClick={handleAddToCart}
-                    >
-                        <Icon name="shopping_cart" className="text-[18px]" />
-                        <span>{addToCart.isPending ? '담는 중...' : '장바구니 담기'}</span>
-                    </button>
-                    <button
-                        className={`flex-1 h-11 border border-primary bg-surface-container-highest text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 font-bold ${DISABLED_CLASS}`}
-                        type="button"
-                        disabled
-                        title="준비 중입니다"
-                    >
-                        바로 구매 (준비 중)
-                    </button>
-                </div>
-                {onSale ? (
-                    <Link
-                        className="h-11 border-2 border-primary bg-primary text-on-primary hover:bg-inverse-surface font-label-md text-label-md flex items-center justify-center gap-1.5 font-bold transition-colors"
-                        href={ROUTES.groupPurchaseNew}
-                    >
-                        <Icon name="group_add" className="text-[20px]" />
-                        <span>+ 공동구매 시작하기 (팀 공구방 개설)</span>
-                    </Link>
-                ) : (
-                    <button
-                        className={`h-11 border-2 border-primary bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 font-bold ${DISABLED_CLASS}`}
-                        type="button"
-                        disabled
-                        title="판매 중인 상품만 공동구매를 시작할 수 있습니다"
-                    >
-                        <Icon name="group_add" className="text-[20px]" />
-                        <span>+ 공동구매 시작하기 (팀 공구방 개설)</span>
-                    </button>
-                )}
+        <div className="flex flex-col gap-3 pt-1">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <Button
+                    label="장바구니 담기"
+                    variant="secondary"
+                    size="lg"
+                    width="100%"
+                    icon={<Icon name="shopping_cart" />}
+                    isDisabled={!canBuy}
+                    isLoading={addToCart.isPending}
+                    onClick={handleAddToCart}
+                />
+                {onSale ? <Button label="공동구매 시작하기" href={ROUTES.groupPurchaseNew} as={Link} variant="primary" size="lg" width="100%" icon={<Icon name="group_add" />} /> : <Button label="공동구매 시작하기" variant="primary" size="lg" width="100%" icon={<Icon name="group_add" />} isDisabled tooltip="판매 중인 상품만 공동구매를 시작할 수 있습니다" />}
             </div>
             {addToCart.isSuccess && isCurrent && (
-                <p className="font-body-sm text-body-sm text-on-surface flex items-center gap-space-xs" role="status">
+                <div className="flex items-center gap-2" role="status">
                     <Icon name="check_circle" className="text-[16px] text-primary" />
-                    장바구니에 담았습니다.
+                    <Text type="supporting">장바구니에 담았습니다.</Text>
                     <Link className="underline underline-offset-2 hover:text-primary" href={ROUTES.cart}>
                         장바구니 보기
                     </Link>
-                </p>
+                </div>
             )}
             {showError && (
                 <p className="font-body-sm text-body-sm text-error" role="alert">
                     {errorMessage(addToCart.error, '장바구니에 담지 못했습니다.')}
                 </p>
             )}
-            {!onSale && <p className="font-caption text-caption text-secondary">· 현재 판매하지 않는 상품은 구매할 수 없습니다.</p>}
+            {!onSale && <Text type="supporting" color="secondary">현재 판매하지 않는 상품은 구매할 수 없습니다.</Text>}
         </div>
     );
 }

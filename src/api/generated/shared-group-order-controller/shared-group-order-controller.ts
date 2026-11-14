@@ -24,9 +24,12 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  GetSharedGroupOrderByPurchaseParams,
   RsDataListSharedGroupOrderSummaryResponse,
+  RsDataPaymentResult,
   RsDataSharedGroupOrderDetailResponse,
-  RsDataVoid
+  RsDataVoid,
+  SharedGroupPaymentRequest
 } from '../model';
 
 import { http } from '../../http';
@@ -51,7 +54,95 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getCancel2Url = (id: number,) => {
+export const getPaySharedGroupOrderUrl = (id: number,) => {
+
+
+
+
+  return `/api/group-orders/shared/${id}/payment`
+}
+
+/**
+ * @summary 공동 주문 분담금 예치금 결제
+ */
+export const paySharedGroupOrder = async (id: number,
+    sharedGroupPaymentRequest?: SharedGroupPaymentRequest, options?: Parameters<typeof http>[1]): Promise<RsDataPaymentResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return http<RsDataPaymentResult>(getPaySharedGroupOrderUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sharedGroupPaymentRequest)
+  }
+);}
+
+
+
+
+
+export const getPaySharedGroupOrderMutationKey = () => ['paySharedGroupOrder'] as const;
+
+export const getPaySharedGroupOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paySharedGroupOrder>>, TError,PaySharedGroupOrderMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof paySharedGroupOrder>>, TError,PaySharedGroupOrderMutationVariables, TContext> => {
+
+const mutationKey = getPaySharedGroupOrderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof paySharedGroupOrder>>, PaySharedGroupOrderMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  paySharedGroupOrder(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PaySharedGroupOrderMutationResult = NonNullable<Awaited<ReturnType<typeof paySharedGroupOrder>>>
+    export type PaySharedGroupOrderMutationBody = SharedGroupPaymentRequest | undefined
+    export type PaySharedGroupOrderMutationError = unknown
+    export type PaySharedGroupOrderMutationVariables = {id: number;data?: SharedGroupPaymentRequest}
+
+    /**
+ * @summary 공동 주문 분담금 예치금 결제
+ */
+export const usePaySharedGroupOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paySharedGroupOrder>>, TError,PaySharedGroupOrderMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof paySharedGroupOrder>>,
+        TError,
+        PaySharedGroupOrderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPaySharedGroupOrderMutationOptions(options), queryClient);
+    }
+    export const getCancel2Url = (id: number,) => {
 
 
 
@@ -118,7 +209,114 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getCancel2MutationOptions(options), queryClient);
     }
-    export const getGetDetail3Url = (id: number,) => {
+    export const getGetSharedGroupOrderByPurchaseUrl = (params: GetSharedGroupOrderByPurchaseParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/group-orders/shared?${stringifiedParams}` : `/api/group-orders/shared`
+}
+
+/**
+ * @summary 공동구매 id로 내 공동 주문 상세 조회
+ */
+export const getSharedGroupOrderByPurchase = async (params: GetSharedGroupOrderByPurchaseParams, options?: Parameters<typeof http>[1]): Promise<RsDataSharedGroupOrderDetailResponse> => {
+
+  return http<RsDataSharedGroupOrderDetailResponse>(getGetSharedGroupOrderByPurchaseUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSharedGroupOrderByPurchaseQueryKey = (params?: GetSharedGroupOrderByPurchaseParams,) => {
+    return [
+    `/api/group-orders/shared`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetSharedGroupOrderByPurchaseQueryOptions = <TData = Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError = unknown>(params: GetSharedGroupOrderByPurchaseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSharedGroupOrderByPurchaseQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>> = ({ signal }) => getSharedGroupOrderByPurchase(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSharedGroupOrderByPurchaseQueryResult = NonNullable<Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>>
+export type GetSharedGroupOrderByPurchaseQueryError = unknown
+
+
+export function useGetSharedGroupOrderByPurchase<TData = Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError = unknown>(
+ params: GetSharedGroupOrderByPurchaseParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>,
+          TError,
+          Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSharedGroupOrderByPurchase<TData = Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError = unknown>(
+ params: GetSharedGroupOrderByPurchaseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>,
+          TError,
+          Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSharedGroupOrderByPurchase<TData = Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError = unknown>(
+ params: GetSharedGroupOrderByPurchaseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 공동구매 id로 내 공동 주문 상세 조회
+ */
+
+export function useGetSharedGroupOrderByPurchase<TData = Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError = unknown>(
+ params: GetSharedGroupOrderByPurchaseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharedGroupOrderByPurchase>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSharedGroupOrderByPurchaseQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getGetDetail3Url = (id: number,) => {
 
 
 

@@ -14,4 +14,6 @@ export interface OrderDetailItemResponse {
   unitPrice?: number;
   quantity?: number;
   amount?: number;
+  /** 취소된 항목이면 취소 시각 (판매글 내림으로 인한 취소). 주문 전체 취소는 주문의 canceledAt을 본다 */
+  canceledAt?: string;
 }

@@ -6,6 +6,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
 import { getGetMyList1QueryKey, useCreate } from '@/api/generated/shared-group-purchase-controller/shared-group-purchase-controller';
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
@@ -85,7 +88,7 @@ export default function CreateGroupPurchaseForm() {
     return (
         <form className="grid grid-cols-12 gap-gutter items-start" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="col-span-12 lg:col-span-8 flex flex-col gap-space-lg">
-                <div className="p-space-lg rounded bg-surface-container-lowest shadow-sm flex flex-col gap-space-lg">
+                <Card className="flex flex-col gap-space-lg">
                     {/* 1. 제목 */}
                     <div className="flex flex-col gap-1.5">
                         <label className="font-label-md text-label-md text-primary flex items-center justify-between" htmlFor="group-title">
@@ -206,13 +209,13 @@ export default function CreateGroupPurchaseForm() {
                         </ul>
                         {errors.agreed && <p className="pl-6 font-caption text-caption text-error">{errors.agreed.message}</p>}
                     </div>
-                </div>
+                </Card>
             </div>
 
             {/* 우측 요약 · 제출 */}
             <div className="col-span-12 lg:col-span-4 flex flex-col gap-space-lg lg:sticky lg:top-32">
-                <div className="p-space-lg rounded bg-surface-container-lowest shadow-sm flex flex-col gap-space-md">
-                    <h3 className="font-headline-sm text-headline-sm text-primary">만들기 요약</h3>
+                <Card className="flex flex-col gap-space-md" variant="blue">
+                    <Heading level={2}>만들기 요약</Heading>
                     <div className="space-y-space-sm font-body-sm text-body-sm">
                         <SummaryRow label="만드는 사람" value={user?.nickname ?? '-'} />
                         <SummaryRow label="제목" value={title.trim() || '-'} />
@@ -226,28 +229,30 @@ export default function CreateGroupPurchaseForm() {
                             만들면 바로 <strong>팀 초대 링크</strong>가 생성되어 팀원들에게 공유할 수 있습니다.
                         </p>
                     </div>
-                </div>
-                <div className="p-space-lg rounded bg-surface-container-lowest shadow-sm flex flex-col gap-space-sm">
+                </Card>
+                <Card className="flex flex-col gap-space-sm">
                     {createPurchase.isError && (
                         <p className="font-body-sm text-body-sm text-error" role="alert">
                             {errorMessage(createPurchase.error, '공동구매를 만들지 못했습니다.')}
                         </p>
                     )}
-                    <button
-                        className="w-full h-11 bg-primary text-on-primary font-label-md text-label-md rounded flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-sm disabled:opacity-60"
+                    <Button
+                        label={busy ? '만드는 중...' : '공동구매 만들기'}
+                        className="w-full"
                         type="submit"
-                        disabled={busy}
-                    >
-                        <Icon name="group_add" className="text-[18px]" />
-                        <span>{busy ? '만드는 중...' : '공동구매 만들기'}</span>
-                    </button>
-                    <Link
-                        className="w-full h-11 bg-surface-container-lowest text-primary font-label-md text-label-md rounded flex items-center justify-center gap-1 hover:bg-surface-container transition-all"
+                        variant="primary"
+                        isLoading={createPurchase.isPending}
+                        isDisabled={busy}
+                        icon={<Icon name="group_add" className="text-[18px]" />}
+                    />
+                    <Button
+                        label="취소하고 돌아가기"
+                        className="w-full"
                         href={ROUTES.groupPurchases}
-                    >
-                        취소하고 돌아가기
-                    </Link>
-                </div>
+                        as={Link}
+                        variant="ghost"
+                    />
+                </Card>
             </div>
         </form>
     );

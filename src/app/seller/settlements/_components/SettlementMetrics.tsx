@@ -1,6 +1,7 @@
 'use client';
 
 import { useGetMySettlementInfo, useGetMySettlements } from '@/api/generated/payout-controller/payout-controller';
+import { Card, Heading, Text } from '@astryxdesign/core';
 import Icon from '@/components/ui/Icon';
 import { won } from './settlementFormat';
 
@@ -30,21 +31,21 @@ export default function SettlementMetrics() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-space-md">
             {metrics.map((metric) => (
-                <div key={metric.label} className="bg-surface-container-lowest p-space-lg rounded-xl border border-surface-container-high flex flex-col justify-between">
-                    <span className="text-caption text-on-surface-variant uppercase tracking-wider">{metric.label}</span>
+                <Card key={metric.label} className="flex flex-col justify-between" padding={6}>
+                    <Text color="secondary">{metric.label}</Text>
                     <div className="mt-space-md flex items-baseline justify-between">
-                        <span className="text-headline-md font-mono text-on-surface">{metric.value}</span>
+                        <Heading level={3} className="font-mono">{metric.value}</Heading>
                         <span className="text-caption text-on-surface-variant">{metric.note}</span>
                     </div>
-                </div>
+                </Card>
             ))}
-            <div className="bg-surface-container-lowest p-space-lg rounded-xl border border-surface-container-high flex flex-col justify-between">
-                <span className="text-caption text-on-surface-variant uppercase tracking-wider">정산 완료 비율</span>
+            <Card className="flex flex-col justify-between" padding={6}>
+                <Text color="secondary">정산 완료 비율</Text>
                 <div className="mt-space-md flex items-baseline justify-between">
-                    <span className="text-headline-md font-mono text-on-surface">{completedRatio}</span>
+                    <Heading level={3} className="font-mono">{completedRatio}</Heading>
                     <Icon name="verified" className="text-on-surface text-[18px]" />
                 </div>
-            </div>
+            </Card>
         </div>
     );
 }

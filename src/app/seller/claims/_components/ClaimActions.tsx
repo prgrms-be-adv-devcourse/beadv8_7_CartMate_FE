@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '@astryxdesign/core';
 import { getGetSellerClaimsQueryKey, useApproveClaim, useCompleteClaim } from '@/api/generated/claim-controller/claim-controller';
 import type { SellerClaimResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
 
-const APPROVE_BUTTON = 'whitespace-nowrap bg-surface border border-outline-variant text-on-surface text-caption px-space-md py-1 rounded hover:bg-surface-container font-label-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed';
-const COMPLETE_BUTTON = 'whitespace-nowrap bg-primary text-on-primary text-caption px-space-md py-1 rounded hover:opacity-90 font-label-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed';
 
 // 클레임 상태에 맞는 처리 버튼. 접수(REQUESTED)는 "수락", 처리 중(APPROVED)은 "처리 완료"만 보여 준다.
 // 수락 후에만 완료할 수 있고, 순서를 어기면 BE 가 409 를 돌려준다.
@@ -41,14 +40,10 @@ export default function ClaimActions({ claim }: { claim: SellerClaimResponse }) 
     return (
         <div className="flex flex-col items-end gap-space-xs">
             {claim.status === 'REQUESTED' && (
-                <button className={APPROVE_BUTTON} type="button" disabled={busy} onClick={handleApprove}>
-                    {approve.isPending ? '처리 중…' : '수락'}
-                </button>
+                <Button label={approve.isPending ? '처리 중…' : '수락'} isDisabled={busy} onClick={handleApprove} />
             )}
             {claim.status === 'APPROVED' && (
-                <button className={COMPLETE_BUTTON} type="button" disabled={busy} onClick={handleComplete}>
-                    {complete.isPending ? '처리 중…' : '처리 완료'}
-                </button>
+                <Button label={complete.isPending ? '처리 중…' : '처리 완료'} variant="primary" isDisabled={busy} onClick={handleComplete} />
             )}
             {error && (
                 <p className="text-caption text-error text-right" role="alert">
