@@ -7,6 +7,4 @@
 
 export interface DeliveryClaimCreateItemRequest {
   deliveryItemId: number;
-  /** @exclusiveMinimum 0 */
-  quantity: number;
 }

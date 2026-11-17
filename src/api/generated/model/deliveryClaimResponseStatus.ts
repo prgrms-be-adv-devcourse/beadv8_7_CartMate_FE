@@ -9,6 +9,8 @@ export type DeliveryClaimResponseStatus = typeof DeliveryClaimResponseStatus[key
 
 
 export const DeliveryClaimResponseStatus = {
+  VERIFYING: 'VERIFYING',
+  NOT_ACCEPTED: 'NOT_ACCEPTED',
   REQUESTED: 'REQUESTED',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',

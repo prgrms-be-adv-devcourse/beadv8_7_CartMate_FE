@@ -9,6 +9,8 @@ export type SellerClaimResponseStatus = typeof SellerClaimResponseStatus[keyof t
 
 
 export const SellerClaimResponseStatus = {
+  VERIFYING: 'VERIFYING',
+  NOT_ACCEPTED: 'NOT_ACCEPTED',
   REQUESTED: 'REQUESTED',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',

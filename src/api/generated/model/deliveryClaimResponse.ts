@@ -16,9 +16,10 @@ export interface DeliveryClaimResponse {
   claimType?: DeliveryClaimResponseClaimType;
   reason?: DeliveryClaimResponseReason;
   detail?: string;
-  rejectReason?: string;
+  notAcceptedCode?: string;
   status?: DeliveryClaimResponseStatus;
   refundStatus?: DeliveryClaimResponseRefundStatus;
   createdAt?: string;
+  partiallyApproved?: boolean;
   items?: DeliveryClaimItemResponse[];
 }

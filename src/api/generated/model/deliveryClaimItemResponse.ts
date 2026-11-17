@@ -4,10 +4,13 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { DeliveryClaimItemResponseResult } from './deliveryClaimItemResponseResult';
 
 export interface DeliveryClaimItemResponse {
   deliveryItemId?: number;
   orderItemId?: number;
   productName?: string;
   quantity?: number;
+  result?: DeliveryClaimItemResponseResult;
+  rejectReason?: string;
 }

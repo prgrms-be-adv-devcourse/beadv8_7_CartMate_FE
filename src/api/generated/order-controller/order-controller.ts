@@ -30,12 +30,14 @@ import type {
   OrderCreateRequest,
   OrderPaymentRequest,
   PreviewParams,
+  ReturnPreviewParams,
   RsDataListCouponOption,
   RsDataListOrderSummaryResponse,
   RsDataOrderCancelPreviewResponse,
   RsDataOrderCreateResponse,
   RsDataOrderDetailResponse,
   RsDataOrderPaymentPreviewResponse,
+  RsDataOrderReturnPreviewResponse,
   RsDataPaymentResult,
   RsDataVoid
 } from '../model';
@@ -907,6 +909,129 @@ export function useCancelPreview<TData = Awaited<ReturnType<typeof cancelPreview
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCancelPreviewQueryOptions(id,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getReturnPreviewUrl = (id: number,
+    params: ReturnPreviewParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["orderItemIds"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/orders/${id}/return-preview?${stringifiedParams}` : `/api/orders/${id}/return-preview`
+}
+
+/**
+ * @summary 고른 상품을 반품하면 돌려받을 예상 환불 금액 (판매자 탓 사유면 sellerFault=true)
+ */
+export const returnPreview = async (id: number,
+    params: ReturnPreviewParams, options?: Parameters<typeof http>[1]): Promise<RsDataOrderReturnPreviewResponse> => {
+
+  return http<RsDataOrderReturnPreviewResponse>(getReturnPreviewUrl(id,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getReturnPreviewQueryKey = (id: number,
+    params?: ReturnPreviewParams,) => {
+    return [
+    `/api/orders/${id}/return-preview`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getReturnPreviewQueryOptions = <TData = Awaited<ReturnType<typeof returnPreview>>, TError = unknown>(id: number,
+    params: ReturnPreviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof returnPreview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getReturnPreviewQueryKey(id,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof returnPreview>>> = ({ signal }) => returnPreview(id,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof returnPreview>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ReturnPreviewQueryResult = NonNullable<Awaited<ReturnType<typeof returnPreview>>>
+export type ReturnPreviewQueryError = unknown
+
+
+export function useReturnPreview<TData = Awaited<ReturnType<typeof returnPreview>>, TError = unknown>(
+ id: number,
+    params: ReturnPreviewParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof returnPreview>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof returnPreview>>,
+          TError,
+          Awaited<ReturnType<typeof returnPreview>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useReturnPreview<TData = Awaited<ReturnType<typeof returnPreview>>, TError = unknown>(
+ id: number,
+    params: ReturnPreviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof returnPreview>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof returnPreview>>,
+          TError,
+          Awaited<ReturnType<typeof returnPreview>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useReturnPreview<TData = Awaited<ReturnType<typeof returnPreview>>, TError = unknown>(
+ id: number,
+    params: ReturnPreviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof returnPreview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 고른 상품을 반품하면 돌려받을 예상 환불 금액 (판매자 탓 사유면 sellerFault=true)
+ */
+
+export function useReturnPreview<TData = Awaited<ReturnType<typeof returnPreview>>, TError = unknown>(
+ id: number,
+    params: ReturnPreviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof returnPreview>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getReturnPreviewQueryOptions(id,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

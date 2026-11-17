@@ -18,9 +18,10 @@ export interface SellerClaimResponse {
   claimType?: SellerClaimResponseClaimType;
   reason?: SellerClaimResponseReason;
   detail?: string;
-  rejectReason?: string;
+  notAcceptedCode?: string;
   status?: SellerClaimResponseStatus;
   refundStatus?: SellerClaimResponseRefundStatus;
   createdAt?: string;
+  partiallyApproved?: boolean;
   items?: DeliveryClaimItemResponse[];
 }
