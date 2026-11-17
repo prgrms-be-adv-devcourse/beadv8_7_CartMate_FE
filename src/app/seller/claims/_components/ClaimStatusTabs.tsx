@@ -14,13 +14,14 @@ const TABS: { key: ClaimTab; label: string }[] = [
     { key: 'done', label: '처리완료' },
 ];
 
-// 탭별로 조회할 클레임 상태. 처리대기는 접수(REQUESTED), 처리중은 수락(APPROVED), 처리완료는 COMPLETED 다.
-// 전체는 상태를 지정하지 않는다. (거절 REJECTED 는 전체에서만 보인다)
+// 탭별로 조회할 클레임 상태. 처리대기는 접수(REQUESTED), 처리중은 승인(APPROVED · 일부 승인 포함)이다.
+// 처리완료는 판매자가 더 할 일이 없는 건이다: 회수 · 교환을 마친 COMPLETED 와 상품을 전부 거절한 REJECTED.
+// 전체는 상태를 지정하지 않는다. (확인 중 · 접수 불가는 BE 가 판매자에게 보여 주지 않는다)
 export const CLAIM_TAB_STATUSES: Record<ClaimTab, GetSellerClaimsStatusItem[] | undefined> = {
     all: undefined,
     pending: [GetSellerClaimsStatusItem.REQUESTED],
     progress: [GetSellerClaimsStatusItem.APPROVED],
-    done: [GetSellerClaimsStatusItem.COMPLETED],
+    done: [GetSellerClaimsStatusItem.COMPLETED, GetSellerClaimsStatusItem.REJECTED],
 };
 
 // URL 의 tab 을 읽는다. 없거나 알 수 없는 값이면 전체다.

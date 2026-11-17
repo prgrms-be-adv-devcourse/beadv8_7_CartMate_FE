@@ -3,53 +3,59 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@astryxdesign/core';
-import { getGetSellerClaimsQueryKey, useApproveClaim, useCompleteClaim } from '@/api/generated/claim-controller/claim-controller';
+import { getGetSellerClaimsQueryKey, useCompleteClaim } from '@/api/generated/claim-controller/claim-controller';
 import type { SellerClaimResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
+import ClaimReviewDialog from './ClaimReviewDialog';
 
-
-// 클레임 상태에 맞는 처리 버튼. 접수(REQUESTED)는 "수락", 처리 중(APPROVED)은 "처리 완료"만 보여 준다.
-// 수락 후에만 완료할 수 있고, 순서를 어기면 BE 가 409 를 돌려준다.
+// 클레임 상태에 맞는 처리 버튼.
+// 접수(REQUESTED)는 "검토하기"로 상품마다 승인 · 거절을 정하고, 승인(APPROVED)은 마무리 버튼만 보여 준다.
+// 마무리 버튼은 탭 이름("처리완료")과 겹치지 않게 할 일로 부른다: 반품은 "반품 완료", 교환은 "교환 완료".
+// 반품은 환불이 끝나야(COMPLETED) 반품 완료할 수 있다. 진행 중 · 실패면 버튼을 막고 이유를 보여 준다.
 export default function ClaimActions({ claim }: { claim: SellerClaimResponse }) {
     const queryClient = useQueryClient();
+    const [reviewing, setReviewing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // 성공하면 목록을 다시 조회한다. 상태가 바뀐 클레임은 현재 탭에서 빠지고 다음 상태의 탭에 나타난다.
-    function onSuccess() {
-        setError(null);
-        void queryClient.invalidateQueries({ queryKey: getGetSellerClaimsQueryKey() });
-    }
-    const approve = useApproveClaim({ mutation: { onSuccess, onError: (e) => setError(errorMessage(e, '수락 처리에 실패했습니다.')) } });
-    const complete = useCompleteClaim({ mutation: { onSuccess, onError: (e) => setError(errorMessage(e, '처리 완료 변경에 실패했습니다.')) } });
-    const busy = approve.isPending || complete.isPending;
+    const complete = useCompleteClaim({
+        mutation: {
+            onSuccess: () => {
+                setError(null);
+                void queryClient.invalidateQueries({ queryKey: getGetSellerClaimsQueryKey() });
+            },
+            onError: (e) => setError(errorMessage(e, '완료 처리에 실패했습니다.')),
+        },
+    });
 
-    function handleApprove() {
-        // 환불은 수락하는 순간 결제 환불이 실행되고, 환불이 실패하면 수락도 취소된다.
-        const message = claim.claimType === 'REFUND' ? '수락하면 환불이 바로 진행되고 되돌릴 수 없습니다. 수락할까요?' : '교환 요청을 수락할까요?';
-        if (!window.confirm(message)) return;
-        setError(null);
-        approve.mutate({ claimId: claim.claimId! });
-    }
+    const isRefund = claim.claimType === 'REFUND';
+    const completeLabel = isRefund ? '반품 완료' : '교환 완료';
+    const refundBlocked = claim.claimType === 'REFUND' && claim.refundStatus !== 'COMPLETED' && claim.refundStatus !== 'NONE';
 
     function handleComplete() {
-        if (!window.confirm('처리 완료로 변경할까요? 변경 후에는 되돌릴 수 없습니다.')) return;
+        const question = isRefund ? '반품 상품을 회수했나요?' : '상품을 회수하고 교환 상품을 보냈나요?';
+        if (!window.confirm(`${question} ${completeLabel}로 바꾸면 되돌릴 수 없습니다.`)) return;
         setError(null);
         complete.mutate({ claimId: claim.claimId! });
     }
 
     return (
-        <div className="flex flex-col items-end gap-space-xs">
-            {claim.status === 'REQUESTED' && (
-                <Button label={approve.isPending ? '처리 중…' : '수락'} isDisabled={busy} onClick={handleApprove} />
-            )}
+        <div className="flex flex-col items-center gap-space-xs">
+            {claim.status === 'REQUESTED' && <Button label="검토하기" onClick={() => setReviewing(true)} />}
             {claim.status === 'APPROVED' && (
-                <Button label={complete.isPending ? '처리 중…' : '처리 완료'} variant="primary" isDisabled={busy} onClick={handleComplete} />
+                <Button
+                    label={complete.isPending ? '처리 중…' : completeLabel}
+                    variant="primary"
+                    isDisabled={complete.isPending || refundBlocked}
+                    tooltip={refundBlocked ? '환불이 끝난 뒤 반품 완료할 수 있습니다' : undefined}
+                    onClick={handleComplete}
+                />
             )}
             {error && (
-                <p className="text-caption text-error text-right" role="alert">
+                <p className="text-caption text-error text-center" role="alert">
                     {error}
                 </p>
             )}
+            {reviewing && <ClaimReviewDialog claim={claim} onClose={() => setReviewing(false)} />}
         </div>
     );
 }

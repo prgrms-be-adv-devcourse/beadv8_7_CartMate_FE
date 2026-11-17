@@ -7,25 +7,14 @@ import type { SellerClaimResponse } from '@/api/generated/model';
 import { errorMessage } from '@/api/http';
 import { parseKst, toKstLocal } from '@/lib/format';
 import ClaimActions from './ClaimActions';
+import { CLAIM_REASON_LABEL as REASON_LABEL, CLAIM_TYPE_LABEL as TYPE_LABEL, REFUND_STATUS_LABEL } from './claimLabels';
 import { CLAIM_TAB_STATUSES, readClaimTab } from './ClaimStatusTabs';
 import { readClaimType } from './ClaimTypeFilter';
 
 const PAGE_SIZE = 20;
+const REFUND_POLL_MS = 3_000;
 // 페이지 번호는 현재 페이지 앞뒤로 이만큼만 보여 준다.
 const PAGE_WINDOW = 2;
-
-const TYPE_LABEL: Record<string, string> = {
-    EXCHANGE: '교환',
-    REFUND: '환불',
-};
-
-const REASON_LABEL: Record<string, string> = {
-    SIZE_MISMATCH: '사이즈 불일치',
-    SIMPLE_CHANGE: '단순 변심',
-    PRODUCT_DEFECT: '상품 불량',
-    WRONG_DELIVERY: '오배송',
-    OTHER: '기타',
-};
 
 
 // URL 의 page 는 사람이 보는 1부터, BE 요청은 0부터다.
@@ -40,11 +29,21 @@ function formatDate(value: string | undefined): string {
     return date ? toKstLocal(date).slice(0, 10) : '-';
 }
 
-function StatusBadge({ status }: { status: string | undefined }) {
-    if (status === 'COMPLETED') return <Badge label="완료" />;
-    if (status === 'APPROVED') return <Badge variant="info" label="처리 중" />;
-    if (status === 'REJECTED') return <Badge variant="neutral" label="거절됨" />;
+// "일부 승인"은 상태 값이 아니라 상품별 결과로 계산한 표시다(BE partiallyApproved).
+function StatusBadge({ claim }: { claim: SellerClaimResponse }) {
+    const partial = claim.partiallyApproved ? ' · 일부 승인' : '';
+    if (claim.status === 'COMPLETED') return <Badge label={`완료${partial}`} />;
+    if (claim.status === 'APPROVED') return <Badge variant="info" label={`처리 중${partial}`} />;
+    if (claim.status === 'REJECTED') return <Badge variant="neutral" label="거절됨" />;
     return <Badge variant="warning" label="처리 대기" />;
+}
+
+// 상품마다 판매자 결정. 수량 뒤에 색 글자로 붙인다(결정 전이면 아무것도 붙이지 않는다).
+// 배지로 앞에 두면 상품명 시작 위치가 들쭉날쭉하고, 뒤에 두면 좁은 창에서 배지만 다음 줄로 떨어진다.
+function ItemResult({ result, rejectReason }: { result: string | undefined; rejectReason: string | undefined }) {
+    if (result === 'APPROVED') return <span className="text-[var(--color-text-success)]"> · 승인</span>;
+    if (result === 'REJECTED') return <span className="text-error"> · 거절{rejectReason ? ` — ${rejectReason}` : ''}</span>;
+    return null;
 }
 
 function ClaimRow({ claim }: { claim: SellerClaimResponse }) {
@@ -52,26 +51,36 @@ function ClaimRow({ claim }: { claim: SellerClaimResponse }) {
     return (
         <tr className="hover:bg-surface-container/50 transition-colors">
             {/* 공유 공동구매 배송과 이전에 만든 배송은 주문번호가 없어 주문 ID 로 대신한다. */}
-            <td className="py-space-md px-space-lg font-label-sm text-primary">{claim.orderNumber ?? `#${claim.orderId ?? '-'}`}</td>
-            <td className="py-space-md px-space-lg font-body-md">
+            <td className="py-space-md px-space-md font-label-sm text-primary">{claim.orderNumber ?? `#${claim.orderId ?? '-'}`}</td>
+            <td className="py-space-md px-space-md font-body-md min-w-[180px]">
                 {items.map((item) => (
-                    <div key={item.deliveryItemId}>{item.productName ?? '상품 정보 없음'}</div>
+                    <div key={item.deliveryItemId} className="py-0.5">
+                        <div className={item.result === 'REJECTED' ? 'text-on-surface-variant' : undefined}>{item.productName ?? '상품 정보 없음'}</div>
+                        <div className="text-caption text-on-surface-variant">
+                            × {item.quantity}
+                            <ItemResult result={item.result} rejectReason={item.rejectReason} />
+                        </div>
+                    </div>
                 ))}
             </td>
-            <td className="py-space-md px-space-lg">
+            <td className="py-space-md px-space-md whitespace-nowrap">
                 <span className="inline-flex items-center px-space-sm py-0.5 rounded-full text-caption bg-surface-container border border-outline-variant">{TYPE_LABEL[claim.claimType ?? ''] ?? claim.claimType}</span>
             </td>
-            <td className="py-space-md px-space-lg text-on-surface-variant">
-                <div>{REASON_LABEL[claim.reason ?? ''] ?? claim.reason}</div>
+            <td className="py-space-md px-space-md text-on-surface-variant">
+                <div className="whitespace-nowrap">{REASON_LABEL[claim.reason ?? ''] ?? claim.reason}</div>
                 {claim.detail && <div className="text-caption">{claim.detail}</div>}
             </td>
-            <td className="py-space-md px-space-lg text-on-surface-variant">{formatDate(claim.createdAt)}</td>
-            <td className="py-space-md px-space-lg">
-                <StatusBadge status={claim.status} />
+            <td className="py-space-md px-space-md text-on-surface-variant whitespace-nowrap">{formatDate(claim.createdAt)}</td>
+            <td className="py-space-md px-space-md">
+                <StatusBadge claim={claim} />
+                {/* 반품을 승인하면 환불이 비동기로 진행된다. 끝난 환불은 "반품 · 완료"로 이미 알 수 있어, 진행 중 · 실패일 때만 적는다. */}
+                {claim.claimType === 'REFUND' && (claim.refundStatus === 'PENDING' || claim.refundStatus === 'FAILED') && (
+                    <div className={`text-caption mt-1 ${claim.refundStatus === 'FAILED' ? 'text-error' : 'text-on-surface-variant'}`}>{REFUND_STATUS_LABEL[claim.refundStatus ?? '']}</div>
+                )}
             </td>
-            <td className="py-space-md px-space-lg text-right space-x-space-xs">
+            <td className="py-space-md px-space-md text-center">
                 {/* 접수·처리 중인 클레임만 처리 버튼을 보여 주고, 완료(·거절)된 클레임은 "처리됨"으로 표시한다. */}
-                {claim.status === 'REQUESTED' || claim.status === 'APPROVED' ? <ClaimActions claim={claim} /> : <span className="text-caption text-on-surface-variant">처리됨</span>}
+                {claim.status === 'REQUESTED' || claim.status === 'APPROVED' ? <ClaimActions claim={claim} /> : <span className="text-caption text-on-surface-variant whitespace-nowrap">처리됨</span>}
             </td>
         </tr>
     );
@@ -97,7 +106,12 @@ export default function ClaimList() {
 
     const claimType = readClaimType(searchParams.get('type'));
 
-    const query = useGetSellerClaims({ status: CLAIM_TAB_STATUSES[tab], claimType, page: page - 1, size: PAGE_SIZE });
+    // 반품 환불은 승인 뒤 결제 서버가 따로 처리한다(비동기). 처리 직후 다시 불러오면 아직 "환불 진행 중"이라,
+    // 진행 중인 환불이 화면에 있는 동안만 몇 초마다 다시 불러와 "환불 완료"로 바뀌게 한다.
+    const query = useGetSellerClaims(
+        { status: CLAIM_TAB_STATUSES[tab], claimType, page: page - 1, size: PAGE_SIZE },
+        { query: { refetchInterval: (q) => ((q.state.data?.data?.content ?? []).some((c) => c.refundStatus === 'PENDING') ? REFUND_POLL_MS : false) } },
+    );
     const result = query.data?.data;
     const rows = result?.content ?? [];
     const totalElements = result?.totalElements ?? 0;
@@ -142,16 +156,17 @@ export default function ClaimList() {
                         )}
                     </div>
                 ) : (
+                    <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-surface-container border-b border-outline-variant text-on-surface text-label-sm">
-                                <th className="py-space-md px-space-lg">주문번호</th>
-                                <th className="py-space-md px-space-lg">상품명</th>
-                                <th className="py-space-md px-space-lg">요청 유형</th>
-                                <th className="py-space-md px-space-lg">사유</th>
-                                <th className="py-space-md px-space-lg">신청일</th>
-                                <th className="py-space-md px-space-lg">상태</th>
-                                <th className="py-space-md px-space-lg text-right">관리</th>
+                                <th className="py-space-md px-space-md whitespace-nowrap">주문번호</th>
+                                <th className="py-space-md px-space-md whitespace-nowrap">상품명</th>
+                                <th className="py-space-md px-space-md whitespace-nowrap">요청 유형</th>
+                                <th className="py-space-md px-space-md whitespace-nowrap">사유</th>
+                                <th className="py-space-md px-space-md whitespace-nowrap">신청일</th>
+                                <th className="py-space-md px-space-md whitespace-nowrap">상태</th>
+                                <th className="py-space-md px-space-md text-center whitespace-nowrap">관리</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-outline-variant text-body-sm text-on-surface">
@@ -160,6 +175,7 @@ export default function ClaimList() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 )}
                 {/* Pagination */}
                 <div className="px-space-lg py-space-md bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between">
