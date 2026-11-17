@@ -10,12 +10,13 @@ export const metadata: Metadata = {
     title: '교환 및 환불 요청 | TEAMBUY',
 };
 
-// BE 규칙(DeliveryClaimCreateUseCase · DeliveryClaimApproveUseCase)을 그대로 안내한다.
+// BE 규칙(DeliveryClaimCreateUseCase · DeliveryClaimDecideUseCase, ADR 0012)을 그대로 안내한다.
 const NOTICES = [
     '배송 완료된 상품만 신청할 수 있으며, 구매 확정 후에는 신청할 수 없습니다.',
     '판매자별로 배송이 나뉜 주문은 배송 단위로 한 번씩 신청합니다.',
-    '반품(환불)은 판매자가 승인하는 즉시 결제한 예치금으로 돌려드립니다.',
-    '처리 중인 요청에 포함된 상품은 다시 신청할 수 없습니다.',
+    '상품마다 받은 수량 전부를 신청하며, 판매자가 상품마다 승인 또는 거절합니다.',
+    '반품(환불)은 판매자가 승인한 상품만 결제한 예치금으로 돌려드립니다. 승인 뒤 환불이 끝나기까지 잠시 걸릴 수 있습니다.',
+    '처리 중인 요청에 포함된 상품과 이미 반품된 상품은 다시 신청할 수 없습니다. 거절된 상품은 다시 신청할 수 있습니다.',
 ];
 
 export default function OrderClaimPage() {

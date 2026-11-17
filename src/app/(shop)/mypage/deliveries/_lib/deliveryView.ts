@@ -36,9 +36,9 @@ export function trackIndex(status: string | undefined): number {
 // BE 자동 처리 기준(DeliveryScheduler): 배송 완료 후 7일이 지나면 자동 구매 확정.
 export const AUTO_CONFIRM_DAYS = 7;
 
-// 교환 · 환불이 판매자 처리 중(접수 · 승인)인 클레임. 이 동안 BE는 구매 확정을 막는다(409 DELIVERY_CLAIM_IN_PROGRESS).
+// 교환 · 환불이 처리 중(접수 확인 · 접수 · 승인)인 클레임. 이 동안 BE는 구매 확정을 막는다(409 DELIVERY_CLAIM_IN_PROGRESS).
 export function activeClaimOf(claims: DeliveryClaimResponse[] | undefined, deliveryId: number): DeliveryClaimResponse | undefined {
-    return claims?.find((claim) => claim.deliveryId === deliveryId && (claim.status === 'REQUESTED' || claim.status === 'APPROVED'));
+    return claims?.find((claim) => claim.deliveryId === deliveryId && (claim.status === 'VERIFYING' || claim.status === 'REQUESTED' || claim.status === 'APPROVED'));
 }
 
 export const CLAIM_TYPE_LABEL: Record<string, string> = {

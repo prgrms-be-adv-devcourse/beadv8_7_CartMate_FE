@@ -7,10 +7,12 @@ import { Badge, Button, Card, Heading } from '@astryxdesign/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetMyClaimsQueryKey, useCreateClaim } from '@/api/generated/claim-controller/claim-controller';
 import type { DeliveryClaimCreateRequestReason, DeliveryDetailItemResponse, DeliveryDetailResponse, OrderDetailResponse } from '@/api/generated/model';
+import { useReturnPreview } from '@/api/generated/order-controller/order-controller';
+import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
 import { formatPrice } from '@/lib/salesPost';
-import { CLAIM_REASON_LABEL, claimErrorMessage, type ClaimType } from '@/app/(shop)/mypage/claims/_lib/claimView';
+import { CLAIM_REASON_LABEL, claimErrorMessage, SELLER_FAULT_REASONS, type ClaimType } from '@/app/(shop)/mypage/claims/_lib/claimView';
 
 const DETAIL_MAX = 1000;
 
@@ -35,43 +37,36 @@ type Props = {
     deliveries: DeliveryDetailResponse[];
     // 진행 중인 클레임에 이미 들어간 배송 상품 id
     blockedItemIds: Set<number>;
-    // 이미 환불된(승인·완료된 환불 클레임) 배송 상품 id → 수량
-    refundedQty: Map<number, number>;
+    // 이미 반품된(승인 · 처리 완료된 반품 클레임에서 승인된) 배송 상품 id
+    returnedItemIds: Set<number>;
+    // 같은 주문에 처리 중인(확인 중 · 접수 · 승인) 반품이 있는지. 있으면 예상 금액이 달라질 수 있다고 안내한다.
+    hasPendingReturn?: boolean;
     // ?delivery=로 주문의 배송 중 하나만 보여 주는 중인지(다른 배송 보기 링크 표시용)
     focused?: boolean;
 };
 
-// 배송이 하나뿐이고 신청할 수 있으면 그 배송의 신청 가능한 상품을 전체 수량으로 미리 골라 둔다.
-// 아직 신청할 수 있는 수량 = 받은 수량 - 이미 환불된 수량. 배송 전에 취소된 상품은 받지 않았으므로 0이다(BE도 거절한다).
-function remainingOf(item: DeliveryDetailItemResponse, refundedQty: Map<number, number>): number {
-    if (item.canceledAt) return 0;
-    return Math.max(0, (item.quantity ?? 0) - (refundedQty.get(item.deliveryItemId ?? 0) ?? 0));
+// 신청할 수 있는 상품: 배송 전에 취소되지 않았고 이미 반품되지 않은 상품. 상품을 고르면 받은 수량 전부를 신청한다(BE ADR 0012).
+function isClaimable(item: DeliveryDetailItemResponse, returned: Set<number>): boolean {
+    return !item.canceledAt && !returned.has(item.deliveryItemId ?? 0);
 }
 
-function initialSelection(
-    deliveries: DeliveryDetailResponse[],
-    blocked: Set<number>,
-    refundedQty: Map<number, number>,
-): { deliveryId: number | null; quantities: Record<number, number> } {
+// 배송이 하나뿐이고 신청할 수 있으면 그 배송의 신청 가능한 상품을 미리 골라 둔다.
+function initialSelection(deliveries: DeliveryDetailResponse[], blocked: Set<number>, returned: Set<number>): { deliveryId: number | null; itemIds: number[] } {
     const only = deliveries.length === 1 ? deliveries[0] : undefined;
-    if (!only?.deliveryId || only.status !== 'DELIVERED') return { deliveryId: null, quantities: {} };
-    const quantities: Record<number, number> = {};
-    for (const item of only.items ?? []) {
-        const remaining = remainingOf(item, refundedQty);
-        if (item.deliveryItemId && !blocked.has(item.deliveryItemId) && remaining > 0) quantities[item.deliveryItemId] = remaining;
-    }
-    return Object.keys(quantities).length ? { deliveryId: only.deliveryId, quantities } : { deliveryId: null, quantities: {} };
+    if (!only?.deliveryId || only.status !== 'DELIVERED') return { deliveryId: null, itemIds: [] };
+    const itemIds = (only.items ?? []).flatMap((item) => (item.deliveryItemId && !blocked.has(item.deliveryItemId) && isClaimable(item, returned) ? [item.deliveryItemId] : []));
+    return itemIds.length ? { deliveryId: only.deliveryId, itemIds } : { deliveryId: null, itemIds: [] };
 }
 
 // 교환·환불 신청 폼. 클레임은 배송 단위라, 한 번에 한 배송의 상품만 고를 수 있다.
-export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, refundedQty, focused }: Props) {
+export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, returnedItemIds, hasPendingReturn, focused }: Props) {
     const router = useRouter();
     const queryClient = useQueryClient();
 
-    const [initial] = useState(() => initialSelection(deliveries, blockedItemIds, refundedQty));
+    const [initial] = useState(() => initialSelection(deliveries, blockedItemIds, returnedItemIds));
     const [deliveryId, setDeliveryId] = useState<number | null>(initial.deliveryId);
-    // 선택한 배송 상품 id → 신청 수량
-    const [quantities, setQuantities] = useState<Record<number, number>>(initial.quantities);
+    // 선택한 배송 상품 id (상품마다 받은 수량 전부를 신청한다)
+    const [selectedIds, setSelectedIds] = useState<number[]>(initial.itemIds);
     const [claimType, setClaimType] = useState<ClaimType | null>(null);
     const [reason, setReason] = useState('');
     const [detail, setDetail] = useState('');
@@ -91,38 +86,41 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
         },
     });
 
-    const selectedEntries = Object.entries(quantities).map(([id, qty]) => ({ deliveryItemId: Number(id), quantity: qty }));
     const selectedDelivery = deliveries.find((d) => d.deliveryId === deliveryId);
-    const expectedRefund = selectedEntries.reduce((sum, entry) => {
-        const item = selectedDelivery?.items?.find((i) => i.deliveryItemId === entry.deliveryItemId);
-        return sum + (priceByOrderItemId.get(item?.orderItemId) ?? 0) * entry.quantity;
-    }, 0);
-    const anyClaimable = deliveries.some((d) => d.status === 'DELIVERED' && (d.items ?? []).some((i) => i.deliveryItemId && !blockedItemIds.has(i.deliveryItemId) && remainingOf(i, refundedQty) > 0));
+    const selectedItems = (selectedDelivery?.items ?? []).filter((item) => item.deliveryItemId !== undefined && selectedIds.includes(item.deliveryItemId));
+    const anyClaimable = deliveries.some((d) => d.status === 'DELIVERED' && (d.items ?? []).some((i) => i.deliveryItemId && !blockedItemIds.has(i.deliveryItemId) && isClaimable(i, returnedItemIds)));
+
+    // 반품 예상 환불. 쿠폰 할인을 반영해 주문 서버가 계산한다. 판매자 탓 사유면 할인을 비율로만 뺀다.
+    const orderItemIds = selectedItems.flatMap((item) => (item.orderItemId === undefined ? [] : [item.orderItemId]));
+    const refundPreview = useReturnPreview(
+        orderId,
+        { orderItemIds, sellerFault: SELLER_FAULT_REASONS.includes(reason) },
+        { query: { enabled: claimType === 'REFUND' && orderItemIds.length > 0, retry: false } },
+    );
 
     function toggleItem(delivery: DeliveryDetailResponse, item: DeliveryDetailItemResponse, checked: boolean) {
         const itemId = item.deliveryItemId;
         if (!itemId || !delivery.deliveryId) return;
         setFormError(null);
         if (!checked) {
-            const next = { ...quantities };
-            delete next[itemId];
-            setQuantities(next);
-            if (Object.keys(next).length === 0) setDeliveryId(null);
+            const next = selectedIds.filter((id) => id !== itemId);
+            setSelectedIds(next);
+            if (next.length === 0) setDeliveryId(null);
             return;
         }
         // 다른 배송의 상품을 고르면 앞서 고른 배송의 선택은 풀린다.
         if (deliveryId !== delivery.deliveryId) {
             setDeliveryId(delivery.deliveryId);
-            setQuantities({ [itemId]: remainingOf(item, refundedQty) });
+            setSelectedIds([itemId]);
             return;
         }
-        setQuantities((prev) => ({ ...prev, [itemId]: remainingOf(item, refundedQty) }));
+        setSelectedIds((prev) => [...prev, itemId]);
     }
 
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (create.isPending) return;
-        if (!deliveryId || selectedEntries.length === 0) return setFormError('교환 · 환불할 상품을 선택해 주세요.');
+        if (!deliveryId || selectedIds.length === 0) return setFormError('교환 · 환불할 상품을 선택해 주세요.');
         if (!claimType) return setFormError('신청 구분(교환 / 반품)을 선택해 주세요.');
         if (!reason) return setFormError('사유를 선택해 주세요.');
         if (detail.trim().length > DETAIL_MAX) return setFormError(`상세 사유는 ${DETAIL_MAX}자 이내로 입력해 주세요.`);
@@ -133,7 +131,7 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                 claimType,
                 reason: reason as DeliveryClaimCreateRequestReason,
                 detail: detail.trim() || undefined,
-                items: selectedEntries,
+                items: selectedIds.map((id) => ({ deliveryItemId: id })),
             },
         });
     }
@@ -187,11 +185,9 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                                     {(delivery.items ?? []).map((item) => {
                                         const itemId = item.deliveryItemId ?? 0;
                                         const blocked = blockedItemIds.has(itemId);
-                                        const remaining = remainingOf(item, refundedQty);
-                                        const refundedAll = remaining === 0 && (refundedQty.get(itemId) ?? 0) > 0;
-                                        const disabled = !open || blocked || remaining === 0 || create.isPending;
-                                        const checked = deliveryId === delivery.deliveryId && quantities[itemId] !== undefined;
-                                        const max = Math.max(1, remaining);
+                                        const returned = returnedItemIds.has(itemId);
+                                        const disabled = !open || blocked || !isClaimable(item, returnedItemIds) || create.isPending;
+                                        const checked = deliveryId === delivery.deliveryId && selectedIds.includes(itemId);
                                         const unitPrice = priceByOrderItemId.get(item.orderItemId);
                                         const optionText =
                                             (item.options ?? []).map((o) => `${o.optionName}: ${o.optionValue}`).join(' / ') || optionByOrderItemId.get(item.orderItemId);
@@ -219,32 +215,9 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                                                         </div>
                                                         {blocked && <div className="font-caption text-caption text-primary font-bold mt-0.5">처리 중인 교환 · 환불 요청이 있습니다</div>}
                                                         {item.canceledAt && <div className="font-caption text-caption text-outline font-bold mt-0.5">배송 전에 취소된 상품입니다</div>}
-                                                        {!blocked && refundedAll && <div className="font-caption text-caption text-outline font-bold mt-0.5">환불 완료된 상품입니다</div>}
-                                                        {!blocked && !item.canceledAt && !refundedAll && remaining < (item.quantity ?? 0) && (
-                                                            <div className="font-caption text-caption text-outline mt-0.5">{(item.quantity ?? 0) - remaining}개 환불 완료 · {remaining}개 신청 가능</div>
-                                                        )}
+                                                        {!blocked && returned && <div className="font-caption text-caption text-outline font-bold mt-0.5">이미 반품된 상품입니다</div>}
                                                     </div>
                                                 </label>
-                                                {checked && (
-                                                    <div className="flex items-center gap-space-xs shrink-0">
-                                                        <label htmlFor={`qty-${itemId}`} className="font-caption text-caption text-outline">
-                                                            신청 수량
-                                                        </label>
-                                                        <select
-                                                            id={`qty-${itemId}`}
-                                                            value={quantities[itemId]}
-                                                            disabled={create.isPending}
-                                                            onChange={(e) => setQuantities((prev) => ({ ...prev, [itemId]: Number(e.target.value) }))}
-                                                            className="h-9 border border-outline-variant bg-surface-container-lowest px-space-sm rounded font-body-sm text-body-sm text-on-surface"
-                                                        >
-                                                            {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
-                                                                <option key={n} value={n}>
-                                                                    {n}개
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                )}
                                             </li>
                                         );
                                     })}
@@ -350,16 +323,29 @@ export default function ClaimForm({ order, orderId, deliveries, blockedItemIds, 
                     {/* 신청 요약 */}
                     <div className="p-space-md bg-surface-container-low border border-outline-variant rounded flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm" aria-live="polite">
                         <div className="font-body-sm text-body-sm text-on-surface-variant">
-                            {selectedEntries.length === 0
+                            {selectedItems.length === 0
                                 ? '선택한 상품이 없습니다.'
-                                : `배송 #${deliveryId} · ${selectedEntries.length}개 상품 · 총 ${selectedEntries.reduce((s, e) => s + e.quantity, 0)}개`}
+                                : `배송 #${deliveryId} · ${selectedItems.length}개 상품 · 총 ${selectedItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0)}개 (상품마다 받은 수량 전부)`}
                         </div>
-                        {claimType === 'REFUND' && selectedEntries.length > 0 && (
+                        {claimType === 'REFUND' && selectedItems.length > 0 && (
                             <div className="text-right">
-                                <div className="font-caption text-caption text-outline">환불 예정 금액 (판매자 승인 시 예치금으로 환불)</div>
-                                <div data-testid="expected-refund" className="font-headline-sm text-headline-sm text-primary font-bold">
-                                    {formatPrice(expectedRefund)}
-                                </div>
+                                <div className="font-caption text-caption text-outline">예상 환불 금액 (쿠폰 할인 반영 · 판매자가 승인한 상품만 환불)</div>
+                                {refundPreview.isPending ? (
+                                    <div className="font-body-sm text-body-sm text-outline">계산하고 있습니다…</div>
+                                ) : refundPreview.isError ? (
+                                    <div data-testid="expected-refund-error" className="font-body-sm text-body-sm text-error max-w-[360px]">
+                                        {errorMessage(refundPreview.error, '예상 환불 금액을 확인하지 못했습니다.')}
+                                    </div>
+                                ) : (
+                                    <div data-testid="expected-refund" className="font-headline-sm text-headline-sm text-primary font-bold">
+                                        {formatPrice(refundPreview.data?.data?.refundAmount ?? 0)}
+                                    </div>
+                                )}
+                                {hasPendingReturn && (
+                                    <div data-testid="pending-return-note" className="font-caption text-caption text-outline max-w-[360px] sm:ml-auto">
+                                        이 주문에 처리 중인 반품이 있어 실제 환불 금액은 달라질 수 있습니다. 쿠폰 조건 때문에 접수되지 않을 수도 있습니다.
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

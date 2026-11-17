@@ -11,7 +11,7 @@ import { useGetDetail } from '@/api/generated/order-controller/order-controller'
 import { errorMessage } from '@/api/http';
 import Icon from '@/components/ui/Icon';
 import { ROUTES } from '@/lib/routes';
-import { ACTIVE_CLAIM_STATUSES, errorStatus, isRefunded } from '@/app/(shop)/mypage/claims/_lib/claimView';
+import { ACTIVE_CLAIM_STATUSES, errorStatus, returnedItemIdsOf } from '@/app/(shop)/mypage/claims/_lib/claimView';
 import ClaimForm from './ClaimForm';
 
 // 404·403은 재시도해도 같으니 바로 안내한다.
@@ -106,17 +106,18 @@ export default function ClaimContent() {
     }
 
     const deliveryIds = new Set(details.map((d) => d.deliveryId));
+    const myClaims = (claimsQuery.data?.data?.content ?? []).filter((claim) => deliveryIds.has(claim.deliveryId));
+    // 처리 중인 클레임에 든 상품은 결과와 상관없이 새로 접수할 수 없다(BE가 409로 막는다).
     const blockedItemIds = new Set<number>();
-    const refundedQty = new Map<number, number>();
-    for (const claim of claimsQuery.data?.data?.content ?? []) {
-        if (!deliveryIds.has(claim.deliveryId)) continue;
-        for (const item of claim.items ?? []) {
-            if (!item.deliveryItemId) continue;
-            if (ACTIVE_CLAIM_STATUSES.includes(claim.status ?? '')) blockedItemIds.add(item.deliveryItemId);
-            // 이미 환불된 수량. BE는 완료된 클레임 상품의 재접수를 막지 않지만, 결제 금액을 넘는 환불은 승인 때 실패한다.
-            if (isRefunded(claim.claimType, claim.status)) refundedQty.set(item.deliveryItemId, (refundedQty.get(item.deliveryItemId) ?? 0) + (item.quantity ?? 0));
-        }
+    for (const claim of myClaims) {
+        if (!ACTIVE_CLAIM_STATUSES.includes(claim.status ?? '')) continue;
+        for (const item of claim.items ?? []) if (item.deliveryItemId) blockedItemIds.add(item.deliveryItemId);
     }
+    // 이미 반품된 상품은 반품도 교환도 다시 접수할 수 없다. 거절된 상품은 다시 접수할 수 있다.
+    const returnedItemIds = returnedItemIdsOf(myClaims);
+    // 같은 주문에 처리 중인 반품이 있으면 접수 검사는 그 반품이 먼저 환불된다고 보고 계산한다.
+    // 예상 환불 금액 조회는 그걸 빼고 계산하므로 금액이 달라질 수 있다고 알려 준다.
+    const hasPendingReturn = myClaims.some((claim) => claim.claimType === 'REFUND' && ACTIVE_CLAIM_STATUSES.includes(claim.status ?? ''));
 
     // 지정한 배송이 이 주문의 배송이면 그 배송만 신청 대상으로 보여 준다. 아니면(잘못된 값) 전체를 보여 준다.
     const target = deliveryParam ? details.find((d) => d.deliveryId === deliveryParam) : undefined;
@@ -128,7 +129,8 @@ export default function ClaimContent() {
             deliveries={target ? [target] : details}
             focused={!!target && details.length > 1}
             blockedItemIds={blockedItemIds}
-            refundedQty={refundedQty}
+            returnedItemIds={returnedItemIds}
+            hasPendingReturn={hasPendingReturn}
         />
     );
 }
